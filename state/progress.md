@@ -1,8 +1,33 @@
 # NovixFin v3 Execution Progress
 
 ## Current State
-- **Phase**: REMOÇÃO DO ANDAIME de tema — **COMPLETA**. Reskin **100%** (10/10 telas
-  tokenizadas), ponte legada removida. Parado para revisão.
+- **Phase**: TOKENIZAÇÃO DOS MODAIS — **COMPLETA**. Componente compartilhado `nvx-modal`
+  (public/styles/modal.css) aplicado aos 11 <dialog> antigos. Parado para revisão.
+- Reskin **100%**; andaime removido; modais unificados sob um único vestido tokenizado.
+
+## Tokenização dos modais — componente compartilhado nvx-modal (2026-07-26)
+- **Report**: /reports/checkpoint_modais_tokenizados.md
+- **Causa raiz**: os mapas por-tela (`.dash-screen .bg-slate-900` etc.) usam combinador
+  DESCENDENTE e não vestem o próprio <dialog> (que carrega as duas classes no mesmo elemento).
+  Sintoma: "Novo lançamento" do dashboard quase branco no tema claro, inputs sem contraste,
+  sem --cut. Quebrados de fato: dashboard (4 modais), accounts (2), cards (2). Já corretos:
+  cat/goals/wallets (tinham `dialog.X-modal{background:var(--surface)}`) e history (.hist-modal).
+- **Solução**: NEW public/styles/modal.css — componente global `dialog.nvx-modal` (modelado no
+  .hist-modal): superfície --surface, borda --card-b, sombra, raio calc(--r+10), ::backdrop
+  tema-aware; inputs/selects/textarea com --bg/--line/--ink + foco --accent; mapa Tailwind→token
+  escopado (violet→accent com clip-path --cut no botão primário; rose→neg no botão de perigo;
+  slate→surface). Carregado globalmente em header.php (após shell.css). Especificidade
+  `dialog.nvx-modal` (0,1,1) vence as utilitárias Tailwind (0,1,0) — sem !important (o themes.css
+  que exigia !important já foi removido).
+- **Aplicação**: classe `nvx-modal` adicionada aos 11 <dialog>: dashboard 4 (create/edit/delete/
+  inline-category), accounts 2, credit-cards 2, categories 1, goals 1, wallets 1. history mantém
+  .hist-modal (já tokenizado, modal de recorrência financeiramente sensível — não re-mexido).
+- **NÃO tocado**: forms, ids, names, campos, CSRF, handlers, confirmações de exclusão. Só classe.
+- **Dívida**: os mapas de modal por-tela (.cat-modal/.goals-modal/.wallets-modal/.acc-overlay/
+  .cards-modal) ficam redundantes com nvx-modal — remover numa limpeza futura (sem conflito de
+  resultado; mesmos tokens).
+- **Validação**: modal.css balanceado (33/33 chaves); 11/11 dialogs com nvx-modal; `php -l`
+  pendente no servidor (só atributos class alterados no PHP). Passe visual pendente.
 - **Versionamento RESOLVIDO**: `Desktop/NovixFin` agora É um repo git funcional (toplevel
   próprio, branch `master`, `.git` populado). Os arquivos da fatia Cadastros **estão
   rastreados e commitados** — o "sumiço" anterior não se repetiu. (A nota de bloqueio abaixo,

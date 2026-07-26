@@ -83,7 +83,7 @@ $error = flash('error');
 ?>
 <!-- Modais renderizados primeiro para garantir que existam no DOM -->
 <!-- Modal Nova/Editar Conta -->
-<dialog id="accountModal" class="acc-overlay bg-slate-900 rounded-3xl p-6 max-w-md w-full border border-white/10">
+<dialog id="accountModal" class="nvx-modal acc-overlay bg-slate-900 rounded-3xl p-6 max-w-md w-full border border-white/10">
         <h2 id="modalTitle" class="text-2xl font-semibold text-white mb-6">Nova conta</h2>
         
         <form id="accountForm" method="POST" action="/actions/accounts/save.php" class="space-y-4">
@@ -147,7 +147,7 @@ $error = flash('error');
 </dialog>
 
 <!-- Modal Excluir Conta -->
-<dialog id="deleteModal" class="acc-overlay bg-slate-900 rounded-3xl p-6 max-w-md w-full border border-white/10">
+<dialog id="deleteModal" class="nvx-modal acc-overlay bg-slate-900 rounded-3xl p-6 max-w-md w-full border border-white/10">
         <h2 class="text-2xl font-semibold text-white mb-4">Excluir conta</h2>
         <p class="text-slate-300 mb-6">Tem certeza que deseja excluir a conta <strong id="deleteAccountName"></strong>?</p>
         

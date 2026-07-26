@@ -1,0 +1,136 @@
+/* NovixFin — componente de MODAL compartilhado, tokenizado (15 temas).
+
+   Um único vestido para todos os <dialog> do app (dashboard, contas, cartões,
+   categorias, metas, carteiras). Aplique a classe `nvx-modal` no <dialog>; o
+   markup dos forms (ids, names, campos, CSRF, handlers) fica intacto — isto é
+   só o estilo.
+
+   Por que existe: os mapas por-tela (ex.: `.dash-screen .bg-slate-900`) usam
+   combinador descendente e NÃO vestem o próprio <dialog> (que carrega as duas
+   classes no mesmo elemento). Resultado antigo: container quase branco no tema
+   claro, inputs sem contraste, sem cantos --cut. Aqui o container é vestido
+   diretamente (`dialog.nvx-modal`, especificidade 0,1,1) e vence a utilitária
+   Tailwind (0,1,0). Reaproveita o mesmo desenho de history.css (.hist-modal).
+
+   history.php mantém seu próprio .hist-modal (já tokenizado) — mesma receita. */
+
+/* ===== Container ===== */
+dialog.nvx-modal {
+    background: var(--surface);
+    color: var(--ink);
+    border: var(--card-b);
+    border-radius: calc(var(--r) + 10px);
+    box-shadow: 0 40px 90px -30px rgba(0, 0, 0, .5);
+    padding: 26px;
+    font-family: var(--f-b);
+}
+.nvx-modal::backdrop {
+    background: color-mix(in srgb, var(--ink) 45%, transparent);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+}
+.nvx-modal :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* JS de alguns modais alterna a classe .hidden (Tailwind) em campos
+   condicionais; declarada aqui para não depender do CDN. */
+.nvx-modal .hidden { display: none !important; }
+
+/* ===== Tipografia auxiliar (títulos/subtítulos herdam via mapa abaixo) ===== */
+.nvx-modal label { font-family: var(--f-m); }
+
+/* ===== Campos: inputs / selects / textarea ===== */
+.nvx-modal input,
+.nvx-modal select,
+.nvx-modal textarea {
+    background: var(--bg);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: var(--r-chip);
+    font-family: inherit;
+}
+.nvx-modal input[type="number"],
+.nvx-modal input[type="date"] { font-family: var(--f-num); }
+.nvx-modal input::placeholder,
+.nvx-modal textarea::placeholder { color: var(--muted); opacity: .7; }
+.nvx-modal input:focus,
+.nvx-modal select:focus,
+.nvx-modal textarea:focus { border-color: var(--accent); outline: none; }
+.nvx-modal input[type="checkbox"],
+.nvx-modal input[type="radio"] { accent-color: var(--accent); width: 16px; height: 16px; }
+
+/* ===== Mapa Tailwind -> tokens (escopado ao modal) =====
+   Preserva a semântica das cores: violet=accent, rose=negativo, slate=superfície,
+   emerald=positivo. Vence as utilitárias (0,1,1 > 0,1,0). */
+
+/* superfícies internas (sublocos, chips) */
+.nvx-modal .bg-slate-900,
+.nvx-modal .bg-slate-900\/95,
+.nvx-modal .bg-slate-900\/90,
+.nvx-modal .bg-slate-900\/80,
+.nvx-modal .bg-slate-900\/50 { background: var(--surface); }
+.nvx-modal .bg-slate-800,
+.nvx-modal .bg-slate-800\/60,
+.nvx-modal .bg-slate-700 { background: color-mix(in srgb, var(--ink) 6%, var(--surface)); color: var(--ink); }
+.nvx-modal .hover\:bg-slate-700:hover,
+.nvx-modal .hover\:bg-slate-800:hover { background: color-mix(in srgb, var(--ink) 10%, var(--surface)); }
+
+/* bordas */
+.nvx-modal .border-white\/5,
+.nvx-modal .border-white\/10,
+.nvx-modal .border-white\/20 { border-color: var(--line-soft); }
+
+/* texto */
+.nvx-modal .text-white,
+.nvx-modal .text-slate-100,
+.nvx-modal .text-slate-200 { color: var(--ink); }
+.nvx-modal .text-slate-300 { color: color-mix(in srgb, var(--ink) 82%, var(--muted)); }
+.nvx-modal .text-slate-400,
+.nvx-modal .text-slate-500 { color: var(--muted); }
+
+/* acento (violeta) — botão primário: accent com canto --cut */
+.nvx-modal .bg-violet-500,
+.nvx-modal .bg-violet-600 {
+    background: var(--accent);
+    color: var(--accent-ink);
+    clip-path: var(--cut);
+    border-radius: var(--r-btn);
+}
+.nvx-modal .hover\:bg-violet-400:hover,
+.nvx-modal .hover\:bg-violet-500:hover { background: var(--accent); opacity: .92; }
+.nvx-modal .text-violet-200,
+.nvx-modal .text-violet-300,
+.nvx-modal .text-violet-500 { color: var(--accent-text); }
+.nvx-modal .bg-violet-500\/10,
+.nvx-modal .bg-violet-500\/20 { background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent-text); }
+.nvx-modal .border-violet-500,
+.nvx-modal .focus\:border-violet-500:focus { border-color: var(--accent); }
+
+/* positivo / negativo (emerald / rose) — botão de perigo mantém --neg */
+.nvx-modal .text-emerald-200,
+.nvx-modal .text-emerald-300 { color: var(--pos); }
+.nvx-modal .bg-emerald-500,
+.nvx-modal .bg-emerald-600 { background: var(--pos); color: var(--accent-ink); }
+.nvx-modal .text-rose-200,
+.nvx-modal .text-rose-300,
+.nvx-modal .text-rose-400 { color: var(--neg); }
+.nvx-modal .bg-rose-500,
+.nvx-modal .bg-rose-600 {
+    background: var(--neg);
+    color: #fff;
+    clip-path: var(--cut);
+    border-radius: var(--r-btn);
+}
+.nvx-modal .hover\:bg-rose-400:hover,
+.nvx-modal .hover\:bg-rose-500:hover { background: var(--neg); opacity: .92; }
+.nvx-modal .bg-rose-500\/10,
+.nvx-modal .bg-rose-500\/20,
+.nvx-modal .bg-rose-500\/30 { background: color-mix(in srgb, var(--neg) 14%, transparent); color: var(--neg); }
+.nvx-modal .border-rose-500\/40 { border-color: color-mix(in srgb, var(--neg) 40%, var(--line-soft)); }
+
+/* cantos herdam o --r do tema onde o design pedia raio grande */
+.nvx-modal .rounded-3xl { border-radius: calc(var(--r) + 10px); }
+.nvx-modal .rounded-2xl { border-radius: calc(var(--r) + 6px); }
+.nvx-modal .rounded-xl { border-radius: var(--r-chip); }
+
+/* valores monetários com dígitos tabulares */
+.nvx-modal [data-balance] { font-family: var(--f-num); font-variant-numeric: tabular-nums; }

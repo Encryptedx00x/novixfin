@@ -403,7 +403,7 @@ $error = flash('error');
 </section>
 
 <!-- Modal de Pagamento -->
-<dialog id="payBillModal" class="cards-modal bg-slate-900 rounded-3xl p-6 max-w-2xl w-full border border-white/10">
+<dialog id="payBillModal" class="nvx-modal cards-modal bg-slate-900 rounded-3xl p-6 max-w-2xl w-full border border-white/10">
         <h2 class="text-2xl font-semibold text-white mb-4">Registrar Pagamento</h2>
         <p class="text-sm text-slate-400 mb-6" id="payBillCardName"></p>
         
@@ -778,7 +778,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <!-- Modal de Configurações de Transações -->
-<dialog id="transactionSettingsModal" class="cards-modal cards-modal--sm bg-slate-900 rounded-3xl p-6 max-w-md w-full border border-white/10">
+<dialog id="transactionSettingsModal" class="nvx-modal cards-modal cards-modal--sm bg-slate-900 rounded-3xl p-6 max-w-md w-full border border-white/10">
         <h2 class="text-2xl font-semibold text-white mb-2">Configurações de Transações</h2>
         <p class="text-sm text-slate-400 mb-6" id="transaction_settings_card_name"></p>
         

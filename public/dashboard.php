@@ -1421,7 +1421,7 @@ $hasDashData = !empty($accounts);
      só migrou para o modal do FAB (fiel ao design). Definido ANTES
      do bloco JSON abaixo, que lê $transactionCategories daqui.
      ========================================================= -->
-<dialog id="modal-create-dashboard" class="dash-screen bg-slate-900/90 backdrop:bg-slate-950/70 rounded-3xl border border-white/10 max-w-lg w-full p-6">
+<dialog id="modal-create-dashboard" class="nvx-modal dash-screen bg-slate-900/90 backdrop:bg-slate-950/70 rounded-3xl border border-white/10 max-w-lg w-full p-6">
     <div class="flex items-center justify-between mb-4">
         <h2 class="text-xl font-semibold text-white">Novo lançamento</h2>
         <button type="button" data-close-create-modal-dashboard aria-label="Fechar" class="w-9 h-9 grid place-items-center rounded-lg text-slate-400 hover:bg-white/10 transition">
@@ -1702,7 +1702,7 @@ $categoryOptionsJson = json_encode(array_map(static function (array $category): 
     }
 </script>
 
-<dialog id="inline-category-modal" class="dash-screen bg-slate-900/95 backdrop:bg-slate-950/70 rounded-3xl border border-white/10 max-w-md w-full p-6">
+<dialog id="inline-category-modal" class="nvx-modal dash-screen bg-slate-900/95 backdrop:bg-slate-950/70 rounded-3xl border border-white/10 max-w-md w-full p-6">
     <form id="inline-category-form" class="space-y-4">
         <div>
             <h3 class="text-lg font-semibold text-white mb-2">Nova categoria</h3>
@@ -1727,7 +1727,7 @@ $categoryOptionsJson = json_encode(array_map(static function (array $category): 
     </form>
 </dialog>
 
-<dialog id="modal-edit-dashboard" class="dash-screen bg-slate-900/90 backdrop:bg-slate-950/70 rounded-3xl border border-white/10 max-w-lg w-full p-6">
+<dialog id="modal-edit-dashboard" class="nvx-modal dash-screen bg-slate-900/90 backdrop:bg-slate-950/70 rounded-3xl border border-white/10 max-w-lg w-full p-6">
     <form method="POST" action="/actions/transactions/update.php" class="space-y-4">
         <input type="hidden" name="_token" value="<?php echo csrfToken(); ?>">
         <input type="hidden" name="redirect_to" value="dashboard.php">
@@ -1870,7 +1870,7 @@ $categoryOptionsJson = json_encode(array_map(static function (array $category): 
     </form>
 </dialog>
 
-<dialog id="modal-delete-dashboard" class="dash-screen bg-slate-900/90 backdrop:bg-slate-950/70 rounded-3xl border border-white/10 max-w-md w-full p-6">
+<dialog id="modal-delete-dashboard" class="nvx-modal dash-screen bg-slate-900/90 backdrop:bg-slate-950/70 rounded-3xl border border-white/10 max-w-md w-full p-6">
     <div class="space-y-4">
         <div>
             <h3 class="text-lg font-semibold text-white mb-2">Confirmar exclusão</h3>

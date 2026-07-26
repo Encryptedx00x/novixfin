@@ -53,6 +53,8 @@ $userTheme = novix_valid_theme($userTheme);
          tela traz seu próprio .*-screen tokenizado. -->
     <link rel="stylesheet" href="/public/styles/tokens.css">
     <link rel="stylesheet" href="/public/styles/shell.css">
+    <!-- Componente de modal compartilhado (dialog.nvx-modal), tokenizado. -->
+    <link rel="stylesheet" href="/public/styles/modal.css">
     <link href="<?php echo htmlspecialchars(novix_theme_fonts_url($userTheme), ENT_QUOTES, 'UTF-8'); ?>" rel="stylesheet">
     <?php if (isset($pageStyles) && is_array($pageStyles)) : ?>
         <?php foreach ($pageStyles as $pageStyle) : ?>

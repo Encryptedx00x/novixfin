@@ -110,7 +110,7 @@ $error = flash('error');
 </section>
 
 <!-- Modal Nova Categoria -->
-<dialog id="categoryModal" class="cat-modal bg-slate-900 backdrop:bg-slate-950/70 rounded-3xl p-6 max-w-md w-full border border-white/10">
+<dialog id="categoryModal" class="nvx-modal cat-modal bg-slate-900 backdrop:bg-slate-950/70 rounded-3xl p-6 max-w-md w-full border border-white/10">
         <h2 class="text-2xl font-semibold text-white mb-6">Nova Categoria</h2>
         
         <form method="POST" action="/actions/categories/save.php" class="space-y-4">
