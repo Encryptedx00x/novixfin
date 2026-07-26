@@ -1,9 +1,37 @@
 # NovixFin v3 Execution Progress
 
 ## Current State
-- **Phase**: CADASTROS (Categorias/Metas/Carteiras) reskin — **COMPLETE LOCALLY (em disco)**,
-  mas **NÃO COMMITADO: o projeto não tem repositório git funcional** (ver abaixo). Parado
-  para revisão. **10/10 telas tokenizadas.**
+- **Phase**: REMOÇÃO DO ANDAIME de tema — **COMPLETA**. Reskin **100%** (10/10 telas
+  tokenizadas), ponte legada removida. Parado para revisão.
+- **Versionamento RESOLVIDO**: `Desktop/NovixFin` agora É um repo git funcional (toplevel
+  próprio, branch `master`, `.git` populado). Os arquivos da fatia Cadastros **estão
+  rastreados e commitados** — o "sumiço" anterior não se repetiu. (A nota de bloqueio abaixo,
+  da fatia Cadastros, ficou obsoleta e é mantida só como histórico.)
+
+## Remoção do andaime de compatibilidade de tema (2026-07-26) — COMPLETA
+- **Report**: /reports/checkpoint_andaime_removido.md
+- **Diagnóstico (grep no repo real)**: único loader ativo era header.php; consumidores de
+  JS eram chart-tokens.js:59 e dashboard.js:12; PHP: NOVIX_THEME_LEGACY/novix_legacy_theme
+  em themes.php. As 10 telas já carregam classe `.*-screen` tokenizada. Zero consumidor
+  restante fora do próprio andaime -> removível.
+- **header.php**: removidos os `<link>` de themes.css e theme-compat.css; `<html>` perde
+  `data-legacy-theme` (fica só `data-theme=<slug>`); `<body>` perde `data-theme` legado e
+  `data-novix-theme` (fica `data-theme=<slug>`); classes fixas `bg-slate-950 text-slate-100`
+  removidas (senão o tema claro herdaria fundo escuro sem o themes.css). `$legacyTheme`
+  eliminado.
+- **shell.css**: nova regra `html, body { background: var(--bg); color: var(--ink); }` repõe
+  o papel do theme-compat.css — agora por TOKEN, não por nome de tema legado.
+- **themes.php**: `NOVIX_THEME_LEGACY` (mapa) e `novix_legacy_theme()` removidos.
+- **JS migrado para getComputedStyle**: chart-tokens.js e dashboard.js decidem claro/escuro
+  pela LUMINÂNCIA do token `--bg` (0.299R+0.587G+0.114B > 0.5), sem `data-legacy-theme`.
+  Cobre os 15 temas sem lista fixa. `node --check` OK nos dois.
+- **Arquivos deletados**: public/styles/themes.css (819 linhas), public/styles/theme-compat.css.
+- **NÃO tocado**: tokens.css e os CSS por-tela (comentários que citam themes.css são inertes).
+- **Validação**: node --check OK (chart-tokens, dashboard). `php -l` pendente no servidor
+  (local indisponível). Passe visual pendente: 10 telas em ametista (claro) + tinta (escuro),
+  conferindo que os GRÁFICOS seguem os tokens (teste-chave).
+
+## Current State (Cadastros — histórico; nota de bloqueio obsoleta)
 
 ## Cadastros reskin — Categorias + Metas + Carteiras (2026-07-26)
 - **Report**: /reports/checkpoint_cadastros_reskin.md

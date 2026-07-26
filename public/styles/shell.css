@@ -9,6 +9,11 @@
    #nvx-shell, alternado por shell.js e persistido em localStorage. No mobile
    (<1020px) a sidebar some e vira a faixa horizontal #nvx-mnav. */
 
+/* Fundo/cor da página seguem o tema ativo (tokens em html[data-theme=<slug>]).
+   Repõe o papel do antigo theme-compat.css, agora via token e não por nome de
+   tema legado. Cobre o overscroll e qualquer área fora do #nvx-shell. */
+html, body { background: var(--bg); color: var(--ink); }
+
 #nvx-shell {
     display: grid;
     grid-template-columns: 264px 1fr;

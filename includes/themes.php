@@ -77,35 +77,6 @@ const NOVIX_THEME_FONTS = [
 ];
 
 /**
- * Legacy compatibility map (transitional).
- *
- * public/styles/themes.css only knows the pre-v3.1 values dark/black/light.
- * The internal screens that have NOT been reskinned yet still consume it, so
- * the shell renders the mapped legacy value on <body> while <html> carries the
- * real slug for tokens.css. Light-ish slugs map to 'light'; dark slugs map to
- * 'dark' (the historical default, so those users see no change at all).
- *
- * Remove this map once every internal screen consumes tokens.css.
- */
-const NOVIX_THEME_LEGACY = [
-    'ametista' => 'light',
-    'cafe'     => 'light',
-    'banca'    => 'light',
-    'suica'    => 'light',
-    'pulso'    => 'light',
-    'concreto' => 'light',
-    'vitrola'  => 'light',
-    'sumie'    => 'light',
-    'sereno2'  => 'dark',
-    'sereno1'  => 'dark',
-    'cofre'    => 'dark',
-    'tinta'    => 'dark',
-    'adega'    => 'dark',
-    'cabine'   => 'dark',
-    'deco'     => 'dark',
-];
-
-/**
  * Validate a theme slug against the canonical whitelist.
  * Anything unknown (including the legacy dark/black/light) falls back
  * to the default theme.
@@ -128,15 +99,4 @@ function novix_theme_fonts_url($theme): string
     $query = isset(NOVIX_THEME_FONTS[$slug]) ? NOVIX_THEME_FONTS[$slug] : NOVIX_THEME_FONTS[NOVIX_THEME_DEFAULT];
 
     return 'https://fonts.googleapis.com/css2?' . $query . '&display=swap';
-}
-
-/**
- * Legacy dark/black/light value for a theme slug, for the not-yet-reskinned
- * screens that still read public/styles/themes.css.
- */
-function novix_legacy_theme($theme): string
-{
-    $slug = novix_valid_theme($theme);
-
-    return isset(NOVIX_THEME_LEGACY[$slug]) ? NOVIX_THEME_LEGACY[$slug] : 'dark';
 }

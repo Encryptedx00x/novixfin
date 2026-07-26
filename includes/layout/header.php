@@ -31,14 +31,8 @@ if (isset($user) && isset($user['theme'])) {
 }
 $userTheme = novix_valid_theme($userTheme);
 
-// Ponte de compatibilidade (TRANSITÓRIA): as telas ainda não reskinadas leem
-// public/styles/themes.css, que só conhece dark/black/light. O <html> carrega
-// o slug real (consumido por tokens.css e pelo shell) e o <body> carrega o
-// valor legado, que é o que aqueles seletores casam. Ver includes/themes.php.
-$legacyTheme = novix_legacy_theme($userTheme);
-
 ?><!DOCTYPE html>
-<html lang="pt-BR" class="h-full" data-theme="<?php echo htmlspecialchars($userTheme, ENT_QUOTES, 'UTF-8'); ?>" data-legacy-theme="<?php echo htmlspecialchars($legacyTheme, ENT_QUOTES, 'UTF-8'); ?>">
+<html lang="pt-BR" class="h-full" data-theme="<?php echo htmlspecialchars($userTheme, ENT_QUOTES, 'UTF-8'); ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -54,12 +48,10 @@ $legacyTheme = novix_legacy_theme($userTheme);
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/public/styles/main.css">
-    <link rel="stylesheet" href="/public/styles/themes.css">
-    <!-- Aditivo: tokens.css tem SÓ custom properties e theme-compat.css só
-         repõe o fundo do <html> para o tema legado. shell.css é escopado sob
-         #nvx-shell e não vaza para o conteúdo das telas. -->
+    <!-- tokens.css: SÓ custom properties dos 15 temas, ancoradas em
+         html[data-theme=<slug>]. shell.css é escopado sob #nvx-shell e cada
+         tela traz seu próprio .*-screen tokenizado. -->
     <link rel="stylesheet" href="/public/styles/tokens.css">
-    <link rel="stylesheet" href="/public/styles/theme-compat.css">
     <link rel="stylesheet" href="/public/styles/shell.css">
     <link href="<?php echo htmlspecialchars(novix_theme_fonts_url($userTheme), ENT_QUOTES, 'UTF-8'); ?>" rel="stylesheet">
     <?php if (isset($pageStyles) && is_array($pageStyles)) : ?>
@@ -79,13 +71,16 @@ $legacyTheme = novix_legacy_theme($userTheme);
     } else {
         $hideBalances = true;
     }
-    $bodyClasses = ['min-h-full', 'bg-slate-950', 'text-slate-100', 'font-[Poppins]'];
+    // Fundo/cor da página vêm dos tokens do tema (shell.css: html,body ->
+    // var(--bg)/var(--ink)); não fixar cores dark aqui, senão o tema claro
+    // herdaria fundo escuro fora do #nvx-shell.
+    $bodyClasses = ['min-h-full', 'font-[Poppins]'];
     if ($hideBalances) {
         $bodyClasses[] = 'hide-balances';
     }
     ?>
 </head>
-<body class="<?php echo htmlspecialchars(implode(' ', $bodyClasses), ENT_QUOTES, 'UTF-8'); ?>" data-theme="<?php echo htmlspecialchars($legacyTheme, ENT_QUOTES, 'UTF-8'); ?>" data-novix-theme="<?php echo htmlspecialchars($userTheme, ENT_QUOTES, 'UTF-8'); ?>" data-hide-balances-default="<?php echo $hideBalances ? 'true' : 'false'; ?>">
+<body class="<?php echo htmlspecialchars(implode(' ', $bodyClasses), ENT_QUOTES, 'UTF-8'); ?>" data-theme="<?php echo htmlspecialchars($userTheme, ENT_QUOTES, 'UTF-8'); ?>" data-hide-balances-default="<?php echo $hideBalances ? 'true' : 'false'; ?>">
 <script>
 // O tema (slug) já vem no <html> renderizado pelo servidor — sem flash.
 // Mantém localStorage em sincronia para landing/login abrirem no mesmo tema.

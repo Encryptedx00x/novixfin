@@ -54,10 +54,12 @@
     }
 
     function palette() {
-        // O <html> carrega o slug real; o valor legado (dark/light) segue no
-        // atributo data-legacy-theme para quem precisar decidir claridade.
-        var legacy = document.documentElement.getAttribute('data-legacy-theme') || 'dark';
-        var isLight = legacy === 'light';
+        // Claro/escuro é decidido pela luminância do token --bg do tema ativo
+        // (getComputedStyle), não mais por nome de tema legado. Cobre os 15
+        // temas sem lista fixa: fundo claro -> isLight.
+        var bg = toRGB(raw('--bg'), '#101010');
+        var lum = (0.299 * bg.r + 0.587 * bg.g + 0.114 * bg.b) / 255;
+        var isLight = lum > 0.5;
         return {
             isLight: isLight,
             ink: color('--ink', isLight ? '#241C33' : '#E9EFF8'),

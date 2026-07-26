@@ -6,10 +6,25 @@ document.addEventListener('DOMContentLoaded', () => {
     // Paleta resolvida dos tokens dos 15 temas (chart-tokens.js). Lida no build,
     // então cada tema carrega com as cores certas nos gráficos. Fallback defensivo
     // caso o helper não tenha carregado.
+    const readIsLight = () => {
+        // Fallback defensivo (só se chart-tokens.js não carregou): decide
+        // claro/escuro pela luminância do token --bg, igual ao helper canônico.
+        try {
+            const bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
+            const h = bg.charAt(0) === '#' ? bg.slice(1) : '';
+            if (h.length >= 6) {
+                const r = parseInt(h.slice(0, 2), 16);
+                const g = parseInt(h.slice(2, 4), 16);
+                const b = parseInt(h.slice(4, 6), 16);
+                return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.5;
+            }
+        } catch (e) { /* mantém escuro por padrão */ }
+        return false;
+    };
     const P = (window.NVXCharts && window.NVXCharts.palette)
         ? window.NVXCharts.palette()
         : {
-            isLight: (document.documentElement.getAttribute('data-legacy-theme') === 'light'),
+            isLight: readIsLight(),
             ink: { hex: '#E9EFF8', a: () => '#E9EFF8' },
             muted: { hex: '#8891a8', a: () => '#8891a8' },
             accent: { hex: '#8803FC', a: () => '#8803FC' },
