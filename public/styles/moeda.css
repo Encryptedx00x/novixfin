@@ -1,0 +1,41 @@
+/* NovixFin — tela CONFIGURAÇÕES DE MOEDA (tokenizada, 15 temas).
+   Fonte visual: Claude Design "NovixFin App.html" (TELA: CONFIGURAÇÕES DE MOEDA).
+   Escopo: .moeda-screen. Preserva names/ids dos campos e o handler save.php —
+   só o visual muda. As taxas alimentam os chips de câmbio do dashboard. */
+
+.moeda-screen { color: var(--ink); font-family: var(--f-b); }
+.moeda-screen *:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.moeda-screen select,
+.moeda-screen input[type="number"],
+.moeda-screen input[type="text"] {
+    background: var(--bg);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: var(--r-chip);
+    outline: none;
+    font-size: 13.5px;
+}
+.moeda-screen select:focus,
+.moeda-screen input:focus { border-color: var(--accent); }
+.moeda-screen input[type="checkbox"] { accent-color: var(--accent); }
+
+/* switch "Converter tudo": checkbox real (#convert-all-toggle) vira trilho+bolinha,
+   preservando o input que o JS observa. */
+.moeda-switch { position: relative; width: 46px; height: 26px; flex: none; cursor: pointer; }
+.moeda-switch input {
+    position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; z-index: 1;
+}
+.moeda-switch .moeda-track {
+    display: block; width: 100%; height: 100%; border-radius: 999px;
+    background: var(--line-soft); transition: background .18s ease;
+}
+.moeda-switch .moeda-knob {
+    position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%;
+    background: var(--surface); box-shadow: 0 1px 4px rgba(0,0,0,.25); transition: left .18s ease;
+}
+.moeda-switch input:checked ~ .moeda-track { background: var(--accent); }
+.moeda-switch input:checked ~ .moeda-knob { left: 23px; }
+
+/* container do alvo de conversão, escondido via .hidden (JS legado) */
+.moeda-screen .hidden { display: none; }

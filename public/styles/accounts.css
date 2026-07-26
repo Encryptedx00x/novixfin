@@ -1,0 +1,75 @@
+/* NovixFin — tela CONTAS (tokenizada, 15 temas).
+   Fonte visual: Claude Design "NovixFin App.html" (TELA: CONTAS).
+   Escopo: .accounts-screen (conteúdo) e .acc-overlay (modais, fora da section).
+   Nada vaza para as outras telas. A ponte de compatibilidade (data-legacy-theme /
+   theme-compat.css) continua valendo — Cartões ainda usa o CSS legado. */
+
+.accounts-screen { color: var(--ink); font-family: var(--f-b); }
+.accounts-screen *:focus-visible,
+.acc-overlay *:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+.accounts-screen [data-balance] {
+    font-family: var(--f-num);
+    font-variant-numeric: tabular-nums;
+}
+.accounts-screen .acc-card { transition: transform .16s ease, box-shadow .16s ease; }
+@media (prefers-reduced-motion: no-preference) {
+    .accounts-screen .acc-card:hover { transform: translateY(-2px); }
+}
+
+/* ---- Modais: mantêm markup Tailwind; mapeamos as utilitárias -> tokens
+   (mesma estratégia escopada do dashboard.css, agora sob .acc-overlay). ---- */
+.acc-overlay .bg-slate-900,
+.acc-overlay .bg-slate-900\/95,
+.acc-overlay .bg-slate-900\/90,
+.acc-overlay .bg-slate-900\/70 { background: var(--surface) !important; }
+.acc-overlay .bg-slate-800,
+.acc-overlay .bg-slate-700 { background: color-mix(in srgb, var(--ink) 6%, var(--surface)) !important; }
+.acc-overlay .border-white\/5,
+.acc-overlay .border-white\/10,
+.acc-overlay .border-white\/20 { border-color: var(--line-soft) !important; }
+.acc-overlay .text-white,
+.acc-overlay .text-slate-100,
+.acc-overlay .text-slate-200 { color: var(--ink) !important; }
+.acc-overlay .text-slate-300 { color: color-mix(in srgb, var(--ink) 82%, var(--muted)) !important; }
+.acc-overlay .text-slate-400,
+.acc-overlay .text-slate-500 { color: var(--muted) !important; }
+.acc-overlay .text-violet-200,
+.acc-overlay .text-violet-300 { color: var(--accent-text) !important; }
+.acc-overlay .bg-violet-500,
+.acc-overlay .bg-violet-400 { background: var(--accent) !important; color: var(--accent-ink) !important; }
+.acc-overlay .bg-violet-500\/20 { background: color-mix(in srgb, var(--accent) 16%, transparent) !important; color: var(--accent-text) !important; }
+.acc-overlay .hover\:bg-violet-400:hover { background: var(--accent) !important; opacity: .92; }
+.acc-overlay .text-rose-200 { color: var(--neg) !important; }
+.acc-overlay .bg-rose-500,
+.acc-overlay .bg-rose-400 { background: var(--neg) !important; color: #fff !important; }
+.acc-overlay .bg-rose-500\/10,
+.acc-overlay .bg-rose-500\/20,
+.acc-overlay .bg-rose-500\/30 { background: color-mix(in srgb, var(--neg) 12%, transparent) !important; }
+.acc-overlay .border-rose-500\/30 { border-color: color-mix(in srgb, var(--neg) 35%, transparent) !important; }
+.acc-overlay .text-emerald-200 { color: var(--pos) !important; }
+.acc-overlay .rounded-3xl { border-radius: calc(var(--r) + 10px); }
+.acc-overlay .rounded-xl { border-radius: calc(var(--r) + 2px); }
+.acc-overlay input,
+.acc-overlay select {
+    background: var(--bg) !important;
+    color: var(--ink) !important;
+    border-color: var(--line) !important;
+}
+.acc-overlay input::placeholder { color: var(--muted); opacity: .7; }
+.acc-overlay .focus\:border-violet-500:focus { border-color: var(--accent) !important; }
+/* Modais nativos <dialog>: sobem para a top layer do browser (resolvem o
+   empilhamento com o shell). O próprio <dialog> é o cartão; o backdrop é o
+   ::backdrop (não um <div> overlay). */
+dialog.acc-overlay {
+    background: var(--surface);
+    color: var(--ink);
+    border: 1px solid var(--line-soft);
+    max-width: 28rem;
+    width: calc(100% - 2rem);
+}
+dialog.acc-overlay::backdrop {
+    background: color-mix(in srgb, var(--ink) 45%, transparent);
+}

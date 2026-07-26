@@ -1,0 +1,244 @@
+/* NovixFin — tela de Dashboard (tokenizada, 15 temas).
+   Fonte visual da verdade: Claude Design "NovixFin App.html" (TELA: DASHBOARD).
+
+   ESTRATÉGIA (documentada no checkpoint): dashboard.php é a maior tela do app
+   (2256 linhas) e concentra os 3 forms financeiros (create/update/delete) +
+   módulo de faturas de cartão + form de recorrência. Reescrever todo o markup
+   traria risco alto para os forms. Em vez disso, este arquivo TOKENIZA a tela
+   mapeando as utilitárias Tailwind (slate/violet/emerald/rose) para os tokens
+   dos 15 temas — SEM tocar em markup de formulário, ids, data-attrs ou JS.
+
+   ESCOPO: tudo sob `.dash-screen`. Não vaza para as outras 7 telas.
+
+   ESPECIFICIDADE: o themes.css legado ainda veste essas mesmas classes
+   utilitárias para dark/black/light com `!important` (via body[data-theme=...]).
+   Como o <body> carrega o valor legado, aquelas regras se aplicam ao dashboard.
+   Para vencê-las de forma escopada usamos o prefixo `html .dash-screen` (mesma
+   especificidade, e este arquivo carrega depois via $pageStyles) + `!important`
+   só nas propriedades de cor. Remover quando as utilitárias saírem do markup. */
+
+.dash-screen {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--f-b);
+}
+.dash-screen *:focus-visible {
+    outline: 2px solid var(--accent) !important;
+    outline-offset: 2px;
+}
+
+/* ---- superfícies de card ---- */
+html .dash-screen .bg-slate-900,
+html .dash-screen .bg-slate-900\/95,
+html .dash-screen .bg-slate-900\/90,
+html .dash-screen .bg-slate-900\/80,
+html .dash-screen .bg-slate-900\/70,
+html .dash-screen .bg-slate-900\/50,
+html .dash-screen .bg-slate-800,
+html .dash-screen .bg-slate-800\/60,
+html .dash-screen .bg-slate-800\/30 {
+    background-color: var(--surface) !important;
+    background: var(--surface) !important;
+}
+html .dash-screen .bg-slate-950,
+html .dash-screen .bg-slate-700,
+html .dash-screen .bg-slate-600 {
+    background-color: color-mix(in srgb, var(--ink) 5%, var(--surface)) !important;
+    background: color-mix(in srgb, var(--ink) 5%, var(--surface)) !important;
+}
+
+/* ---- bordas ---- */
+html .dash-screen .border-white\/5,
+html .dash-screen .border-white\/10,
+html .dash-screen .border-white\/20,
+html .dash-screen .divide-white\/5 > * {
+    border-color: var(--line-soft) !important;
+}
+
+/* ---- texto ---- */
+html .dash-screen .text-white,
+html .dash-screen .text-slate-100,
+html .dash-screen .text-slate-200 { color: var(--ink) !important; }
+html .dash-screen .text-slate-300 { color: color-mix(in srgb, var(--ink) 82%, var(--muted)) !important; }
+html .dash-screen .text-slate-400,
+html .dash-screen .text-slate-500 { color: var(--muted) !important; }
+
+/* ---- acento (violeta -> --accent) ---- */
+html .dash-screen .text-violet-100,
+html .dash-screen .text-violet-200,
+html .dash-screen .text-violet-300,
+html .dash-screen .text-violet-500 { color: var(--accent-text) !important; }
+html .dash-screen .bg-violet-500,
+html .dash-screen .bg-violet-400,
+html .dash-screen .bg-violet-600 {
+    background-color: var(--accent) !important;
+    background: var(--accent) !important;
+    color: var(--accent-ink) !important;
+}
+html .dash-screen .bg-violet-500\/10,
+html .dash-screen .bg-violet-500\/20,
+html .dash-screen .bg-violet-500\/30 {
+    background-color: color-mix(in srgb, var(--accent) 14%, transparent) !important;
+    background: color-mix(in srgb, var(--accent) 14%, transparent) !important;
+    color: var(--accent-text) !important;
+}
+html .dash-screen .hover\:bg-violet-400:hover,
+html .dash-screen .hover\:bg-violet-500:hover { background: var(--accent) !important; opacity: .92; }
+html .dash-screen .border-violet-400,
+html .dash-screen .border-violet-500,
+html .dash-screen .focus\:border-violet-500:focus { border-color: var(--accent) !important; }
+
+/* ---- positivo / negativo ---- */
+html .dash-screen .text-emerald-200,
+html .dash-screen .text-emerald-300 { color: var(--pos) !important; }
+html .dash-screen .text-rose-200,
+html .dash-screen .text-rose-300,
+html .dash-screen .text-rose-400 { color: var(--neg) !important; }
+html .dash-screen .bg-emerald-500,
+html .dash-screen .bg-emerald-600 { background: var(--pos) !important; color: var(--accent-ink) !important; }
+html .dash-screen .bg-rose-500,
+html .dash-screen .bg-rose-600,
+html .dash-screen .bg-rose-400 { background: var(--neg) !important; color: #fff !important; }
+html .dash-screen .bg-emerald-500\/10,
+html .dash-screen .bg-emerald-600\/10,
+html .dash-screen .bg-emerald-500\/20 {
+    background: color-mix(in srgb, var(--pos) 12%, transparent) !important;
+    color: var(--pos) !important;
+}
+html .dash-screen .bg-rose-500\/10,
+html .dash-screen .bg-rose-600\/10,
+html .dash-screen .bg-rose-500\/20,
+html .dash-screen .bg-rose-500\/30 {
+    background: color-mix(in srgb, var(--neg) 12%, transparent) !important;
+    color: var(--neg) !important;
+}
+html .dash-screen .bg-yellow-500\/10,
+html .dash-screen .bg-amber-500\/10 {
+    background: color-mix(in srgb, var(--gold) 14%, transparent) !important;
+    color: var(--gold) !important;
+}
+html .dash-screen .text-yellow-200,
+html .dash-screen .text-amber-200 { color: var(--gold) !important; }
+html .dash-screen .bg-sky-500\/10 { background: color-mix(in srgb, var(--accent-2) 14%, transparent) !important; }
+html .dash-screen .text-sky-200 { color: var(--accent-2) !important; }
+
+/* ---- inputs / selects ---- */
+html .dash-screen input,
+html .dash-screen select,
+html .dash-screen textarea {
+    background: var(--bg) !important;
+    color: var(--ink) !important;
+    border-color: var(--line) !important;
+}
+html .dash-screen input::placeholder,
+html .dash-screen textarea::placeholder { color: var(--muted); opacity: .7; }
+
+/* ---- cantos: acompanha o --r do tema quando o design pede ---- */
+html .dash-screen .rounded-3xl { border-radius: calc(var(--r) + 10px); }
+html .dash-screen .rounded-2xl { border-radius: calc(var(--r) + 6px); }
+
+/* ---- valores monetários com dígitos tabulares (item 3 da auditoria) ----
+   [data-balance] marca todo valor monetário na tela. */
+.dash-screen [data-balance] {
+    font-family: var(--f-num);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---- kanban: overflow-x + largura mínima por coluna no mobile (item 3) ---- */
+@media (max-width: 900px) {
+    .dash-screen .dashboard-kanban-board {
+        display: flex !important;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x proximity;
+        gap: 12px;
+    }
+    .dash-screen .dashboard-kanban-board > * {
+        min-width: 240px;
+        flex: 0 0 auto;
+        scroll-snap-align: start;
+    }
+}
+
+/* ===== Reconstrução do miolo (fatia Dashboard conteúdo) =====
+   Os blocos hero / KPIs / abas / previsão / metas / kanban usam estilos inline
+   com var(--token) (fidelidade nativa aos 15 temas). Aqui ficam só o que inline
+   não resolve: grids responsivos, estados de aba e microinterações. */
+
+/* linha 1: hero consolidado (1.45fr) + 3 KPIs */
+.dash-screen .dash-stats {
+    display: grid;
+    grid-template-columns: 1.45fr 1fr 1fr 1fr;
+    gap: 16px;
+}
+@media (max-width: 1040px) { .dash-screen .dash-stats { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px)  { .dash-screen .dash-stats { grid-template-columns: 1fr; } }
+
+/* Visão geral: previsão (1.9fr) + metas (1fr) */
+.dash-screen .dash-dgrid {
+    display: grid;
+    grid-template-columns: 1.9fr 1fr;
+    gap: 18px;
+    align-items: stretch;
+}
+@media (max-width: 900px) { .dash-screen .dash-dgrid { grid-template-columns: 1fr; } }
+
+/* kanban: 4 colunas no desktop (o overflow-x mobile fica na regra
+   .dashboard-kanban-board mais abaixo) */
+.dash-screen .dash-kan {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    align-items: start;
+}
+
+/* abas internas: painel oculto via [hidden] */
+.dash-screen .dash-tabpanel[hidden] { display: none; }
+
+/* aba ativa (a cor/borda inline serve de fallback; isto dá o foco) */
+.dash-screen .dash-tab { background: none; border: none; cursor: pointer; }
+
+/* linha do hero: cartões sobem levemente no hover, como o resto da tela */
+.dash-screen .dash-stats > div { transition: transform .16s ease; }
+@media (prefers-reduced-motion: no-preference) {
+    .dash-screen .dash-stats > div:hover { transform: translateY(-2px); }
+}
+
+/* ---- FAB de lançamento (drop-shadow, não box-shadow: o clip-path corta) ---- */
+.dash-fab {
+    position: fixed;
+    right: clamp(16px, 3vw, 34px);
+    bottom: clamp(16px, 3vw, 34px);
+    z-index: 40;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 22px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-family: var(--f-d);
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: var(--ls-d);
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    clip-path: var(--cut);
+    border-radius: var(--r-btn);
+    filter: drop-shadow(0 14px 30px color-mix(in srgb, var(--accent) 45%, transparent));
+    transition: transform .16s ease, filter .16s ease;
+}
+.dash-fab:hover {
+    transform: translateY(-2px);
+    color: var(--accent-ink);
+    filter: drop-shadow(0 18px 38px color-mix(in srgb, var(--accent) 55%, transparent));
+}
+.dash-fab svg { width: 20px; height: 20px; flex: none; }
+.dash-fab .dash-fab-label { white-space: nowrap; }
+@media (max-width: 560px) {
+    .dash-fab { padding: 16px; border-radius: 50%; clip-path: none; }
+    .dash-fab .dash-fab-label { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .dash-fab { transition: none; }
+}

@@ -1,0 +1,24 @@
+﻿.env
+.env.*
+!.env.example
+
+backups/
+archive/
+NovixAnterior/
+*.sql
+*.tar.gz
+*.zip
+
+.codex/
+.cursor/
+.claude/
+.agents/
+.pytest_cache/
+node_modules/
+vendor/
+
+.DS_Store
+Thumbs.db
+
+NovixFin - Landing Seletor Seta.html
+land_seta_clean.html

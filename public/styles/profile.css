@@ -1,0 +1,184 @@
+/* NovixFin — tela de Perfil (tokenizada).
+   Fonte visual da verdade: Claude Design "NovixFin App.html" (TELA: PERFIL).
+
+   TUDO aqui é escopado sob .pf-screen. Nenhuma regra vaza para as outras
+   telas do app, que continuam vestidas por main.css + themes.css enquanto
+   não forem reskinadas. */
+
+.pf-screen {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--f-b);
+    border-radius: var(--r);
+    padding: 24px 26px 34px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.pf-screen *,
+.pf-screen *::before,
+.pf-screen *::after { box-sizing: border-box; }
+
+.pf-head-title {
+    font-family: var(--f-d);
+    font-weight: var(--w-d);
+    letter-spacing: var(--ls-d);
+    font-size: 26px;
+    color: var(--ink);
+    margin: 0;
+}
+.pf-head-sub { font-size: 13px; color: var(--muted); margin: 4px 0 0; }
+
+/* ---- alertas ---- */
+.pf-alert {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 13px 15px; border-radius: var(--r-chip); font-size: 13.5px; font-weight: 600;
+}
+.pf-alert--ok { border: 1px solid color-mix(in srgb, var(--pos) 38%, transparent); background: color-mix(in srgb, var(--pos) 9%, transparent); color: var(--pos); }
+.pf-alert--err { border: 1px solid color-mix(in srgb, var(--neg) 38%, transparent); background: color-mix(in srgb, var(--neg) 9%, transparent); color: var(--neg); }
+
+/* ---- grid + cards ---- */
+.pf-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 16px; align-items: start; }
+.pf-col { display: flex; flex-direction: column; gap: 16px; }
+.pf-card {
+    background: var(--surface);
+    border: var(--card-b);
+    box-shadow: var(--card-sh);
+    border-radius: var(--r);
+    padding: 22px 24px;
+    display: flex; flex-direction: column; gap: 14px;
+}
+.pf-card-title { font-size: 16px; font-weight: 800; color: var(--ink); }
+.pf-card-sub { font-size: 12px; color: var(--muted); margin-top: 3px; }
+
+.pf-avatar {
+    width: 52px; height: 52px; border-radius: 50%; background: var(--grad); flex: none;
+    display: grid; place-items: center; color: var(--accent-ink); font-weight: 700; font-size: 19px;
+}
+.pf-account-head { display: flex; align-items: center; gap: 13px; }
+
+/* ---- formulário ---- */
+.pf-field { display: flex; flex-direction: column; gap: 5px; }
+.pf-label { font-family: var(--f-m); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.pf-input {
+    width: 100%; padding: 11px 13px; border: 1px solid var(--line);
+    border-radius: var(--r-chip); background: var(--bg); outline: none;
+    font-size: 13.5px; color: var(--ink); font-family: inherit;
+    transition: border-color .16s ease, box-shadow .16s ease;
+}
+.pf-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent); }
+
+.pf-btn {
+    width: 100%; padding: 13px; background: var(--accent); color: var(--accent-ink);
+    font-weight: 700; font-size: 14.5px; font-family: inherit;
+    clip-path: var(--cut); border-radius: var(--r-btn); border: none; cursor: pointer;
+    transition: opacity .18s ease, transform .18s ease;
+}
+.pf-btn:hover { opacity: .92; transform: translateY(-1px); }
+
+/* ---- toggle ocultar saldos ---- */
+.pf-switch-row {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 13px 15px; border: 1px dashed var(--line); border-radius: var(--r-chip);
+}
+.pf-switch-label { font-size: 13.5px; font-weight: 700; color: var(--ink); }
+.pf-switch-help { font-size: 12px; color: var(--muted); margin-top: 2px; line-height: 1.5; }
+/* checkbox real escondido, mas acessível: o track é o <label> */
+.pf-switch { position: relative; width: 46px; height: 26px; flex: none; }
+.pf-switch input {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    margin: 0; opacity: 0; cursor: pointer; z-index: 2;
+}
+.pf-switch-track {
+    position: absolute; inset: 0; border-radius: 999px;
+    background: var(--line-soft); transition: background .18s ease; pointer-events: none;
+}
+.pf-switch-knob {
+    position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%;
+    background: var(--surface); box-shadow: 0 1px 4px rgba(0,0,0,.25);
+    transition: left .18s ease; pointer-events: none; z-index: 1;
+}
+.pf-switch input:checked ~ .pf-switch-track { background: var(--accent); }
+.pf-switch input:checked ~ .pf-switch-knob { left: 23px; }
+.pf-switch input:focus-visible ~ .pf-switch-track { box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent); }
+
+/* ---- seletor de temas (15 swatches) ---- */
+.pf-swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 12px; }
+.pf-swatch {
+    display: flex; flex-direction: column; align-items: center; gap: 7px;
+    padding: 10px 6px; border-radius: var(--r-chip);
+    background: none; border: none; cursor: pointer; font-family: inherit;
+    transition: background .16s ease;
+}
+.pf-swatch:hover { background: color-mix(in srgb, var(--ink) 3%, transparent); }
+.pf-swatch:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.pf-swatch-dot {
+    width: 40px; height: 40px; border-radius: 50%;
+    position: relative; display: grid; place-items: center;
+    box-shadow: 0 0 0 1px var(--line-soft);
+    transition: box-shadow .18s ease;
+}
+.pf-swatch[aria-pressed="true"] .pf-swatch-dot { box-shadow: 0 0 0 3px var(--accent); }
+.pf-swatch-c2 { width: 15px; height: 15px; border-radius: 50%; }
+.pf-swatch-c3 { position: absolute; right: 5px; bottom: 5px; width: 9px; height: 9px; border-radius: 50%; }
+.pf-swatch-name { font-size: 11px; font-weight: 600; color: var(--ink); text-align: center; line-height: 1.2; }
+.pf-swatch[aria-pressed="true"] .pf-swatch-name { color: var(--accent); }
+
+/* ---- progresso / gamificação ---- */
+.pf-points-row { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+.pf-points { font-family: var(--f-num); font-size: 34px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ink); }
+.pf-points-unit { font-size: 13px; color: var(--muted); margin-left: 6px; }
+.pf-level-pill {
+    padding: 4px 13px; border-radius: 999px; font-size: 12.5px; font-weight: 700;
+    background: color-mix(in srgb, var(--accent) 11%, transparent); color: var(--accent);
+}
+.pf-track { height: 8px; border-radius: 999px; background: var(--line-soft); overflow: hidden; }
+.pf-track > span { display: block; height: 100%; background: var(--grad); border-radius: 999px; transition: width .4s ease; }
+.pf-track-legend { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--muted); margin-top: 6px; gap: 10px; }
+
+.pf-rules { display: flex; flex-direction: column; gap: 7px; padding-top: 13px; border-top: 1px solid var(--line-soft); }
+.pf-rules-title { font-family: var(--f-m); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.pf-rule { display: flex; align-items: baseline; gap: 10px; font-size: 12.5px; }
+.pf-rule-pts { font-family: var(--f-m); font-weight: 700; color: var(--pos); flex: none; width: 36px; }
+.pf-rule-label { color: var(--ink); }
+.pf-note { font-size: 11.5px; color: var(--muted); margin-top: 3px; line-height: 1.5; }
+
+/* ---- conquistas ---- */
+.pf-badges { display: flex; flex-direction: column; gap: 9px; }
+.pf-badge { display: flex; align-items: center; gap: 12px; padding: 11px 13px; border: 1px solid var(--line-soft); border-radius: var(--r-chip); }
+.pf-badge--locked { opacity: .55; }
+.pf-badge--earned { border-color: color-mix(in srgb, var(--pos) 35%, transparent); }
+.pf-badge-icon { width: 36px; height: 36px; flex: none; display: grid; place-items: center; font-size: 17px; border-radius: 50%; background: var(--line-soft); }
+.pf-badge--earned .pf-badge-icon { background: color-mix(in srgb, var(--pos) 14%, transparent); }
+.pf-badge-body { flex: 1; min-width: 0; }
+.pf-badge-name { font-size: 13.5px; font-weight: 800; color: var(--ink); }
+.pf-badge-crit { font-size: 11.5px; color: var(--muted); margin-top: 1px; }
+.pf-badge-st {
+    font-family: var(--f-m); font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+    font-weight: 700; padding: 3px 9px; border-radius: 999px; flex: none;
+}
+.pf-badge-st--earned { background: color-mix(in srgb, var(--pos) 11%, transparent); color: var(--pos); }
+.pf-badge-st--locked { background: color-mix(in srgb, var(--muted) 11%, transparent); color: var(--muted); }
+.pf-badge-count { font-family: var(--f-m); font-size: 11.5px; color: var(--muted); }
+
+/* ---- próximos passos ---- */
+.pf-step {
+    display: flex; align-items: center; gap: 12px; padding: 12px 14px;
+    border: 1px solid var(--line-soft); border-radius: var(--r-chip);
+    text-align: left; text-decoration: none; color: inherit;
+    transition: border-color .16s ease, background .16s ease;
+}
+.pf-step:hover { border-color: color-mix(in srgb, var(--accent) 40%, transparent); background: color-mix(in srgb, var(--accent) 3%, transparent); color: inherit; }
+.pf-step-body { flex: 1; min-width: 0; }
+.pf-step-label { display: block; font-size: 13px; font-weight: 700; color: var(--ink); }
+.pf-step-where { display: block; font-size: 11.5px; color: var(--muted); margin-top: 1px; }
+.pf-step-pts { font-family: var(--f-m); font-size: 12px; font-weight: 700; color: var(--pos); flex: none; }
+
+.pf-link-inline { font-size: 12.5px; font-weight: 700; color: var(--accent); text-decoration: none; }
+.pf-link-inline:hover { text-decoration: underline; }
+
+@media (max-width: 640px) {
+    .pf-screen { padding: 18px 16px 28px; }
+    .pf-grid { grid-template-columns: 1fr; }
+}

@@ -1,0 +1,33 @@
+/* NovixFin — tela METAS (tokenizada, 15 temas). Escopo: .goals-screen (conteúdo) + .goals-modal (modal).
+   Fonte visual: Claude Design "NovixFin App.html". A section usa estilos inline com
+   var(--token); este arquivo cobre base/focus/valores e o modal (que mantém markup
+   Tailwind). A ponte legada continua valendo até a fatia de remoção do andaime. */
+
+.goals-screen { color: var(--ink); font-family: var(--f-b); }
+.goals-screen *:focus-visible, .goals-modal *:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.goals-screen [data-balance], .goals-modal [data-balance] { font-family: var(--f-num); font-variant-numeric: tabular-nums; }
+.goals-screen .card-hover { transition: transform .16s ease; }
+@media (prefers-reduced-motion: no-preference) { .goals-screen .card-hover:hover { transform: translateY(-2px); } }
+
+/* ---- Modal <dialog>: markup Tailwind vestido por tokens ---- */
+dialog.goals-modal {
+    background: var(--surface); color: var(--ink); border: 1px solid var(--line-soft);
+    max-width: 36rem; width: calc(100% - 2rem); max-height: calc(100vh - 3rem); overflow-y: auto;
+}
+dialog.goals-modal::backdrop { background: color-mix(in srgb, var(--ink) 45%, transparent); }
+.goals-modal .bg-slate-900, .goals-modal .bg-slate-900\/90, .goals-modal .bg-slate-800, .goals-modal .bg-slate-800\/50 { background: var(--surface) !important; }
+.goals-modal .bg-slate-700, .goals-modal .bg-slate-700\/50, .goals-modal .hover\:bg-slate-700:hover, .goals-modal .hover\:bg-slate-700\/50:hover { background: color-mix(in srgb, var(--ink) 8%, var(--surface)) !important; }
+.goals-modal .border-white\/5, .goals-modal .border-white\/10 { border-color: var(--line-soft) !important; }
+.goals-modal .text-white, .goals-modal .text-slate-100, .goals-modal .text-slate-200 { color: var(--ink) !important; }
+.goals-modal .text-slate-300 { color: color-mix(in srgb, var(--ink) 82%, var(--muted)) !important; }
+.goals-modal .text-slate-400, .goals-modal .text-slate-500 { color: var(--muted) !important; }
+.goals-modal .text-violet-200 { color: var(--accent-text) !important; }
+.goals-modal .bg-violet-500, .goals-modal .bg-violet-400 { background: var(--accent) !important; color: var(--accent-ink) !important; clip-path: var(--cut); border-radius: var(--r-btn); }
+.goals-modal .bg-violet-500\/20 { background: color-mix(in srgb, var(--accent) 16%, transparent) !important; color: var(--accent-text) !important; }
+.goals-modal .hover\:bg-violet-400:hover { background: var(--accent) !important; opacity: .92; }
+.goals-modal .bg-white\/10, .goals-modal .hover\:bg-white\/20:hover { background: color-mix(in srgb, var(--ink) 8%, var(--surface)) !important; }
+.goals-modal input, .goals-modal select, .goals-modal textarea { background: var(--bg) !important; color: var(--ink) !important; border-color: var(--line) !important; }
+.goals-modal input[type="checkbox"] { accent-color: var(--accent); }
+.goals-modal .focus\:border-violet-500:focus { border-color: var(--accent) !important; }
+.goals-modal .rounded-3xl { border-radius: calc(var(--r) + 10px); }
+.goals-modal .rounded-xl { border-radius: calc(var(--r) + 2px); }

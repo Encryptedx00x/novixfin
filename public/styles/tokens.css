@@ -1,0 +1,103 @@
+/* NovixFin — tokens dos 15 temas (fonte canônica do APP).
+   Origem: Claude Design "NovixFin App.html" (bloco TOKENS POR TEMA).
+
+   ADITIVO POR CONTRATO: este arquivo contém APENAS custom properties.
+   Nenhuma regra restila componentes, por isso carregá-lo no shell NÃO altera
+   a aparência das telas que ainda não consomem os tokens (dashboard, histórico,
+   cartões, contas, categorias, metas, import/export, moedas, carteiras).
+   NÃO adicione seletores de componente aqui — quebraria essa garantia.
+
+   Dívida conhecida: os mesmos tokens estão duplicados em entrada.css e
+   landing.css (ambos em produção). Consolidar quando as telas internas
+   estiverem reskinadas — ver state/progress.md. */
+
+  /* ===== TOKENS POR TEMA (mesma arquitetura data-theme da landing) ===== */
+  :root, html[data-theme="ametista"]{
+    --bg:#F0EDF5; --surface:#FFFFFF; --ink:#241C33; --muted:#6E6580; --line:rgba(36,28,51,.3); --line-soft:rgba(36,28,51,.12);
+    --accent:#8803FC; --accent-2:#6C4FA8; --accent-ink:#FFFFFF; --pos:#2E7D5B; --neg:#B5433A; --gold:#A5731F;
+    --stage:#8803FC; --stage-ink:#FFFFFF; --stage-muted:rgba(255,255,255,.72); --stage-line:rgba(255,255,255,.24);
+    --grad:linear-gradient(135deg,#5B1F9E 0%,#8803FC 46%,#B77BFF 100%); --sheen:linear-gradient(135deg,#9B2BFF 0%,#8803FC 50%,#6E12C4 100%);
+    --r:0px; --r-btn:0px; --r-chip:0px; --cut:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,0 100%); --cut-card:polygon(0 0,calc(100% - 26px) 0,100% 26px,100% 100%,0 100%);
+    --card-b:1px solid var(--line-soft); --card-sh:0 18px 42px -20px rgba(136,3,252,.38), 0 2px 8px rgba(36,28,51,.07);
+    --f-d:'Familjen Grotesk',sans-serif; --f-b:'Familjen Grotesk',sans-serif; --f-m:'Spline Sans Mono',monospace; --f-num:var(--f-m); --accent-text:var(--accent);
+    --w-d:700; --ls-d:-0.03em;
+  }
+  html[data-theme="cafe"]{ --bg:#F6EFE2; --surface:#FFF9ED; --ink:#2B2016; --muted:#786852; --line:rgba(43,32,22,.3); --line-soft:rgba(43,32,22,.13);
+    --accent:#B65437; --accent-2:#2F7561; --accent-ink:#FFF6EA; --pos:#2F7561; --neg:#B65437; --gold:#B65437;
+    --stage:#B65437; --stage-ink:#FFF6EA; --stage-muted:rgba(255,246,234,.75); --stage-line:rgba(255,246,234,.25);
+    --grad:linear-gradient(115deg,#B65437,#8A3E28); --sheen:#B65437; --r:20px; --r-btn:999px; --r-chip:999px; --cut:none; --cut-card:none;
+    --card-b:1px solid var(--line-soft); --card-sh:0 2px 0 rgba(43,32,22,.12); --f-d:'Sora',sans-serif; --f-b:'Hanken Grotesk',sans-serif; --f-m:'Sora',sans-serif;
+    --w-d:700; --ls-d:-0.02em; }
+  html[data-theme="sereno2"], html[data-theme="sereno1"]{ --bg:#101413; --surface:#1A211E; --ink:#F1EDE2; --muted:#8F9A92; --line:rgba(241,237,226,.18); --line-soft:rgba(241,237,226,.1);
+    --accent:#A9C7A9; --accent-2:#E3C990; --accent-ink:#14201A; --pos:#A9C7A9; --neg:#D9A08C; --gold:#E3C990;
+    --stage:#A9C7A9; --stage-ink:#14201A; --stage-muted:rgba(20,32,26,.72); --stage-line:rgba(20,32,26,.22);
+    --grad:linear-gradient(115deg,#A9C7A9,#6E8F74); --sheen:#A9C7A9; --r:24px; --r-btn:999px; --r-chip:999px; --cut:none; --cut-card:none;
+    --card-b:1px solid var(--line-soft); --card-sh:none; --f-d:'Instrument Serif',serif; --f-b:'Albert Sans',sans-serif; --f-m:'Albert Sans',sans-serif; --f-num:'Spline Sans Mono',monospace;
+    --w-d:400; --ls-d:-0.01em; }
+  html[data-theme="cofre"]{ --bg:#0A1120; --surface:#111B30; --ink:#E9EFF8; --muted:#8CA0BC; --line:rgba(233,239,248,.22); --line-soft:rgba(233,239,248,.1);
+    --accent:#3D7BFD; --accent-2:#E8B04B; --accent-ink:#FFFFFF; --pos:#37C08B; --neg:#FF6B5E; --gold:#E8B04B;
+    --stage:#2455C9; --stage-ink:#FFFFFF; --stage-muted:rgba(255,255,255,.75); --stage-line:rgba(255,255,255,.22);
+    --grad:linear-gradient(115deg,#3D7BFD,#2455C9); --sheen:#3D7BFD; --r:14px; --r-btn:8px; --r-chip:6px; --cut:none; --cut-card:none;
+    --card-b:1px solid var(--line-soft); --card-sh:none; --f-d:'Red Hat Display',sans-serif; --f-b:'Red Hat Text',sans-serif; --f-m:'Red Hat Mono',monospace;
+    --w-d:800; --ls-d:-0.02em; }
+  html[data-theme="tinta"]{ --bg:#0E100A; --surface:#171B10; --ink:#EDEEE3; --muted:#9A9E8C; --line:rgba(233,234,224,.25); --line-soft:rgba(233,234,224,.12);
+    --accent:#C6F135; --accent-2:#E3C567; --accent-ink:#171A05; --pos:#C6F135; --neg:#F27059; --gold:#E3C567;
+    --stage:#C6F135; --stage-ink:#171A05; --stage-muted:rgba(23,26,5,.72); --stage-line:rgba(23,26,5,.25);
+    --grad:linear-gradient(115deg,#C6F135,#8FB01F); --sheen:#C6F135; --r:0px; --r-btn:0px; --r-chip:0px; --cut:none; --cut-card:none;
+    --card-b:1px solid var(--line-soft); --card-sh:none; --f-d:'Space Grotesk',sans-serif; --f-b:'Space Grotesk',sans-serif; --f-m:'IBM Plex Mono',monospace;
+    --w-d:700; --ls-d:-0.03em; }
+  html[data-theme="banca"]{ --bg:#F7F4EC; --surface:#FFFDF7; --ink:#1B1810; --muted:#6F6858; --line:rgba(27,24,16,.35); --line-soft:rgba(27,24,16,.14);
+    --accent:#B3261E; --accent-2:#1F5F3C; --accent-ink:#FFFDF7; --pos:#1F5F3C; --neg:#B3261E; --gold:#8a6d1f;
+    --stage:#B3261E; --stage-ink:#FFFDF7; --stage-muted:rgba(255,253,247,.78); --stage-line:rgba(255,253,247,.28);
+    --grad:linear-gradient(115deg,#B3261E,#7d1a14); --sheen:#1B1810; --r:0px; --r-btn:0px; --r-chip:0px; --cut:none; --cut-card:none;
+    --card-b:1px solid var(--line-soft); --card-sh:none; --f-d:'Newsreader',serif; --f-b:'Archivo',sans-serif; --f-m:'Archivo',sans-serif;
+    --w-d:500; --ls-d:-0.01em; }
+  html[data-theme="suica"]{ --bg:#F2F3F5; --surface:#FFFFFF; --ink:#0C0D10; --muted:#5D6470; --line:rgba(12,13,16,.4); --line-soft:rgba(12,13,16,.14);
+    --accent:#2038E4; --accent-2:#0C0D10; --accent-ink:#FFFFFF; --pos:#0B7A46; --neg:#D02914; --gold:#0C0D10;
+    --stage:#2038E4; --stage-ink:#FFFFFF; --stage-muted:rgba(255,255,255,.75); --stage-line:rgba(255,255,255,.25);
+    --grad:linear-gradient(115deg,#2038E4,#101c8f); --sheen:#2038E4; --r:0px; --r-btn:0px; --r-chip:0px; --cut:none; --cut-card:none;
+    --card-b:1px solid var(--line-soft); --card-sh:none; --f-d:'Instrument Sans',sans-serif; --f-b:'Instrument Sans',sans-serif; --f-m:'Instrument Sans',sans-serif;
+    --w-d:700; --ls-d:-0.05em; }
+  html[data-theme="pulso"]{ --bg:#F4F3EE; --surface:#FFFFFF; --ink:#111216; --muted:#5E6169; --line:rgba(17,18,22,.4); --line-soft:rgba(17,18,22,.13);
+    --accent:#2038E4; --accent-2:#E8442E; --accent-ink:#FFFFFF; --pos:#0B7A46; --neg:#D02914; --gold:#DA3520;
+    --stage:#2038E4; --stage-ink:#FFFFFF; --stage-muted:rgba(255,255,255,.75); --stage-line:rgba(255,255,255,.25);
+    --grad:linear-gradient(115deg,#2038E4 55%,#E8442E); --sheen:#2038E4; --r:0px; --r-btn:0px; --r-chip:0px; --cut:none; --cut-card:none;
+    --card-b:1px solid var(--line-soft); --card-sh:none; --f-d:'Schibsted Grotesk',sans-serif; --f-b:'Schibsted Grotesk',sans-serif; --f-m:'IBM Plex Mono',monospace;
+    --w-d:800; --ls-d:-0.04em; }
+  html[data-theme="concreto"]{ --bg:#EFECE3; --surface:#FFFFFF; --ink:#141310; --muted:#5B574A; --line:#141310; --line-soft:rgba(20,19,16,.15);
+    --accent:#FF4D24; --accent-text:#BC3010; --accent-2:#0E7A45; --accent-ink:#141310; --pos:#0E7A45; --neg:#D02914; --gold:#141310;
+    --stage:#141310; --stage-ink:#EFECE3; --stage-muted:rgba(239,236,227,.72); --stage-line:rgba(239,236,227,.25);
+    --grad:linear-gradient(115deg,#FF4D24,#c93315); --sheen:#FF4D24; --r:0px; --r-btn:0px; --r-chip:0px; --cut:none; --cut-card:none;
+    --card-b:2px solid var(--ink); --card-sh:6px 6px 0 var(--ink); --f-d:'Archivo',sans-serif; --f-b:'Archivo',sans-serif; --f-m:'Space Mono',monospace;
+    --w-d:900; --ls-d:-0.02em; }
+  html[data-theme="adega"]{ --bg:#241018; --surface:#301620; --ink:#F4E8D6; --muted:#C3A296; --line:rgba(244,232,214,.35); --line-soft:rgba(244,232,214,.14);
+    --accent:#D9A441; --accent-2:#A9CBA5; --accent-ink:#241018; --pos:#A9CBA5; --neg:#E08768; --gold:#D9A441;
+    --stage:#D9A441; --stage-ink:#241018; --stage-muted:rgba(36,16,24,.75); --stage-line:rgba(36,16,24,.25);
+    --grad:linear-gradient(115deg,#D9A441,#a5761f); --sheen:#D9A441; --r:10px; --r-btn:8px; --r-chip:8px; --cut:none; --cut-card:none;
+    --card-b:1px solid var(--line-soft); --card-sh:none; --f-d:'Marcellus',serif; --f-b:'Figtree',sans-serif; --f-m:'Marcellus',serif; --f-num:'Spline Sans Mono',monospace;
+    --w-d:400; --ls-d:0.02em; }
+  html[data-theme="vitrola"]{ --bg:#F3E7CE; --surface:#FBF2DF; --ink:#33261A; --muted:#756047; --line:rgba(51,38,26,.3); --line-soft:rgba(51,38,26,.13);
+    --accent:#C9642F; --accent-text:#A84E1C; --accent-2:#D9A13B; --accent-ink:#FBF2DF; --pos:#576327; --neg:#B4531F; --gold:#7E5B18;
+    --stage:#C9642F; --stage-ink:#FBF2DF; --stage-muted:rgba(251,242,223,.8); --stage-line:rgba(251,242,223,.28);
+    --grad:linear-gradient(115deg,#C9642F,#D9A13B); --sheen:#C9642F; --r:16px; --r-btn:999px; --r-chip:999px; --cut:none; --cut-card:none;
+    --card-b:1px solid var(--line-soft); --card-sh:none; --f-d:'Young Serif',serif; --f-b:'Karla',sans-serif; --f-m:'Karla',sans-serif;
+    --w-d:400; --ls-d:0em; }
+  html[data-theme="cabine"]{ --bg:#0B0D11; --surface:#12151B; --ink:#E3E9F0; --muted:#7E8A99; --line:rgba(227,233,240,.2); --line-soft:rgba(227,233,240,.15);
+    --accent:#FF8A3D; --accent-2:#57D07E; --accent-ink:#170D04; --pos:#57D07E; --neg:#FF5C5C; --gold:#FF8A3D;
+    --stage:#FF8A3D; --stage-ink:#170D04; --stage-muted:rgba(23,13,4,.72); --stage-line:rgba(23,13,4,.25);
+    --grad:linear-gradient(115deg,#FF8A3D,#d05f12); --sheen:#FF8A3D; --r:6px; --r-btn:4px; --r-chip:4px; --cut:none; --cut-card:none;
+    --card-b:1px solid var(--line-soft); --card-sh:none; --f-d:'Chakra Petch',sans-serif; --f-b:'Chakra Petch',sans-serif; --f-m:'JetBrains Mono',monospace;
+    --w-d:700; --ls-d:-0.01em; }
+  html[data-theme="sumie"]{ --bg:#F5F1E8; --surface:#FBF8F1; --ink:#26241F; --muted:#6F6A5E; --line:rgba(38,36,31,.25); --line-soft:rgba(38,36,31,.17);
+    --accent:#35507B; --accent-2:#B5483A; --accent-ink:#F5F1E8; --pos:#4C6B4F; --neg:#B5483A; --gold:#B5483A;
+    --stage:#35507B; --stage-ink:#F5F1E8; --stage-muted:rgba(245,241,232,.78); --stage-line:rgba(245,241,232,.26);
+    --grad:linear-gradient(115deg,#35507B,#22344f); --sheen:#35507B; --r:2px; --r-btn:2px; --r-chip:2px; --cut:none; --cut-card:none;
+    --card-b:1px solid var(--line-soft); --card-sh:none; --f-d:'Shippori Mincho',serif; --f-b:'Zen Kaku Gothic New',sans-serif; --f-m:'Zen Kaku Gothic New',sans-serif; --f-num:'Spline Sans Mono',monospace;
+    --w-d:600; --ls-d:0em; }
+  html[data-theme="deco"]{ --bg:#111111; --surface:#191919; --ink:#EFE6D0; --muted:#9C9484; --line:rgba(239,230,208,.22); --line-soft:rgba(239,230,208,.1);
+    --accent:#C8A24B; --accent-2:#2E8B6A; --accent-ink:#111111; --pos:#2E8B6A; --neg:#C25040; --gold:#C8A24B;
+    --stage:#C8A24B; --stage-ink:#111111; --stage-muted:rgba(17,17,17,.75); --stage-line:rgba(17,17,17,.25);
+    --grad:linear-gradient(115deg,#C8A24B,#8f6f24); --sheen:#C8A24B; --r:0px; --r-btn:0px; --r-chip:0px; --cut:none; --cut-card:none;
+    --card-b:1px solid var(--line-soft); --card-sh:none; --f-d:'Poiret One',sans-serif; --f-b:'Jost',sans-serif; --f-m:'Jost',sans-serif;
+    --w-d:400; --ls-d:0.02em; }
+

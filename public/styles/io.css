@@ -1,0 +1,42 @@
+/* NovixFin — tela IMPORT / EXPORT (tokenizada, 15 temas).
+   Fonte visual: Claude Design "NovixFin App.html" (TELA: IMPORT / EXPORT).
+   Escopo: .io-screen. export.php é endpoint de download (sem UI) — as opções de
+   exportação vivem aqui, como no design (Import + Export lado a lado). */
+
+.io-screen { color: var(--ink); font-family: var(--f-b); }
+.io-screen *:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.io-screen [data-balance] { font-family: var(--f-num); font-variant-numeric: tabular-nums; }
+
+/* dropzone / file input */
+.io-drop { transition: border-color .15s ease, background .15s ease; }
+.io-drop:hover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 4%, transparent); }
+.io-screen input[type="file"] {
+    width: 100%;
+    color: var(--ink);
+    font-size: 13px;
+}
+.io-screen input[type="file"]::file-selector-button {
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    color: var(--accent-text);
+    border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+    border-radius: var(--r-chip);
+    padding: 8px 14px;
+    margin-right: 12px;
+    font-weight: 700;
+    font-size: 12.5px;
+    cursor: pointer;
+}
+.io-screen select {
+    background: var(--bg);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: var(--r-chip);
+    padding: 10px 12px;
+    font-size: 13.5px;
+    outline: none;
+}
+.io-screen select:focus { border-color: var(--accent); }
+
+/* preview: overflow-x preservado (auditoria confirmou que funciona) */
+.io-prevwrap { overflow-x: auto; }
+.io-prevwrap .io-prevmin { min-width: 760px; }

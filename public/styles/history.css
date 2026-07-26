@@ -1,0 +1,284 @@
+/* NovixFin — tela de Histórico (tokenizada).
+   Fonte visual da verdade: Claude Design "NovixFin App.html" (TELA: HISTÓRICO).
+
+   TUDO escopado sob .hist-screen / .hist-modal. Nenhuma regra vaza para as
+   outras telas, que seguem vestidas por main.css + themes.css enquanto não
+   forem reskinadas (ponte data-legacy-theme continua valendo).
+
+   Qualidade em tela densa (auditoria de QA):
+   - valores monetários e percentuais usam --f-num + tabular-nums;
+   - texto pequeno colorido/links usam --accent-text (não o --accent do botão);
+   - chips de status usam só tokens (--pos/--neg/--gold), sem cor local;
+   - focus-visible com anel --accent em inputs, selects e botões. */
+
+.hist-screen {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--f-b);
+    border-radius: var(--r);
+    padding: 22px 24px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.hist-screen *,
+.hist-screen *::before,
+.hist-screen *::after { box-sizing: border-box; }
+
+.hist-screen :focus-visible,
+.hist-modal :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.hist-title {
+    font-family: var(--f-d);
+    font-weight: var(--w-d);
+    letter-spacing: var(--ls-d);
+    font-size: 26px;
+    color: var(--ink);
+    margin: 0;
+}
+.hist-sub { font-size: 13px; color: var(--muted); margin: 4px 0 0; }
+
+.hist-card {
+    background: var(--surface);
+    border: var(--card-b);
+    box-shadow: var(--card-sh);
+    border-radius: var(--r);
+}
+
+/* ---- alertas ---- */
+.hist-alert { padding: 13px 15px; border-radius: var(--r-chip); font-size: 13.5px; font-weight: 600; }
+.hist-alert--ok { border: 1px solid color-mix(in srgb, var(--pos) 38%, transparent); background: color-mix(in srgb, var(--pos) 9%, transparent); color: var(--pos); }
+.hist-alert--err { border: 1px solid color-mix(in srgb, var(--neg) 38%, transparent); background: color-mix(in srgb, var(--neg) 9%, transparent); color: var(--neg); }
+
+/* ---- filtros ---- */
+.hist-filters { padding: 18px 20px; display: flex; flex-direction: column; gap: 14px; }
+.hist-filter-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+.hist-field { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 132px; }
+.hist-label { font-family: var(--f-m); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.hist-input,
+.hist-select {
+    width: 100%; padding: 9px 11px;
+    border: 1px solid var(--line); border-radius: var(--r-chip);
+    background: var(--bg); outline: none; color: var(--ink);
+    font-family: inherit; font-size: 13px;
+    transition: border-color .16s ease, box-shadow .16s ease;
+}
+/* datas em fonte numérica tabular */
+.hist-input[type="date"] { font-family: var(--f-num); font-size: 12.5px; }
+.hist-input:focus, .hist-select:focus { border-color: var(--accent); }
+.hist-filter-actions { display: flex; gap: 8px; flex: none; }
+
+.hist-btn {
+    background: var(--accent); color: var(--accent-ink);
+    font-family: inherit; font-weight: 700; font-size: 13.5px;
+    padding: 10px 20px; border: none; cursor: pointer;
+    clip-path: var(--cut); border-radius: var(--r-btn);
+    transition: opacity .16s ease, transform .16s ease;
+}
+.hist-btn:hover { opacity: .92; transform: translateY(-1px); }
+.hist-btn--ghost {
+    background: transparent; color: var(--muted); font-weight: 600;
+    padding: 10px 14px; border: 1px solid var(--line-soft);
+    clip-path: none; border-radius: var(--r-btn);
+    display: inline-flex; align-items: center; text-decoration: none;
+}
+.hist-btn--ghost:hover { color: var(--ink); background: color-mix(in srgb, var(--ink) 4%, transparent); transform: none; }
+.hist-btn--danger {
+    background: color-mix(in srgb, var(--neg) 8%, transparent);
+    color: var(--neg); font-weight: 700; font-size: 12.5px;
+    padding: 9px 14px; border: 1px solid color-mix(in srgb, var(--neg) 35%, transparent);
+    clip-path: none; border-radius: var(--r-btn);
+}
+.hist-btn--danger:hover { background: color-mix(in srgb, var(--neg) 16%, transparent); transform: none; }
+
+/* ---- alternador de visão ---- */
+.hist-viewtabs { display: flex; gap: 8px; }
+.hist-viewtab {
+    font-family: inherit; font-size: 13px; font-weight: 700;
+    padding: 9px 16px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--surface); color: var(--muted);
+    border-radius: var(--r-btn);
+    transition: background .16s ease, color .16s ease, border-color .16s ease;
+}
+.hist-viewtab:hover { color: var(--ink); }
+.hist-viewtab[aria-pressed="true"] {
+    background: var(--accent); color: var(--accent-ink);
+    border-color: var(--accent); clip-path: var(--cut);
+}
+
+/* ---- resumos ---- */
+.hist-sums { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 16px; align-items: stretch; }
+.hist-sum { padding: 18px 20px; min-width: 0; }
+.hist-sum-title { font-size: 12.5px; font-weight: 600; color: var(--muted); }
+.hist-acc-row {
+    display: grid; grid-template-columns: minmax(0,1.3fr) 1fr 1fr; gap: 10px;
+    align-items: center; padding: 9px 0; border-bottom: 1px solid var(--line-soft);
+}
+.hist-acc-name {
+    display: flex; align-items: center; gap: 8px; min-width: 0;
+    font-size: 13.5px; font-weight: 700; color: var(--ink);
+}
+.hist-acc-name > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hist-num {
+    font-family: var(--f-num); font-variant-numeric: tabular-nums;
+    text-align: right; font-size: 12.5px; color: var(--ink);
+}
+.hist-num--pend { font-size: 12px; color: var(--gold); }
+.hist-acc-legend {
+    display: grid; grid-template-columns: minmax(0,1.3fr) 1fr 1fr; gap: 10px;
+    padding: 8px 0 0; font-family: var(--f-m); font-size: 10px;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--muted);
+}
+.hist-acc-legend > span:not(:first-child) { text-align: right; }
+.hist-sum-big {
+    font-family: var(--f-num); font-size: 26px; font-weight: 700;
+    font-variant-numeric: tabular-nums; margin-top: 10px;
+}
+.hist-sum-note { font-size: 12px; color: var(--muted); margin-top: 8px; }
+.hist-sum-line { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.hist-sum-line-label { font-size: 12.5px; color: var(--muted); }
+.hist-sum-line-value { font-family: var(--f-num); font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* ---- lista de lançamentos ---- */
+.hist-list { background: var(--surface); border: 1px solid var(--line-soft); border-radius: calc(var(--r) + 8px); overflow: hidden; }
+.hist-group {
+    display: flex; align-items: baseline; gap: 9px; padding: 13px 22px 10px;
+    background: color-mix(in srgb, var(--ink) 2.5%, var(--surface));
+    border-bottom: 1px solid var(--line-soft);
+}
+.hist-group-label { font-size: 12.5px; font-weight: 800; color: var(--ink); }
+.hist-group-sub { font-family: var(--f-m); font-size: 11px; color: var(--muted); }
+.hist-group-subtotal-label { margin-left: auto; font-size: 10.5px; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.hist-group-subtotal { font-family: var(--f-num); font-size: 12.5px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.hist-txrow {
+    display: grid;
+    grid-template-columns: minmax(200px,1fr) 150px 150px 140px 104px;
+    gap: 14px; padding: 13px 22px;
+    border-bottom: 1px solid var(--line-soft); align-items: center;
+}
+.hist-txrow:hover { background: color-mix(in srgb, var(--ink) 2.5%, var(--surface)); }
+.hist-txmain { display: flex; align-items: center; gap: 13px; min-width: 0; }
+.hist-txicon {
+    width: 30px; height: 30px; flex: none; display: grid; place-items: center;
+    transform: rotate(45deg); border-radius: 6px;
+}
+.hist-txicon > span { transform: rotate(-45deg); font-size: 11.5px; font-weight: 800; }
+.hist-txdesc { display: block; font-size: 14px; font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hist-txcat { display: block; font-size: 12px; color: var(--muted); }
+.hist-txconta {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: 12.5px; color: var(--muted); min-width: 0;
+}
+.hist-txconta > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hist-txamount {
+    text-align: right; font-family: var(--f-num); font-size: 14.5px; font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+.hist-txactions { display: flex; justify-content: flex-end; gap: 6px; }
+
+/* chips de status — só tokens */
+.hist-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.hist-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: 999px;
+    font-size: 11.5px; font-weight: 700; white-space: nowrap;
+}
+.hist-pill > .hist-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex: none; }
+.hist-pill--income { background: color-mix(in srgb, var(--pos) 12%, transparent); color: var(--pos); }
+.hist-pill--expense { background: color-mix(in srgb, var(--neg) 12%, transparent); color: var(--neg); }
+.hist-pill--pending { background: color-mix(in srgb, var(--gold) 14%, transparent); color: var(--gold); }
+.hist-pill--fixed { background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent-text); }
+.hist-pill--installment { background: color-mix(in srgb, var(--accent-2) 12%, transparent); color: var(--accent-2); }
+
+.hist-iconbtn {
+    width: 30px; height: 30px; display: grid; place-items: center;
+    border-radius: var(--r-chip); color: var(--muted);
+    border: none; background: none; cursor: pointer;
+    transition: background .16s ease, color .16s ease;
+}
+.hist-iconbtn:hover { background: var(--line-soft); color: var(--ink); }
+.hist-iconbtn--danger:hover { background: color-mix(in srgb, var(--neg) 10%, transparent); color: var(--neg); }
+
+/* ---- estado vazio ---- */
+.hist-empty {
+    background: var(--surface); border: 1px dashed var(--line);
+    border-radius: calc(var(--r) + 10px); padding: 52px 32px; text-align: center;
+}
+.hist-empty-icon {
+    width: 56px; height: 56px; margin: 0 auto; display: grid; place-items: center;
+    border-radius: 50%; background: color-mix(in srgb, var(--accent) 10%, transparent); color: var(--accent);
+}
+.hist-empty-title {
+    font-family: var(--f-d); font-weight: var(--w-d); letter-spacing: var(--ls-d);
+    font-size: 21px; color: var(--ink); margin-top: 16px;
+}
+.hist-empty-text { font-size: 13.5px; color: var(--muted); margin: 7px auto 0; line-height: 1.55; max-width: 420px; }
+
+/* ---- visão planilha ---- */
+.hist-sheet-wrap { overflow-x: auto; border: 1px solid var(--line-soft); border-radius: calc(var(--r) + 8px); background: var(--surface); }
+.hist-sheet { min-width: 100%; border-collapse: collapse; font-size: 13px; }
+.hist-sheet th {
+    text-align: left; padding: 12px 14px; white-space: nowrap;
+    font-family: var(--f-m); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--muted); background: color-mix(in srgb, var(--ink) 3%, var(--surface));
+    border-bottom: 1px solid var(--line);
+}
+.hist-sheet td { padding: 10px 14px; border-bottom: 1px solid var(--line-soft); color: var(--ink); white-space: nowrap; }
+.hist-sheet tbody tr:hover { background: color-mix(in srgb, var(--ink) 2.5%, var(--surface)); }
+.hist-sheet .hist-num { text-align: right; }
+.hist-sheet-center { text-align: center; }
+
+/* ---- modal (dialog) ---- */
+.hist-modal {
+    width: min(480px, 100%);
+    background: var(--surface);
+    border: var(--card-b);
+    border-radius: calc(var(--r) + 10px);
+    box-shadow: 0 40px 90px -30px rgba(0,0,0,.5);
+    padding: 26px;
+    color: var(--ink);
+    font-family: var(--f-b);
+}
+.hist-modal::backdrop { background: color-mix(in srgb, var(--ink) 45%, transparent); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+.hist-modal--sm { width: min(440px, 100%); }
+.hist-modal--danger { border: 1px solid color-mix(in srgb, var(--neg) 35%, var(--line-soft)); }
+.hist-modal-title { font-family: var(--f-d); font-weight: var(--w-d); letter-spacing: var(--ls-d); font-size: 21px; color: var(--ink); }
+.hist-modal-sub { font-size: 12.5px; color: var(--muted); margin-top: 3px; line-height: 1.55; }
+.hist-modal-body { display: flex; flex-direction: column; gap: 12px; margin-top: 18px; }
+.hist-modal-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+.hist-modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.hist-modal-grid--3 { grid-template-columns: 2fr 1fr; }
+.hist-check { display: flex; align-items: center; gap: 9px; cursor: pointer; font-size: 13.5px; color: var(--ink); }
+.hist-check input { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; flex: none; }
+.hist-help { font-size: 11.5px; color: var(--muted); margin-top: 5px; line-height: 1.5; }
+.hist-modal-sublock { display: flex; flex-direction: column; gap: 12px; padding: 12px 14px; border: 1px dashed var(--line); border-radius: var(--r-chip); }
+
+/* O JS alterna a classe .hidden (Tailwind) nos campos condicionais do modal.
+   Declaramos aqui também para não depender do CDN do Tailwind nesta tela. */
+.hist-modal .hidden { display: none !important; }
+
+/* ---- responsivo (mesmos breakpoints do design) ---- */
+@media (max-width: 1279px) {
+    .hist-txrow { grid-template-columns: minmax(160px,1fr) 26px 140px 104px; }
+    .hist-txconta { display: none; }
+    .hist-stlab { display: none; }
+    .hist-pill { padding: 4px; gap: 0; }
+    .hist-pill > .hist-dot { width: 9px; height: 9px; }
+}
+@media (max-width: 1020px) {
+    .hist-sums { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 640px) {
+    .hist-screen { padding: 16px 14px 26px; }
+    .hist-sums { grid-template-columns: 1fr; }
+    .hist-txrow { grid-template-columns: minmax(120px,1fr) 110px 84px; row-gap: 8px; }
+    .hist-modal-grid, .hist-modal-grid--3 { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .hist-screen *, .hist-modal * { animation-duration: .001ms !important; transition: none !important; }
+}

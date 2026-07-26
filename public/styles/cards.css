@@ -1,0 +1,131 @@
+/* NovixFin — tela CARTÕES (tokenizada, 15 temas).
+   Fonte visual: Claude Design "NovixFin App.html" (TELA: CARTÕES + FATURA).
+
+   ESTRATÉGIA (igual à do dashboard/accounts): esta é a tela financeira mais
+   sensível (fatura / pay / revert / saldo). Em vez de reescrever o markup — o que
+   arriscaria os forms e a lógica de distribuição multi-conta do pagamento — este
+   arquivo TOKENIZA por override escopado das utilitárias Tailwind sob
+   `.cards-screen` (conteúdo) e `.cards-modal` (os 2 <dialog>). Nenhum id, name,
+   campo, CSRF, confirm() ou JS de distribuição foi tocado.
+
+   A ponte de compatibilidade (data-legacy-theme / theme-compat.css /
+   NOVIX_THEME_LEGACY) CONTINUA valendo — a remoção do andaime é fatia separada. */
+
+.cards-screen { color: var(--ink); font-family: var(--f-b); }
+.cards-screen *:focus-visible,
+.cards-modal *:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.cards-screen [data-balance],
+.cards-modal [data-balance] { font-family: var(--f-num); font-variant-numeric: tabular-nums; }
+
+/* ---- superfícies ---- */
+.cards-screen .bg-slate-900\/70,
+.cards-screen .bg-slate-900,
+.cards-modal .bg-slate-900,
+.cards-screen .bg-slate-800\/50,
+.cards-screen .bg-slate-800,
+.cards-modal .bg-slate-800\/50 { background: var(--surface) !important; }
+.cards-screen .bg-slate-700,
+.cards-screen .bg-slate-500\/20,
+.cards-screen .bg-slate-500\/10,
+.cards-modal .bg-slate-700 { background: color-mix(in srgb, var(--ink) 6%, var(--surface)) !important; }
+
+/* ---- bordas ---- */
+.cards-screen .border-white\/5,
+.cards-screen .border-white\/10,
+.cards-modal .border-white\/5,
+.cards-modal .border-white\/10,
+.cards-screen .divide-white\/5 > * { border-color: var(--line-soft) !important; }
+
+/* ---- texto ---- */
+.cards-screen .text-white,
+.cards-screen .text-slate-100,
+.cards-screen .text-slate-200,
+.cards-modal .text-white { color: var(--ink) !important; }
+.cards-screen .text-slate-300,
+.cards-modal .text-slate-300 { color: color-mix(in srgb, var(--ink) 82%, var(--muted)) !important; }
+.cards-screen .text-slate-400,
+.cards-screen .text-slate-500,
+.cards-modal .text-slate-400 { color: var(--muted) !important; }
+
+/* ---- acento (violeta -> --accent) ---- */
+.cards-screen .text-violet-200,
+.cards-screen .text-violet-300,
+.cards-modal .text-violet-200 { color: var(--accent-text) !important; }
+.cards-screen .bg-violet-500,
+.cards-screen .bg-violet-400,
+.cards-modal .bg-violet-500,
+.cards-modal .bg-violet-400 {
+    background: var(--accent) !important;
+    color: var(--accent-ink) !important;
+    clip-path: var(--cut);
+    border-radius: var(--r-btn);
+}
+.cards-screen .hover\:bg-violet-400:hover,
+.cards-modal .hover\:bg-violet-400:hover { background: var(--accent) !important; opacity: .92; }
+.cards-screen .bg-violet-500\/10,
+.cards-screen .bg-violet-500\/20,
+.cards-screen .bg-violet-500\/30,
+.cards-modal .bg-violet-500\/10 { background: color-mix(in srgb, var(--accent) 14%, transparent) !important; color: var(--accent-text) !important; }
+.cards-screen .border-violet-500\/20,
+.cards-screen .border-violet-500\/30 { border-color: color-mix(in srgb, var(--accent) 35%, transparent) !important; }
+.cards-screen .focus\:border-violet-500:focus,
+.cards-modal .focus\:border-violet-500:focus { border-color: var(--accent) !important; }
+
+/* ---- positivo / negativo / status ---- */
+.cards-screen .text-emerald-200,
+.cards-screen .text-emerald-300,
+.cards-modal .text-emerald-200 { color: var(--pos) !important; }
+.cards-screen .text-rose-200,
+.cards-screen .text-rose-300,
+.cards-modal .text-rose-300 { color: var(--neg) !important; }
+.cards-screen .bg-emerald-600\/10,
+.cards-screen .bg-emerald-500\/20,
+.cards-screen .bg-emerald-500\/10 { background: color-mix(in srgb, var(--pos) 12%, transparent) !important; color: var(--pos) !important; }
+.cards-screen .border-emerald-500\/40,
+.cards-screen .border-emerald-500\/30 { border-color: color-mix(in srgb, var(--pos) 35%, transparent) !important; }
+.cards-screen .bg-rose-600\/10,
+.cards-screen .bg-rose-500\/20,
+.cards-screen .bg-rose-500\/30,
+.cards-screen .bg-rose-500\/10,
+.cards-modal .bg-rose-500\/20,
+.cards-modal .bg-rose-500\/30 { background: color-mix(in srgb, var(--neg) 12%, transparent) !important; color: var(--neg) !important; }
+.cards-screen .border-rose-500\/40,
+.cards-screen .border-rose-500\/30,
+.cards-modal .border-rose-500\/40 { border-color: color-mix(in srgb, var(--neg) 35%, transparent) !important; }
+/* status "Aberta" (azul) -> acento secundário; "Vencida" já cai no --neg acima */
+.cards-screen .bg-blue-500\/20,
+.cards-screen .bg-blue-500\/10 { background: color-mix(in srgb, var(--accent-2) 16%, transparent) !important; color: var(--accent-2) !important; }
+.cards-screen .text-blue-200 { color: var(--accent-2) !important; }
+.cards-screen .border-blue-500\/40 { border-color: color-mix(in srgb, var(--accent-2) 35%, transparent) !important; }
+
+/* ---- inputs ---- */
+.cards-screen input,
+.cards-screen select,
+.cards-modal input,
+.cards-modal select {
+    background: var(--bg) !important;
+    color: var(--ink) !important;
+    border-color: var(--line) !important;
+}
+.cards-modal input[type="checkbox"] { accent-color: var(--accent); }
+
+/* ---- cantos ---- */
+.cards-screen .rounded-3xl,
+.cards-modal .rounded-3xl { border-radius: calc(var(--r) + 10px); }
+.cards-screen .rounded-2xl { border-radius: calc(var(--r) + 6px); }
+.cards-screen .rounded-xl,
+.cards-modal .rounded-xl { border-radius: calc(var(--r) + 2px); }
+
+/* ---- Modais nativos <dialog>: sobem para a top layer (resolvem o
+   empilhamento com o shell). O <dialog> é o cartão; backdrop via ::backdrop. ---- */
+dialog.cards-modal {
+    background: var(--surface);
+    color: var(--ink);
+    border: 1px solid var(--line-soft);
+    max-width: 42rem;
+    width: calc(100% - 2rem);
+    max-height: calc(100vh - 3rem);
+    overflow-y: auto;
+}
+dialog.cards-modal.cards-modal--sm { max-width: 28rem; }
+dialog.cards-modal::backdrop { background: color-mix(in srgb, var(--ink) 45%, transparent); }
