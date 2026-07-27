@@ -18,6 +18,10 @@
 dialog.nvx-modal {
     width: min(480px, 100%);
     max-width: min(480px, 100%);
+    /* Rolagem interna própria: modais longos (recorrência ligada) rolam dentro
+       do card e ficam centralizados, sem esticar a página. */
+    max-height: 90vh;
+    overflow-y: auto;
     background: var(--surface);
     color: var(--ink);
     border: var(--card-b);

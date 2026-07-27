@@ -1,10 +1,29 @@
 # NovixFin v3 Execution Progress
 
 ## Current State
-- **Phase**: MODAL DE LANÇAMENTO RECONSTRUÍDO (estrutura do design) — **COMPLETA**. Toggle
-  Despesa/Receita, valor em destaque, chips de categoria, toggle Efetivada/Pendente — camada
-  visual sobre controles nativos ocultos; fiação de dados 100% preservada. Parado para revisão.
-- Reskin **100%**; andaime removido; modais unificados, fiéis ao design; lançamento reconstruído.
+- **Phase**: AJUSTES FINOS DE SHELL + MODAL — **COMPLETA**. Sticky da sidebar corrigido (bug
+  global), datas do modal clarificadas, scroll interno do modal. Parado para revisão.
+- Reskin **100%**; andaime removido; modais fiéis ao design; lançamento reconstruído; shell ok.
+
+## Ajustes finos: sidebar sticky + datas + scroll do modal (2026-07-26)
+- **Report**: /reports/checkpoint_ajustes_shell_modal.md
+- **1) Sidebar não acompanhava o scroll (bug em TODAS as telas)**: causa raiz em
+  `public/styles/main.css` — `html, body { overflow-x: hidden !important }` fazia html/body
+  virarem contêiner de rolagem (com overflow-x != visible, o eixo Y computa `auto`), quebrando
+  o `position: sticky` de `#nvx-side`. **Fix**: `overflow-x: clip` (clipa o horizontal SEM criar
+  contêiner de rolagem) + removido `body { overflow-y: auto }`. O viewport volta a ser o scroller
+  e o sticky (sidebar + #nvx-top) funciona nas 10 telas, sem gap. shell.css NÃO precisou mudar
+  (o sticky já estava correto lá; o quebrador era o overflow global).
+- **2) Campo de data "duplicado" no modal**: NÃO era duplicação — são 2 campos distintos:
+  `transaction_date` (rotulado agora "Data do lançamento") e `effective_date` ("Data de
+  efetivação", só aparece com status Pendente, via toggleEffectiveDate). Rótulos clarificados
+  em criar e editar. Handlers/names intocados.
+- **3) Comprimento do modal**: adicionado `max-height: 90vh; overflow-y: auto` a
+  `dialog.nvx-modal` (desktop) — modais longos (recorrência ligada) rolam DENTRO do card,
+  centralizados, sem esticar a página. Progressive disclosure já correto (recorrência só com
+  "Recorrente" marcado; efetivação só com Pendente).
+- **Files**: main.css, modal.css, dashboard.php (só rótulos/comentário de data). Sem lógica.
+- **Validação**: main.css 117/117 chaves, modal.css 88/88; `php -l` pendente no servidor.
 
 ## Modal de lançamento reconstruído — estrutura do design (2026-07-26)
 - **Report**: /reports/checkpoint_modal_lancamento_reconstruido.md

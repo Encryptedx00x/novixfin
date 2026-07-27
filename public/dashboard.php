@@ -1502,7 +1502,7 @@ $hasDashData = !empty($accounts);
                     <?php endforeach; ?>
                 </select>
 
-                <!-- 6. Conta / carteira + Data de efetivação -->
+                <!-- 6. Conta / carteira + Data do lançamento -->
                 <div class="nvx-mgrid">
                     <label class="nvx-mfield">
                         <span class="nvx-mlabel">Conta / carteira</span>
@@ -1518,7 +1518,7 @@ $hasDashData = !empty($accounts);
                         </select>
                     </label>
                     <label class="nvx-mfield">
-                        <span class="nvx-mlabel">Data</span>
+                        <span class="nvx-mlabel">Data do lançamento</span>
                         <input type="date" id="transaction_date" name="transaction_date" required value="<?php echo date('Y-m-d'); ?>" class="w-full px-4 py-2 rounded-xl bg-slate-900 border border-white/10 focus:border-violet-500 focus:outline-none text-white">
                     </label>
                 </div>
@@ -1862,7 +1862,7 @@ $categoryOptionsJson = json_encode(array_map(static function (array $category): 
                         </select>
                     </label>
                     <label class="nvx-mfield">
-                        <span class="nvx-mlabel">Data</span>
+                        <span class="nvx-mlabel">Data do lançamento</span>
                         <input type="date" id="dashboard-modal-date" name="transaction_date" class="w-full px-4 py-2 rounded-xl bg-slate-900 border border-white/10 text-sm">
                     </label>
                 </div>
