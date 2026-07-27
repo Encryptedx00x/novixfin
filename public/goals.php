@@ -130,7 +130,7 @@ $error = flash('error');
     <?php endif; ?>
 </section>
 
-<dialog id="modal-goal" class="nvx-modal goals-modal bg-slate-900/90 backdrop:bg-slate-950/70 rounded-3xl border border-white/10 max-w-xl w-full p-6">
+<dialog id="modal-goal" class="nvx-modal goals-modal bg-slate-900/90 rounded-3xl border border-white/10 max-w-xl w-full p-6">
     <form method="POST" action="/actions/goals/save.php" class="space-y-4">
         <input type="hidden" name="_token" value="<?php echo csrfToken(); ?>">
         <input type="hidden" name="id" value="">

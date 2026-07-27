@@ -64,16 +64,19 @@
     }
 
     /* ---- Chips espelhando um <select name="category_id"> ---- */
+    var CHIP_LIMIT = 8;
     function renderChips(container) {
         var sel = document.querySelector(container.getAttribute('data-chips-target'));
         if (!sel) { return; }
         var current = String(sel.value);
         container.querySelectorAll('[data-chip]').forEach(function (n) { n.remove(); });
         var keep = container.querySelector('[data-chip-keep]');
+        var made = [];
         Array.prototype.forEach.call(sel.options, function (opt) {
             var chip = document.createElement('button');
             chip.type = 'button';
-            chip.className = 'nvx-chip' + (String(opt.value) === current ? ' is-active' : '');
+            var active = String(opt.value) === current;
+            chip.className = 'nvx-chip' + (active ? ' is-active' : '');
             chip.setAttribute('data-chip', '');
             chip.textContent = opt.textContent.trim();
             chip.addEventListener('click', function () {
@@ -82,7 +85,30 @@
                 renderChips(container);
             });
             if (keep) { container.insertBefore(chip, keep); } else { container.appendChild(chip); }
+            made.push({ chip: chip, active: active });
         });
+        // "Ver mais": colapsa além do limite (mantém o ativo sempre visível) e
+        // insere um botão que revela o resto. Nenhuma categoria é perdida.
+        if (made.length > CHIP_LIMIT) {
+            var hidden = 0;
+            made.forEach(function (m, i) {
+                if (i >= CHIP_LIMIT && !m.active) { m.chip.classList.add('nvx-chip--collapsed'); hidden++; }
+            });
+            if (hidden > 0) {
+                var more = document.createElement('button');
+                more.type = 'button';
+                more.className = 'nvx-chip nvx-chip--more';
+                more.setAttribute('data-chip', '');
+                more.textContent = 'Ver mais (' + hidden + ')';
+                more.addEventListener('click', function () {
+                    container.querySelectorAll('.nvx-chip--collapsed').forEach(function (c) {
+                        c.classList.remove('nvx-chip--collapsed');
+                    });
+                    more.remove();
+                });
+                if (keep) { container.insertBefore(more, keep); } else { container.appendChild(more); }
+            }
+        }
     }
     function wireChips(container) {
         var sel = document.querySelector(container.getAttribute('data-chips-target'));

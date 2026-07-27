@@ -258,7 +258,7 @@ if ($viewWallet) :
 <?php endif; ?>
 
 <!-- Modal Nova/Editar Carteira -->
-<dialog id="walletModal" class="nvx-modal nvx-modal--wide wallets-modal bg-slate-900 backdrop:bg-slate-950/70 rounded-3xl p-6 max-w-2xl w-full border border-white/10">
+<dialog id="walletModal" class="nvx-modal nvx-modal--wide wallets-modal bg-slate-900 rounded-3xl p-6 max-w-2xl w-full border border-white/10">
         <div class="nvx-mhead">
             <div class="nvx-mhead-txt">
                 <div id="walletModalTitle" class="nvx-mtitle">Nova carteira</div>

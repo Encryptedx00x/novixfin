@@ -33,6 +33,8 @@ dialog.nvx-modal {
 }
 /* modais mais largos (fatura de cartão, carteira) */
 dialog.nvx-modal.nvx-modal--wide { width: min(540px, 100%); max-width: min(540px, 100%); }
+/* modal de lançamento: mais largo (respiro, menos "coluna comprida") */
+dialog.nvx-modal.nvx-tx-modal { width: min(600px, 100%); max-width: min(600px, 100%); }
 .nvx-modal::backdrop {
     background: color-mix(in srgb, var(--ink) 45%, transparent);
     -webkit-backdrop-filter: blur(3px);
@@ -61,13 +63,17 @@ dialog.nvx-modal.nvx-modal--wide { width: min(540px, 100%); max-width: min(540px
 .nvx-mval-row { display: inline-flex; align-items: baseline; gap: 8px; margin-top: 6px; }
 .nvx-msym { font-family: var(--f-m); font-size: 22px; color: var(--muted); }
 .nvx-mval-input {
-    width: 180px; text-align: center; border: none !important; background: none !important;
+    width: 200px; text-align: center; background: none !important;
     outline: none; font-family: var(--f-m); font-weight: 700; font-size: 42px;
-    color: var(--ink); letter-spacing: -.02em; padding: 0 !important;
+    color: var(--ink); letter-spacing: -.02em; padding: 0 0 6px !important;
+    /* sublinha accent no PRÓPRIO input: acompanha exatamente a largura do campo
+       e alinha com o número (o traço solto ficava curto/deslocado por causa do
+       símbolo à esquerda). */
+    border: none !important; border-bottom: 2px solid var(--accent) !important;
 }
 .nvx-mval-input::-webkit-outer-spin-button,
 .nvx-mval-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-.nvx-mval-line { height: 2px; width: 180px; margin: 6px auto 0; background: var(--accent); }
+.nvx-mval-line { display: none; }
 
 /* ===== Botões do rodapé ===== */
 .nvx-mfoot { display: flex; gap: 12px; align-items: center; }
@@ -120,6 +126,9 @@ dialog.nvx-modal.nvx-modal--danger { border: 1px solid color-mix(in srgb, var(--
 .nvx-chip:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
 .nvx-chip.is-active { background: color-mix(in srgb, var(--accent) 14%, transparent); border-color: var(--accent); color: var(--accent-text); }
 .nvx-chip--add { border-style: dashed; color: var(--accent-text); }
+.nvx-chip--collapsed { display: none; }
+.nvx-chip--more { border-style: dashed; color: var(--muted); font-weight: 700; }
+.nvx-chip--more:hover { color: var(--ink); }
 
 /* caixa tracejada (recorrente) */
 .nvx-dashed { border: 1px dashed var(--line); border-radius: var(--r-chip); padding: 11px 13px; }

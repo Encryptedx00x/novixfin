@@ -1434,7 +1434,7 @@ $hasDashData = !empty($accounts);
      só migrou para o modal do FAB (fiel ao design). Definido ANTES
      do bloco JSON abaixo, que lê $transactionCategories daqui.
      ========================================================= -->
-<dialog id="modal-create-dashboard" class="nvx-modal nvx-tx-modal dash-screen bg-slate-900/90 backdrop:bg-slate-950/70 rounded-3xl border border-white/10 max-w-lg w-full p-6">
+<dialog id="modal-create-dashboard" class="nvx-modal nvx-tx-modal dash-screen bg-slate-900/90 rounded-3xl border border-white/10 max-w-lg w-full p-6">
     <div class="nvx-mhead">
         <div class="nvx-mhead-txt">
             <div class="nvx-mtitle">Novo lançamento</div>
@@ -1745,7 +1745,7 @@ $categoryOptionsJson = json_encode(array_map(static function (array $category): 
     }
 </script>
 
-<dialog id="inline-category-modal" class="nvx-modal dash-screen bg-slate-900/95 backdrop:bg-slate-950/70 rounded-3xl border border-white/10 max-w-md w-full p-6">
+<dialog id="inline-category-modal" class="nvx-modal dash-screen bg-slate-900/95 rounded-3xl border border-white/10 max-w-md w-full p-6">
     <form id="inline-category-form" class="space-y-4">
         <div class="nvx-mhead">
             <div class="nvx-mhead-txt">
@@ -1778,7 +1778,7 @@ $categoryOptionsJson = json_encode(array_map(static function (array $category): 
     </form>
 </dialog>
 
-<dialog id="modal-edit-dashboard" class="nvx-modal nvx-tx-modal dash-screen bg-slate-900/90 backdrop:bg-slate-950/70 rounded-3xl border border-white/10 max-w-lg w-full p-6">
+<dialog id="modal-edit-dashboard" class="nvx-modal nvx-tx-modal dash-screen bg-slate-900/90 rounded-3xl border border-white/10 max-w-lg w-full p-6">
     <form method="POST" action="/actions/transactions/update.php" class="space-y-4">
         <input type="hidden" name="_token" value="<?php echo csrfToken(); ?>">
         <input type="hidden" name="redirect_to" value="dashboard.php">
@@ -1955,7 +1955,7 @@ $categoryOptionsJson = json_encode(array_map(static function (array $category): 
     </form>
 </dialog>
 
-<dialog id="modal-delete-dashboard" class="nvx-modal nvx-modal--danger dash-screen bg-slate-900/90 backdrop:bg-slate-950/70 rounded-3xl border border-white/10 max-w-md w-full p-6">
+<dialog id="modal-delete-dashboard" class="nvx-modal nvx-modal--danger dash-screen bg-slate-900/90 rounded-3xl border border-white/10 max-w-md w-full p-6">
     <div class="nvx-mdanger">
         <span class="nvx-mdanger-icon">
             <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18 M8 6V4h8v2 M19 6l-1 14H6L5 6 M10 11v5 M14 11v5"></path></svg>

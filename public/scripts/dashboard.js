@@ -209,10 +209,11 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        const closeButton = modal.querySelector('[data-close-inline-category]');
-        if (closeButton) {
+        // Liga TODOS os fechadores (X do cabeçalho + botão Cancelar do rodapé);
+        // querySelector pegava só o primeiro, deixando o "Cancelar" sem handler.
+        modal.querySelectorAll('[data-close-inline-category]').forEach((closeButton) => {
             closeButton.addEventListener('click', closeModal);
-        }
+        });
 
         modal.addEventListener('cancel', (event) => {
             event.preventDefault();

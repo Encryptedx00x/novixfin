@@ -1,9 +1,31 @@
 # NovixFin v3 Execution Progress
 
 ## Current State
-- **Phase**: AJUSTES FINOS DE SHELL + MODAL — **COMPLETA**. Sticky da sidebar corrigido (bug
-  global), datas do modal clarificadas, scroll interno do modal. Parado para revisão.
-- Reskin **100%**; andaime removido; modais fiéis ao design; lançamento reconstruído; shell ok.
+- **Phase**: POLIMENTO DO MODAL DE LANÇAMENTO — **COMPLETA**. Cancelar do sub-modal de categoria,
+  backdrop tokenizado, modal mais largo, chips com "Ver mais", sublinha do valor alinhada.
+  Parado para revisão.
+- Reskin **100%**; andaime removido; modais fiéis ao design; lançamento reconstruído e polido.
+
+## Polimento do modal de lançamento (2026-07-26)
+- **Report**: /reports/checkpoint_polimento_modal_lancamento.md
+- **1) BUG Cancelar do sub-modal "Nova categoria"**: havia DOIS `[data-close-inline-category]`
+  (X + Cancelar) mas dashboard.js usava `querySelector` (só o primeiro=X). Trocado por
+  `querySelectorAll().forEach`. Cancelar fecha SÓ o sub-modal (modal.close() do inline) e volta
+  ao lançamento com campos intactos (dialogs separados). Fluxo de criar categoria preservado.
+- **2) Backdrop inconsistente**: removida a classe `backdrop:bg-slate-950/70` dos dialogs
+  (dashboard + categories/goals/wallets); agora só vale o `.nvx-modal::backdrop` tokenizado
+  (`color-mix(--ink 45%, transparent)`), tema-aware, igual aos demais.
+- **3) Largura/respiro**: `dialog.nvx-tx-modal` -> `width: min(600px,100%)` (era ~512 via
+  max-w-lg). Rolagem interna (`max-height:90vh; overflow-y:auto`) e centralização mantidas.
+- **4) Categorias com "Ver mais"**: tx-modal.js renderChips colapsa além de 8 (mantém o ativo
+  visível) + botão "Ver mais (N)" que revela o resto; "+ Nova" sempre acessível. Nenhuma
+  categoria perdida — só colapso visual. CSS `.nvx-chip--collapsed/--more`.
+- **5) Sublinha do valor**: a linha solta ficava curta/deslocada (símbolo à esquerda deslocava);
+  virou `border-bottom: 2px solid var(--accent)` no próprio input -> acompanha a largura do campo
+  e alinha com o número. `.nvx-mval-line` ocultada.
+- **Files**: dashboard.js, tx-modal.js, modal.css, dashboard/categories/goals/wallets.php
+  (só classe backdrop). Sem lógica financeira, sem tocar create/update.php nem names.
+- **Validação**: node --check tx-modal.js/dashboard.js OK; modal.css 92/92; backdrop 0 restantes.
 
 ## Ajustes finos: sidebar sticky + datas + scroll do modal (2026-07-26)
 - **Report**: /reports/checkpoint_ajustes_shell_modal.md
