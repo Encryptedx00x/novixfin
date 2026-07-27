@@ -1,10 +1,39 @@
 # NovixFin v3 Execution Progress
 
 ## Current State
-- **Phase**: MODAIS FIÉIS AO DESIGN — **COMPLETA**. O componente `nvx-modal` agora reproduz a
-  COMPOSIÇÃO do design (cabeçalho título+subtítulo+X, campo de valor com símbolo de moeda,
-  botão accent com --cut + ícone, backdrop tema-aware, bottom-sheet mobile). Parado para revisão.
-- Reskin **100%**; andaime removido; modais unificados E fiéis ao design.
+- **Phase**: MODAL DE LANÇAMENTO RECONSTRUÍDO (estrutura do design) — **COMPLETA**. Toggle
+  Despesa/Receita, valor em destaque, chips de categoria, toggle Efetivada/Pendente — camada
+  visual sobre controles nativos ocultos; fiação de dados 100% preservada. Parado para revisão.
+- Reskin **100%**; andaime removido; modais unificados, fiéis ao design; lançamento reconstruído.
+
+## Modal de lançamento reconstruído — estrutura do design (2026-07-26)
+- **Report**: /reports/checkpoint_modal_lancamento_reconstruido.md
+- **Fonte**: Claude Design "NovixFin App.html" (modal "Novo/Editar lançamento").
+- **Arquitetura (INEGOCIÁVEL)**: a UI mudou, os DADOS não. Os controles nativos `<select
+  name=type>`, `<select name=category_id>`, `<input name=is_effective>` viram FONTE DE VERDADE
+  OCULTA (class hidden); a UI do design (toggle/chips) reflete e dirige esses controles,
+  disparando 'change' para que dashboard.js (filtro de categoria por tipo, criação inline,
+  pré-preenchimento na edição) siga funcionando SEM alteração. Mesmos names/ids postados a
+  create.php/update.php — handlers NÃO tocados.
+- **NEW public/scripts/tx-modal.js**: controlador da camada visual. Toggle segmentado ligado a
+  <select> (data-seg-target) e a checkbox (data-segcheck-target); chips espelhando o <select>
+  de categoria (data-chips-target) com MutationObserver (re-render em filtro por tipo / criação
+  inline); re-sincroniza tudo no `open` do <dialog.nvx-tx-modal> (edição pré-preenche antes de
+  showModal). Símbolo de moeda continua no wiring inline do dashboard.
+- **modal.css**: componentes `.nvx-seg/.nvx-seg-btn(.is-active)`, `.nvx-chips/.nvx-chip
+  (.is-active/--add)`, `.nvx-dashed`, `.nvx-mgrid(--status)`, `.nvx-mfield/.nvx-mlabel`.
+- **dashboard.php**: modais criar e editar reconstruídos na ordem do design (cabeçalho → toggle
+  tipo → VALOR em destaque → descrição → chips categoria → conta+data → status+moeda →
+  recorrente → rodapé "Cancelar"/"Lançar"/"Salvar alterações" + nota "Enter salva…"). Campos de
+  recorrência preservados integralmente (dados mais ricos que o design — necessário ao backend).
+  `required` removido dos selects agora OCULTOS (evita "invalid form control not focusable");
+  server valida. account_id (visível) mantém required.
+- **Fiação preservada**: type, category_id, amount, currency, description, transaction_date,
+  is_effective, effective_date, is_recurring, recurrence_* + _token. "Enter salva" = submit
+  nativo do form (sem JS extra).
+- **Validação**: node --check tx-modal.js OK; dashboard.php balanceado (div 150/150, dialog 4/4,
+  form 5/5, php 158/158, select 15/15); `php -l` pendente no servidor. TESTE FINANCEIRO pendente
+  (criar despesa/receita por toggle, categoria por chip, efetivada/pendente, recorrente, editar).
 
 ## Modais fiéis ao design — composição única (2026-07-26)
 - **Report**: /reports/checkpoint_modais_design.md

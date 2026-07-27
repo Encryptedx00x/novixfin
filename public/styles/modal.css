@@ -94,6 +94,40 @@ dialog.nvx-modal.nvx-modal--wide { width: min(540px, 100%); max-width: min(540px
 }
 dialog.nvx-modal.nvx-modal--danger { border: 1px solid color-mix(in srgb, var(--neg) 35%, var(--line-soft)); }
 
+/* ===== Toggle segmentado (Despesa/Receita, Efetivada/Pendente) ===== */
+.nvx-seg { display: flex; gap: 6px; background: var(--bg); padding: 5px; border-radius: var(--r-chip); }
+.nvx-seg-btn {
+    flex: 1; padding: 10px; border-radius: calc(var(--r-chip) - 2px);
+    background: transparent; color: var(--muted); border: none; cursor: pointer;
+    font-family: var(--f-b); font-weight: 700; font-size: 13.5px;
+    transition: background .15s ease, color .15s ease;
+}
+.nvx-seg-btn.is-active { background: var(--accent); color: var(--accent-ink); }
+.nvx-seg--sm .nvx-seg-btn { padding: 8px; font-size: 12.5px; }
+
+/* ===== Chips de categoria ===== */
+.nvx-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.nvx-chip {
+    display: inline-flex; align-items: center; gap: 7px; padding: 7px 12px;
+    border-radius: var(--r-chip); background: transparent; border: 1px solid var(--line);
+    font-family: var(--f-b); font-size: 12.5px; font-weight: 700; color: var(--ink);
+    cursor: pointer; transition: background .15s ease, border-color .15s ease, color .15s ease;
+}
+.nvx-chip:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+.nvx-chip.is-active { background: color-mix(in srgb, var(--accent) 14%, transparent); border-color: var(--accent); color: var(--accent-text); }
+.nvx-chip--add { border-style: dashed; color: var(--accent-text); }
+
+/* caixa tracejada (recorrente) */
+.nvx-dashed { border: 1px dashed var(--line); border-radius: var(--r-chip); padding: 11px 13px; }
+
+/* grade de 2 colunas do design */
+.nvx-mgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.nvx-mgrid--status { grid-template-columns: 1fr 110px; }
+@media (max-width: 560px) { .nvx-mgrid, .nvx-mgrid--status { grid-template-columns: 1fr; } }
+
+.nvx-mfield { display: flex; flex-direction: column; gap: 5px; }
+.nvx-mlabel { font-family: var(--f-m); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+
 /* ===== Campos: inputs / selects / textarea ===== */
 .nvx-modal input,
 .nvx-modal select,

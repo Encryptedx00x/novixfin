@@ -1434,7 +1434,7 @@ $hasDashData = !empty($accounts);
      só migrou para o modal do FAB (fiel ao design). Definido ANTES
      do bloco JSON abaixo, que lê $transactionCategories daqui.
      ========================================================= -->
-<dialog id="modal-create-dashboard" class="nvx-modal dash-screen bg-slate-900/90 backdrop:bg-slate-950/70 rounded-3xl border border-white/10 max-w-lg w-full p-6">
+<dialog id="modal-create-dashboard" class="nvx-modal nvx-tx-modal dash-screen bg-slate-900/90 backdrop:bg-slate-950/70 rounded-3xl border border-white/10 max-w-lg w-full p-6">
     <div class="nvx-mhead">
         <div class="nvx-mhead-txt">
             <div class="nvx-mtitle">Novo lançamento</div>
@@ -1446,60 +1446,17 @@ $hasDashData = !empty($accounts);
     </div>
             <form method="POST" action="/actions/transactions/create.php" class="space-y-4">
                 <input type="hidden" name="_token" value="<?php echo csrfToken(); ?>">
-                <div>
-                    <label class="text-sm text-slate-300" for="account_id">Conta/Banco</label>
-                    <select id="account_id" name="account_id" required class="w-full mt-1 px-4 py-2 rounded-xl bg-slate-900 border border-white/10 focus:border-violet-500 focus:outline-none">
-                        <?php
-                        $accountsStmt = $pdo->prepare('SELECT id, name, icon FROM accounts WHERE user_id = :user_id AND is_active = 1 ORDER BY name ASC');
-                        $accountsStmt->execute(['user_id' => $userId]);
-                        foreach ($accountsStmt->fetchAll() as $account) : ?>
-                            <option value="<?php echo (int) $account['id']; ?>">
-                                <?php echo sanitize(($account['icon'] ?? '🏦') . ' ' . $account['name']); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <a href="/public/accounts.php" class="text-xs text-violet-300 hover:text-white transition">+ Gerenciar contas</a>
+                <!-- 2. Toggle Despesa/Receita (dirige o <select name=type> oculto) -->
+                <div class="nvx-seg" data-seg-target="#type">
+                    <button type="button" class="nvx-seg-btn" data-seg-val="expense">Despesa</button>
+                    <button type="button" class="nvx-seg-btn" data-seg-val="income">Receita</button>
                 </div>
-                <div>
-                    <label class="text-sm text-slate-300" for="type">Tipo</label>
-                    <select id="type" name="type" required class="w-full mt-1 px-4 py-2 rounded-xl bg-slate-900 border border-white/10 focus:border-violet-500 focus:outline-none">
-                        <option value="income">Receita</option>
-                        <option value="expense">Despesa</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="text-sm text-slate-300" for="category">Categoria</label>
-                    <div class="flex gap-2 items-start">
-                    <select id="category" name="category_id" required class="flex-1 mt-1 px-4 py-2 rounded-xl bg-slate-900 border border-white/10 focus:border-violet-500 focus:outline-none">
-                        <?php
-                        $typeSelected = 'income'; // Valor padrão
-                        // Verifica se user_id existe na tabela
-                        $hasUserIdColumn = false;
-                        try {
-                            $checkColumn = $pdo->query("SHOW COLUMNS FROM categories LIKE 'user_id'");
-                            $hasUserIdColumn = $checkColumn->rowCount() > 0;
-                        } catch (PDOException $e) {
-                            // Ignora erro
-                        }
-                        
-                        if ($hasUserIdColumn) {
-                            $stmt = $pdo->prepare('SELECT id, name, type FROM categories WHERE (user_id = :user_id OR user_id IS NULL) ORDER BY name ASC');
-                            $stmt->execute(['user_id' => $userId]);
-                        } else {
-                            $stmt = $pdo->query('SELECT id, name, type FROM categories ORDER BY name ASC');
-                        }
-                        $transactionCategories = $stmt->fetchAll();
-                        foreach ($transactionCategories as $category) : ?>
-                            <option value="<?php echo (int) $category['id']; ?>" data-type="<?php echo $category['type']; ?>">
-                                <?php echo sanitize($category['name']); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                    <button type="button" data-inline-category-trigger="create" data-category-select="#category"
-                            class="mt-1 px-3 py-2 text-xs rounded-lg bg-violet-500/20 text-violet-200 hover:bg-violet-500/30 transition whitespace-nowrap"
-                            title="Criar nova categoria inline">+ Nova categoria</button>
-                    </div>
-                </div>
+                <select id="type" name="type" class="hidden" aria-hidden="true" tabindex="-1">
+                    <option value="income">Receita</option>
+                    <option value="expense">Despesa</option>
+                </select>
+
+                <!-- 3. Valor em destaque, com símbolo de moeda dinâmico -->
                 <div class="nvx-mvalue">
                     <div class="nvx-mvalue-cap">Valor</div>
                     <div class="nvx-mval-row">
@@ -1508,36 +1465,97 @@ $hasDashData = !empty($accounts);
                     </div>
                     <div class="nvx-mval-line"></div>
                 </div>
+
+                <!-- 4. Descrição -->
+                <input type="text" id="description" name="description" maxlength="150" placeholder="Descrição — ex.: iFood, salário, aluguel…" class="w-full px-4 py-2 rounded-xl bg-slate-900 border border-white/10 focus:border-violet-500 focus:outline-none">
+
+                <!-- 5. Chips de categoria (espelham o <select name=category_id> oculto) -->
                 <div>
-                    <label class="text-sm text-slate-300 nvx-mlabel" for="currency">Moeda</label>
-                    <select id="currency" name="currency" required class="w-full mt-1 px-4 py-2 rounded-xl bg-slate-900 border border-white/10 focus:border-violet-500 focus:outline-none">
-                        <option value="BRL">R$ BRL</option>
-                        <option value="USD">US$ USD</option>
-                        <option value="EUR">€ EUR</option>
-                    </select>
+                    <span class="nvx-mlabel">Categoria</span>
+                    <div class="nvx-chips" data-chips-target="#category" style="margin-top:8px;">
+                        <button type="button" data-chip-keep data-inline-category-trigger="create" data-category-select="#category" class="nvx-chip nvx-chip--add" title="Criar nova categoria inline">+ Nova</button>
+                    </div>
                 </div>
-                <div>
-                    <label class="text-sm text-slate-300" for="description">Descrição</label>
-                    <input type="text" id="description" name="description" maxlength="150" class="w-full mt-1 px-4 py-2 rounded-xl bg-slate-900 border border-white/10 focus:border-violet-500 focus:outline-none">
+                <select id="category" name="category_id" class="hidden" aria-hidden="true" tabindex="-1">
+                    <?php
+                    $typeSelected = 'income'; // Valor padrão
+                    // Verifica se user_id existe na tabela
+                    $hasUserIdColumn = false;
+                    try {
+                        $checkColumn = $pdo->query("SHOW COLUMNS FROM categories LIKE 'user_id'");
+                        $hasUserIdColumn = $checkColumn->rowCount() > 0;
+                    } catch (PDOException $e) {
+                        // Ignora erro
+                    }
+
+                    if ($hasUserIdColumn) {
+                        $stmt = $pdo->prepare('SELECT id, name, type FROM categories WHERE (user_id = :user_id OR user_id IS NULL) ORDER BY name ASC');
+                        $stmt->execute(['user_id' => $userId]);
+                    } else {
+                        $stmt = $pdo->query('SELECT id, name, type FROM categories ORDER BY name ASC');
+                    }
+                    $transactionCategories = $stmt->fetchAll();
+                    foreach ($transactionCategories as $category) : ?>
+                        <option value="<?php echo (int) $category['id']; ?>" data-type="<?php echo $category['type']; ?>">
+                            <?php echo sanitize($category['name']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+
+                <!-- 6. Conta / carteira + Data de efetivação -->
+                <div class="nvx-mgrid">
+                    <label class="nvx-mfield">
+                        <span class="nvx-mlabel">Conta / carteira</span>
+                        <select id="account_id" name="account_id" required class="w-full px-4 py-2 rounded-xl bg-slate-900 border border-white/10 focus:border-violet-500 focus:outline-none">
+                            <?php
+                            $accountsStmt = $pdo->prepare('SELECT id, name, icon FROM accounts WHERE user_id = :user_id AND is_active = 1 ORDER BY name ASC');
+                            $accountsStmt->execute(['user_id' => $userId]);
+                            foreach ($accountsStmt->fetchAll() as $account) : ?>
+                                <option value="<?php echo (int) $account['id']; ?>">
+                                    <?php echo sanitize(($account['icon'] ?? '🏦') . ' ' . $account['name']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </label>
+                    <label class="nvx-mfield">
+                        <span class="nvx-mlabel">Data</span>
+                        <input type="date" id="transaction_date" name="transaction_date" required value="<?php echo date('Y-m-d'); ?>" class="w-full px-4 py-2 rounded-xl bg-slate-900 border border-white/10 focus:border-violet-500 focus:outline-none text-white">
+                    </label>
                 </div>
-                <div>
-                    <label class="text-sm text-slate-300" for="transaction_date">Data</label>
-                    <input type="date" id="transaction_date" name="transaction_date" required value="<?php echo date('Y-m-d'); ?>" class="w-full mt-1 px-4 py-2 rounded-xl bg-slate-900 border border-white/10 focus:border-violet-500 focus:outline-none text-white">
+
+                <!-- 7. Toggle Efetivada/Pendente (dirige o checkbox is_effective) + Moeda -->
+                <div class="nvx-mgrid nvx-mgrid--status">
+                    <div class="nvx-mfield">
+                        <span class="nvx-mlabel">Status</span>
+                        <div class="nvx-seg nvx-seg--sm" data-segcheck-target="#is_effective">
+                            <button type="button" class="nvx-seg-btn" data-seg-val="1">Efetivada</button>
+                            <button type="button" class="nvx-seg-btn" data-seg-val="0">Pendente</button>
+                        </div>
+                    </div>
+                    <label class="nvx-mfield">
+                        <span class="nvx-mlabel">Moeda</span>
+                        <select id="currency" name="currency" required class="w-full px-4 py-2 rounded-xl bg-slate-900 border border-white/10 focus:border-violet-500 focus:outline-none">
+                            <option value="BRL">R$</option>
+                            <option value="USD">US$</option>
+                            <option value="EUR">€</option>
+                        </select>
+                    </label>
+                </div>
+                <input type="checkbox" id="is_effective" name="is_effective" value="1" checked onchange="toggleEffectiveDate()" class="hidden">
+                <div id="effectiveDateContainer" class="hidden">
+                    <label class="text-sm text-slate-300 nvx-mlabel" for="effective_date">Data de efetivação</label>
+                    <input type="date" id="effective_date" name="effective_date" min="<?php echo date('Y-m-d'); ?>" class="w-full mt-1 px-4 py-2 rounded-xl bg-slate-900 border border-white/10 focus:border-violet-500 focus:outline-none text-white">
+                    <p class="text-xs text-slate-400 mt-1">A transação será efetivada automaticamente nesta data</p>
+                </div>
+
+                <!-- 8. Recorrente -->
+                <div class="nvx-dashed">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="is_recurring" name="is_recurring" value="1" onchange="toggleRecurrenceFields()">
+                        <span class="text-sm text-slate-300">Recorrente <span class="text-slate-400">— repete todo mês (vale pra receita e despesa)</span></span>
+                    </label>
                 </div>
                 <div class="flex flex-col gap-3">
-                    <label class="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" id="is_effective" name="is_effective" value="1" checked onchange="toggleEffectiveDate()" class="w-4 h-4 rounded bg-slate-900 border-white/10 text-violet-500 focus:ring-violet-500 focus:ring-offset-slate-900">
-                        <span class="text-sm text-slate-300">Transação efetivada</span>
-                    </label>
-                    <div id="effectiveDateContainer" class="hidden">
-                        <label class="text-sm text-slate-300" for="effective_date">Data de Efetivação</label>
-                        <input type="date" id="effective_date" name="effective_date" min="<?php echo date('Y-m-d'); ?>" class="w-full mt-1 px-4 py-2 rounded-xl bg-slate-900 border border-white/10 focus:border-violet-500 focus:outline-none text-white">
-                        <p class="text-xs text-slate-400 mt-1">A transação será efetivada automaticamente nesta data</p>
-                    </div>
-                    <label class="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" id="is_recurring" name="is_recurring" value="1" onchange="toggleRecurrenceFields()" class="w-4 h-4 rounded bg-slate-900 border-white/10 text-violet-500 focus:ring-violet-500 focus:ring-offset-slate-900">
-                        <span class="text-sm text-slate-300">Transação fixa/recorrente</span>
-                    </label>
                     <div id="recurrenceFields" class="hidden space-y-3">
                         <div>
                             <label class="text-sm text-slate-300" for="recurrence_type">Tipo de Recorrência</label>
@@ -1651,13 +1669,14 @@ $hasDashData = !empty($accounts);
                         Lançar
                     </button>
                 </div>
+                <div class="nvx-mfoot-note">Enter salva · +10 pts por lançamento</div>
             </form>
 </dialog>
 
 <?php
 // chart-tokens.js primeiro: expõe window.NVXCharts (paleta dos tokens) que
 // forecast-chart.js e dashboard.js consomem para colorir os gráficos por tema.
-$pageScripts = ['scripts/chart-tokens.js', 'scripts/forecast-chart.js', 'scripts/dashboard.js', 'scripts/kanban.js'];
+$pageScripts = ['scripts/chart-tokens.js', 'scripts/forecast-chart.js', 'scripts/dashboard.js', 'scripts/kanban.js', 'scripts/tx-modal.js'];
 
 // Garante que os dados estão no formato correto para JSON
 $categoriesJson = json_encode($categoriesTotals ?: [], JSON_THROW_ON_ERROR);
@@ -1759,7 +1778,7 @@ $categoryOptionsJson = json_encode(array_map(static function (array $category): 
     </form>
 </dialog>
 
-<dialog id="modal-edit-dashboard" class="nvx-modal dash-screen bg-slate-900/90 backdrop:bg-slate-950/70 rounded-3xl border border-white/10 max-w-lg w-full p-6">
+<dialog id="modal-edit-dashboard" class="nvx-modal nvx-tx-modal dash-screen bg-slate-900/90 backdrop:bg-slate-950/70 rounded-3xl border border-white/10 max-w-lg w-full p-6">
     <form method="POST" action="/actions/transactions/update.php" class="space-y-4">
         <input type="hidden" name="_token" value="<?php echo csrfToken(); ?>">
         <input type="hidden" name="redirect_to" value="dashboard.php">
@@ -1773,95 +1792,114 @@ $categoryOptionsJson = json_encode(array_map(static function (array $category): 
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6 18 18M18 6 6 18"></path></svg>
             </button>
         </div>
-        <div>
-            <label class="text-sm text-slate-300" for="dashboard-modal-account">Conta/Banco</label>
-            <select id="dashboard-modal-account" name="account_id" required class="w-full mt-1 px-4 py-2 rounded-xl bg-slate-900 border border-white/10 text-sm focus:border-violet-500 focus:outline-none">
-                <?php
-                $accountsStmt = $pdo->prepare('SELECT id, name, icon FROM accounts WHERE user_id = :user_id AND is_active = 1 ORDER BY name ASC');
-                $accountsStmt->execute(['user_id' => $userId]);
-                foreach ($accountsStmt->fetchAll() as $account) : ?>
-                    <option value="<?php echo (int) $account['id']; ?>">
-                        <?php echo sanitize(($account['icon'] ?? '🏦') . ' ' . $account['name']); ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </div>
-        <div>
-            <label class="text-sm text-slate-300" for="dashboard-modal-type">Tipo</label>
-            <select id="dashboard-modal-type" name="type" class="w-full mt-1 px-4 py-2 rounded-xl bg-slate-900 border border-white/10 text-sm">
-                <option value="income">Receita</option>
-                <option value="expense">Despesa</option>
-            </select>
-        </div>
-        <div>
-            <label class="text-sm text-slate-300" for="dashboard-modal-category">Categoria</label>
-            <div class="flex gap-2 items-start">
-            <select id="dashboard-modal-category" name="category_id" class="flex-1 mt-1 px-4 py-2 rounded-xl bg-slate-900 border border-white/10 text-sm">
-                <?php
-                // Verifica se user_id existe na tabela
-                $hasUserIdColumn = false;
-                try {
-                    $checkColumn = $pdo->query("SHOW COLUMNS FROM categories LIKE 'user_id'");
-                    $hasUserIdColumn = $checkColumn->rowCount() > 0;
-                } catch (PDOException $e) {
-                    // Ignora erro
-                }
-                
-                if ($hasUserIdColumn) {
-                    $categoriesStmt = $pdo->prepare('SELECT id, name, type FROM categories WHERE (user_id = :user_id OR user_id IS NULL) ORDER BY name ASC');
-                    $categoriesStmt->execute(['user_id' => $userId]);
-                } else {
-                    $categoriesStmt = $pdo->query('SELECT id, name, type FROM categories ORDER BY name ASC');
-                }
-                foreach ($categoriesStmt->fetchAll() as $category) : ?>
-                    <option value="<?php echo (int) $category['id']; ?>" data-type="<?php echo $category['type']; ?>">
-                        <?php echo sanitize($category['name']); ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-                <button type="button" data-inline-category-trigger="create" data-category-select="#dashboard-modal-category"
-                        class="mt-1 px-3 py-2 text-xs rounded-lg bg-violet-500/20 text-violet-200 hover:bg-violet-500/30 transition whitespace-nowrap"
-                        title="Criar nova categoria inline">+ Nova</button>
-            </div>
-        </div>
-        <div class="nvx-mvalue">
-            <div class="nvx-mvalue-cap">Valor</div>
-            <div class="nvx-mval-row">
-                <span class="nvx-msym" data-currency-symbol="#dashboard-modal-currency">R$</span>
-                <input type="number" id="dashboard-modal-amount" name="amount" min="0.01" step="0.01" placeholder="0,00" class="nvx-mval-input">
-            </div>
-            <div class="nvx-mval-line"></div>
-        </div>
-        <div>
-            <label class="text-sm text-slate-300 nvx-mlabel" for="dashboard-modal-currency">Moeda</label>
-            <select id="dashboard-modal-currency" name="currency" class="w-full mt-1 px-4 py-2 rounded-xl bg-slate-900 border border-white/10 text-sm">
-                <option value="BRL">R$ BRL</option>
-                <option value="USD">US$ USD</option>
-                <option value="EUR">€ EUR</option>
-            </select>
-        </div>
-        <div>
-            <label class="text-sm text-slate-300" for="dashboard-modal-description">Descrição</label>
-            <input type="text" id="dashboard-modal-description" name="description" maxlength="150" class="w-full mt-1 px-4 py-2 rounded-xl bg-slate-900 border border-white/10 text-sm">
-        </div>
-        <div>
-            <label class="text-sm text-slate-300" for="dashboard-modal-date">Data</label>
-            <input type="date" id="dashboard-modal-date" name="transaction_date" class="w-full mt-1 px-4 py-2 rounded-xl bg-slate-900 border border-white/10 text-sm">
-        </div>
-        <div class="flex flex-col gap-3">
-            <label class="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" id="dashboard-modal-is-effective" name="is_effective" value="1" class="w-4 h-4 rounded bg-slate-900 border-white/10 text-violet-500 focus:ring-violet-500 focus:ring-offset-slate-900" onchange="toggleEffectiveDateEditDashboard()">
-                <span class="text-sm text-slate-300">Transação efetivada</span>
-            </label>
-            <div id="dashboard-modal-effective-date-container" class="hidden">
-                <label class="text-sm text-slate-300" for="dashboard-modal-effective-date">Data de efetivação</label>
-                <input type="date" id="dashboard-modal-effective-date" name="effective_date" class="w-full mt-1 px-4 py-2 rounded-xl bg-slate-900 border border-white/10 focus:border-violet-500 focus:outline-none text-white">
-                <p class="text-xs text-slate-400 mt-1">Data em que a transação será efetivada automaticamente</p>
-            </div>
-            <label class="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" id="dashboard-modal-is-recurring" name="is_recurring" value="1" class="w-4 h-4 rounded bg-slate-900 border-white/10 text-violet-500 focus:ring-violet-500 focus:ring-offset-slate-900" onchange="toggleRecurrenceFieldsEditDashboard()">
-                <span class="text-sm text-slate-300">Transação fixa/recorrente</span>
-            </label>
+                <!-- 2. Toggle Despesa/Receita (dirige o <select name=type> oculto) -->
+                <div class="nvx-seg" data-seg-target="#dashboard-modal-type">
+                    <button type="button" class="nvx-seg-btn" data-seg-val="expense">Despesa</button>
+                    <button type="button" class="nvx-seg-btn" data-seg-val="income">Receita</button>
+                </div>
+                <select id="dashboard-modal-type" name="type" class="hidden" aria-hidden="true" tabindex="-1">
+                    <option value="income">Receita</option>
+                    <option value="expense">Despesa</option>
+                </select>
+
+                <!-- 3. Valor em destaque -->
+                <div class="nvx-mvalue">
+                    <div class="nvx-mvalue-cap">Valor</div>
+                    <div class="nvx-mval-row">
+                        <span class="nvx-msym" data-currency-symbol="#dashboard-modal-currency">R$</span>
+                        <input type="number" id="dashboard-modal-amount" name="amount" min="0.01" step="0.01" placeholder="0,00" class="nvx-mval-input">
+                    </div>
+                    <div class="nvx-mval-line"></div>
+                </div>
+
+                <!-- 4. Descrição -->
+                <input type="text" id="dashboard-modal-description" name="description" maxlength="150" placeholder="Descrição — ex.: iFood, salário, aluguel…" class="w-full px-4 py-2 rounded-xl bg-slate-900 border border-white/10 focus:border-violet-500 focus:outline-none">
+
+                <!-- 5. Chips de categoria (espelham o <select name=category_id> oculto) -->
+                <div>
+                    <span class="nvx-mlabel">Categoria</span>
+                    <div class="nvx-chips" data-chips-target="#dashboard-modal-category" style="margin-top:8px;">
+                        <button type="button" data-chip-keep data-inline-category-trigger="create" data-category-select="#dashboard-modal-category" class="nvx-chip nvx-chip--add" title="Criar nova categoria inline">+ Nova</button>
+                    </div>
+                </div>
+                <select id="dashboard-modal-category" name="category_id" class="hidden" aria-hidden="true" tabindex="-1">
+                    <?php
+                    // Verifica se user_id existe na tabela
+                    $hasUserIdColumn = false;
+                    try {
+                        $checkColumn = $pdo->query("SHOW COLUMNS FROM categories LIKE 'user_id'");
+                        $hasUserIdColumn = $checkColumn->rowCount() > 0;
+                    } catch (PDOException $e) {
+                        // Ignora erro
+                    }
+
+                    if ($hasUserIdColumn) {
+                        $categoriesStmt = $pdo->prepare('SELECT id, name, type FROM categories WHERE (user_id = :user_id OR user_id IS NULL) ORDER BY name ASC');
+                        $categoriesStmt->execute(['user_id' => $userId]);
+                    } else {
+                        $categoriesStmt = $pdo->query('SELECT id, name, type FROM categories ORDER BY name ASC');
+                    }
+                    foreach ($categoriesStmt->fetchAll() as $category) : ?>
+                        <option value="<?php echo (int) $category['id']; ?>" data-type="<?php echo $category['type']; ?>">
+                            <?php echo sanitize($category['name']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+
+                <!-- 6. Conta / carteira + Data -->
+                <div class="nvx-mgrid">
+                    <label class="nvx-mfield">
+                        <span class="nvx-mlabel">Conta / carteira</span>
+                        <select id="dashboard-modal-account" name="account_id" required class="w-full px-4 py-2 rounded-xl bg-slate-900 border border-white/10 text-sm focus:border-violet-500 focus:outline-none">
+                            <?php
+                            $accountsStmt = $pdo->prepare('SELECT id, name, icon FROM accounts WHERE user_id = :user_id AND is_active = 1 ORDER BY name ASC');
+                            $accountsStmt->execute(['user_id' => $userId]);
+                            foreach ($accountsStmt->fetchAll() as $account) : ?>
+                                <option value="<?php echo (int) $account['id']; ?>">
+                                    <?php echo sanitize(($account['icon'] ?? '🏦') . ' ' . $account['name']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </label>
+                    <label class="nvx-mfield">
+                        <span class="nvx-mlabel">Data</span>
+                        <input type="date" id="dashboard-modal-date" name="transaction_date" class="w-full px-4 py-2 rounded-xl bg-slate-900 border border-white/10 text-sm">
+                    </label>
+                </div>
+
+                <!-- 7. Toggle Efetivada/Pendente + Moeda -->
+                <div class="nvx-mgrid nvx-mgrid--status">
+                    <div class="nvx-mfield">
+                        <span class="nvx-mlabel">Status</span>
+                        <div class="nvx-seg nvx-seg--sm" data-segcheck-target="#dashboard-modal-is-effective">
+                            <button type="button" class="nvx-seg-btn" data-seg-val="1">Efetivada</button>
+                            <button type="button" class="nvx-seg-btn" data-seg-val="0">Pendente</button>
+                        </div>
+                    </div>
+                    <label class="nvx-mfield">
+                        <span class="nvx-mlabel">Moeda</span>
+                        <select id="dashboard-modal-currency" name="currency" class="w-full px-4 py-2 rounded-xl bg-slate-900 border border-white/10 text-sm">
+                            <option value="BRL">R$</option>
+                            <option value="USD">US$</option>
+                            <option value="EUR">€</option>
+                        </select>
+                    </label>
+                </div>
+                <input type="checkbox" id="dashboard-modal-is-effective" name="is_effective" value="1" class="hidden" onchange="toggleEffectiveDateEditDashboard()">
+                <div id="dashboard-modal-effective-date-container" class="hidden">
+                    <label class="text-sm text-slate-300 nvx-mlabel" for="dashboard-modal-effective-date">Data de efetivação</label>
+                    <input type="date" id="dashboard-modal-effective-date" name="effective_date" class="w-full mt-1 px-4 py-2 rounded-xl bg-slate-900 border border-white/10 focus:border-violet-500 focus:outline-none text-white">
+                    <p class="text-xs text-slate-400 mt-1">Data em que a transação será efetivada automaticamente</p>
+                </div>
+
+                <!-- 8. Recorrente -->
+                <div class="nvx-dashed">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="dashboard-modal-is-recurring" name="is_recurring" value="1" onchange="toggleRecurrenceFieldsEditDashboard()">
+                        <span class="text-sm text-slate-300">Recorrente <span class="text-slate-400">— repete todo mês (vale pra receita e despesa)</span></span>
+                    </label>
+                </div>
+                <div class="flex flex-col gap-3">
             <div id="dashboard-modal-recurrence-fields" class="hidden space-y-3">
                 <div>
                     <label class="text-sm text-slate-300" for="dashboard-modal-recurrence-type">Tipo de Recorrência</label>
@@ -1913,6 +1951,7 @@ $categoryOptionsJson = json_encode(array_map(static function (array $category): 
                 Salvar alterações
             </button>
         </div>
+        <div class="nvx-mfoot-note">Enter salva as alterações</div>
     </form>
 </dialog>
 
