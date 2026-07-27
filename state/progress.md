@@ -1,10 +1,31 @@
 # NovixFin v3 Execution Progress
 
 ## Current State
-- **Phase**: POLIMENTO DO MODAL DE LANÇAMENTO — **COMPLETA**. Cancelar do sub-modal de categoria,
-  backdrop tokenizado, modal mais largo, chips com "Ver mais", sublinha do valor alinhada.
-  Parado para revisão.
-- Reskin **100%**; andaime removido; modais fiéis ao design; lançamento reconstruído e polido.
+- **Phase**: SALDO DESNORMALIZADO (accounts.balance) — **PARTE 1 (código) COMPLETA**; PARTE 2
+  (recompute) ENTREGUE, precisa rodar no SERVIDOR (backup + dry-run + --apply). Parado p/ revisão.
+- Reskin **100%**; modais completos; agora saldo consistente com as transações.
+
+## Correção do saldo desnormalizado (2026-07-27)
+- **Report**: /reports/checkpoint_saldo_recompute.md
+- **PARTE 1 — auditoria dos handlers**: o modelo de saldo é 100% dirigido por transações (conta
+  nasce com balance 0.00, sem saldo de abertura — actions/accounts/save.php). Fórmula canônica:
+  income +amount, expense −amount, só quando is_effective. TODOS os handlers ATUAIS já ajustam o
+  saldo com essa fórmula e atomicamente:
+  - CORRETOS: TransactionRepository::create/delete/deleteByAccount/deleteAll (envoltos em BEGIN/
+    COMMIT); pay-bill (usa repo->create); save-transaction-settings (flip is_effective + ajuste
+    consistente); auto-effective; accounts/delete (apaga conta+txns, saldo some junto).
+  - LACUNA CORRIGIDA: `TransactionRepository::update()` NÃO estava envolto em transação — UPDATE +
+    ajuste de saldo agora na MESMA transação atômica (guard inTransaction()), como create/delete.
+  - **O descolamento é RESIDUAL HISTÓRICO**: deletes pré-v3 não revertiam o saldo (confirmado nos
+    comentários do próprio código). O código atual não gera novo descolamento.
+- **PARTE 2 — recompute**: NEW `scripts/recompute-balances.php` (CLI-only, idempotente).
+  Recalcula balance = SUM(income efetivada) − SUM(expense efetivada) por conta (mesma fórmula,
+  vale p/ credit também). DRY-RUN por padrão (relatório antes→depois, não grava); `--apply`
+  grava dentro de UMA transação. NÃO apaga transações.
+- **Validação**: estático OK (chaves/parênteses/try-catch balanceados); `php -l` e o dry-run
+  PENDENTES no servidor (PHP/DB indisponíveis localmente).
+- **A RODAR NO SERVIDOR** (após backup `mariadb-dump ... accounts`): dry-run → revisar relatório →
+  `--apply` → dry-run de novo (diff 0) → conferir no app criar/editar/EXCLUIR recalcula certo.
 
 ## Polimento do modal de lançamento (2026-07-26)
 - **Report**: /reports/checkpoint_polimento_modal_lancamento.md

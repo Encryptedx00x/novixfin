@@ -316,56 +316,78 @@ final class TransactionRepository
             $params['recurrence_total_occurrences'] = $recurrenceTotalOccurrences;
         }
         
-        $sql = 'UPDATE transactions SET ' . implode(', ', $updateFields) . ' WHERE id = :id AND user_id = :user_id';
-        $stmt = $this->connection->prepare($sql);
-        $stmt->execute($params);
-        
-        // Ajusta os saldos das contas
-        if ($oldTransaction) {
-            $oldEffective = (bool) $oldTransaction['is_effective'];
-            $oldAmount = (float) $oldTransaction['amount'];
-            $oldType = $oldTransaction['type'];
-            $oldMultiplier = $oldType === 'income' ? 1 : -1;
-            $newMultiplier = $type === 'income' ? 1 : -1;
-            
-            // Se a conta mudou ou o status de efetivado mudou, precisa ajustar os saldos
-            if ($accountChanged || $oldEffective !== $isEffective) {
-                // Remove o valor da conta antiga se estava efetivado
-                if ($oldEffective && $oldAccountId > 0) {
-                    $stmt = $this->connection->prepare('UPDATE accounts SET balance = balance - :amount WHERE id = :account_id');
-                    $stmt->execute([
-                        'amount' => $oldAmount * $oldMultiplier,
-                        'account_id' => $oldAccountId,
-                    ]);
-                }
-                
-                // Adiciona o valor na conta nova (ou mesma conta se não mudou) se está efetivado
-                if ($isEffective && $accountId > 0) {
-                    $stmt = $this->connection->prepare('UPDATE accounts SET balance = balance + :amount WHERE id = :account_id');
-                    $stmt->execute([
-                        'amount' => $amount * $newMultiplier,
-                        'account_id' => $accountId,
-                    ]);
-                }
-            } elseif ($oldEffective && $isEffective && !$accountChanged) {
-                // Se apenas o valor ou tipo mudou (mas conta e efetivado não mudaram)
-                // Remove o valor antigo e adiciona o novo
-                if ($oldAccountId > 0) {
-                    // Remove valor antigo
-                    $stmt = $this->connection->prepare('UPDATE accounts SET balance = balance - :amount WHERE id = :account_id');
-                    $stmt->execute([
-                        'amount' => $oldAmount * $oldMultiplier,
-                        'account_id' => $oldAccountId,
-                    ]);
-                    
-                    // Adiciona valor novo
-                    $stmt = $this->connection->prepare('UPDATE accounts SET balance = balance + :amount WHERE id = :account_id');
-                    $stmt->execute([
-                        'amount' => $amount * $newMultiplier,
-                        'account_id' => $oldAccountId,
-                    ]);
+        // v3 saldo-fix: envolve o UPDATE da transação + os ajustes de saldo na
+        // MESMA transação atômica (como create/delete já faziam). Sem isto, uma
+        // falha de PDO entre o UPDATE e o ajuste de saldo deixava a linha nova
+        // com o saldo antigo — origem de descolamento. Guard inTransaction()
+        // para não aninhar quando o chamador já abriu uma transação.
+        $startedHere = false;
+        if (!$this->connection->inTransaction()) {
+            $this->connection->beginTransaction();
+            $startedHere = true;
+        }
+
+        try {
+            $sql = 'UPDATE transactions SET ' . implode(', ', $updateFields) . ' WHERE id = :id AND user_id = :user_id';
+            $stmt = $this->connection->prepare($sql);
+            $stmt->execute($params);
+
+            // Ajusta os saldos das contas
+            if ($oldTransaction) {
+                $oldEffective = (bool) $oldTransaction['is_effective'];
+                $oldAmount = (float) $oldTransaction['amount'];
+                $oldType = $oldTransaction['type'];
+                $oldMultiplier = $oldType === 'income' ? 1 : -1;
+                $newMultiplier = $type === 'income' ? 1 : -1;
+
+                // Se a conta mudou ou o status de efetivado mudou, precisa ajustar os saldos
+                if ($accountChanged || $oldEffective !== $isEffective) {
+                    // Remove o valor da conta antiga se estava efetivado
+                    if ($oldEffective && $oldAccountId > 0) {
+                        $stmt = $this->connection->prepare('UPDATE accounts SET balance = balance - :amount WHERE id = :account_id');
+                        $stmt->execute([
+                            'amount' => $oldAmount * $oldMultiplier,
+                            'account_id' => $oldAccountId,
+                        ]);
+                    }
+
+                    // Adiciona o valor na conta nova (ou mesma conta se não mudou) se está efetivado
+                    if ($isEffective && $accountId > 0) {
+                        $stmt = $this->connection->prepare('UPDATE accounts SET balance = balance + :amount WHERE id = :account_id');
+                        $stmt->execute([
+                            'amount' => $amount * $newMultiplier,
+                            'account_id' => $accountId,
+                        ]);
+                    }
+                } elseif ($oldEffective && $isEffective && !$accountChanged) {
+                    // Se apenas o valor ou tipo mudou (mas conta e efetivado não mudaram)
+                    // Remove o valor antigo e adiciona o novo
+                    if ($oldAccountId > 0) {
+                        // Remove valor antigo
+                        $stmt = $this->connection->prepare('UPDATE accounts SET balance = balance - :amount WHERE id = :account_id');
+                        $stmt->execute([
+                            'amount' => $oldAmount * $oldMultiplier,
+                            'account_id' => $oldAccountId,
+                        ]);
+
+                        // Adiciona valor novo
+                        $stmt = $this->connection->prepare('UPDATE accounts SET balance = balance + :amount WHERE id = :account_id');
+                        $stmt->execute([
+                            'amount' => $amount * $newMultiplier,
+                            'account_id' => $oldAccountId,
+                        ]);
+                    }
                 }
             }
+
+            if ($startedHere) {
+                $this->connection->commit();
+            }
+        } catch (\Throwable $e) {
+            if ($startedHere) {
+                try { $this->connection->rollBack(); } catch (\Throwable $rb) { /* ignore */ }
+            }
+            throw $e;
         }
     }
 
