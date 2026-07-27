@@ -5,6 +5,27 @@
   (recompute) ENTREGUE, precisa rodar no SERVIDOR (backup + dry-run + --apply). Parado p/ revisão.
 - Reskin **100%**; modais completos; agora saldo consistente com as transações.
 
+## Kanban de categorias — reskin + diagnóstico de dados (2026-07-27)
+- **Report**: /reports/checkpoint_kanban_categorias.md
+- **PARTE 1 (visual)**: os cabeçalhos das colunas já eram tokenizados; os CARDS (render por
+  kanban.js) usavam Tailwind fixo (bg-slate-800/50, text-white, text-emerald/rose-300) → cinza
+  chapado. Reconstruídos com estilos inline var(--token): card em --surface/--line-soft/--cut/
+  sombra (dashboard.css `.dash-screen .dashboard-kanban-card` + hover accent), nome --ink, labels
+  --muted, valores --f-num. Variação em 3 estados: gasto subiu → --neg (↑), gasto caiu → --pos
+  (↓), sem mudança → --muted (→). data-balance nos valores (respeita ocultar-saldos). Mobile
+  overflow-x + min-width por coluna já existia. Drag-and-drop preservado (drag/dragEnd/draggable/
+  dataset/localStorage intactos).
+- **PARTE 2 (dados) — o R$ 0,00 é CORRETO, não bug**: `categoryVariationsData` soma só despesas
+  com `is_effective=1` do mês corrente (current) e anterior (previous). Os gastos do usuário estão
+  majoritariamente PENDENTES (is_effective=0, efetivação futura) → soma efetivada do mês = 0.
+  DECISÃO documentada: manter **efetivadas apenas**, para ser CONSISTENTE com todo o resto do
+  dashboard (hero/KPIs/gráficos usam is_effective=1); incluir pendentes faria o kanban contradizer
+  as demais métricas. O cálculo (Atual=mês corrente, Anterior=mês anterior, variação entre os dois)
+  já bate com o design — nenhum número inventado. Com uma despesa EFETIVADA no mês, o card mostra
+  o valor real. (Se um dia quiser incluir pendentes, é remover `AND t.is_effective = 1` da query —
+  mas diverge do dashboard.)
+- **Validação**: node --check kanban.js OK; dashboard.css 58/58. `php -l` no servidor.
+
 ## Fix warning PHP 8 "use non-compound has no effect" (2026-07-27)
 - `use DateTimeImmutable;` em escopo GLOBAL é no-op → warning. Ocorria nos 6 handlers sem
   namespace: actions/{transactions/create,update,auto-effective, credit-cards/pay-bill,

@@ -41,28 +41,47 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (!column) return;
             
-            const isPositive = cat.is_positive;
-            const colorClass = isPositive ? 'text-emerald-300' : 'text-rose-300';
-            const bgClass = isPositive ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-rose-500/10 border-rose-500/30';
-            const icon = isPositive ? '↓' : '↑';
-            
+            // Variação em 3 estados (tokens do tema, sem cor fixa):
+            // gasto subiu -> --neg; gasto caiu -> --pos; sem mudança -> --muted.
+            const diff = Number(cat.difference) || 0;
+            let varColor;
+            let arrow;
+            if (Math.abs(diff) < 0.005) {
+                varColor = 'var(--muted)';
+                arrow = '→';
+            } else if (diff > 0) {
+                varColor = 'var(--neg)';
+                arrow = '↑';
+            } else {
+                varColor = 'var(--pos)';
+                arrow = '↓';
+            }
+
+            const fmt = (v) => Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
             const card = document.createElement('div');
-            card.className = 'dashboard-kanban-card p-3 rounded-lg bg-slate-800/50 border border-white/10 hover:border-violet-500/50 hover:shadow-lg transition-all duration-200 cursor-move animate-scale-in hover-lift';
+            card.className = 'dashboard-kanban-card';
             card.draggable = true;
             card.dataset.categoryId = cat.id;
             card.dataset.column = columnName;
             card.ondragstart = drag;
             card.ondragend = dragEnd;
-            
+
             card.innerHTML = `
-                <div class="flex items-start justify-between mb-2">
-                    <p class="text-sm font-medium text-white">${cat.name}</p>
-                    <span class="text-xs ${colorClass}">${icon} ${Math.abs(cat.percentage).toFixed(1)}%</span>
+                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:8px; margin-bottom:8px;">
+                    <span style="font-size:13px; font-weight:700; color:var(--ink); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${cat.name}</span>
+                    <span style="font-family:var(--f-m); font-size:11.5px; font-weight:700; color:${varColor}; white-space:nowrap; flex:none;">${arrow} ${Math.abs(Number(cat.percentage) || 0).toFixed(1)}%</span>
                 </div>
-                <p class="text-xs text-slate-400 mb-1">Atual: R$ ${cat.current.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</p>
-                <p class="text-xs text-slate-500">Anterior: R$ ${cat.previous.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</p>
+                <div style="display:flex; align-items:baseline; justify-content:space-between; gap:8px;">
+                    <span style="font-size:11px; color:var(--muted);">Atual</span>
+                    <span data-balance style="font-family:var(--f-num); font-size:13px; font-weight:700; color:var(--ink);">R$ ${fmt(cat.current)}</span>
+                </div>
+                <div style="display:flex; align-items:baseline; justify-content:space-between; gap:8px; margin-top:3px;">
+                    <span style="font-size:11px; color:var(--muted);">Anterior</span>
+                    <span data-balance style="font-family:var(--f-num); font-size:12px; color:var(--muted);">R$ ${fmt(cat.previous)}</span>
+                </div>
             `;
-            
+
             column.appendChild(card);
         });
     };

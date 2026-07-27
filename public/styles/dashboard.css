@@ -144,6 +144,24 @@ html .dash-screen .rounded-2xl { border-radius: calc(var(--r) + 6px); }
     font-variant-numeric: tabular-nums;
 }
 
+/* ---- kanban: card de categoria tokenizado (fim do cinza chapado) ---- */
+.dash-screen .dashboard-kanban-card {
+    background: var(--surface);
+    border: 1px solid var(--line-soft);
+    clip-path: var(--cut);
+    border-radius: var(--r);
+    padding: 12px 13px;
+    cursor: move;
+    box-shadow: var(--card-sh);
+    transition: border-color .16s ease, transform .16s ease;
+}
+.dash-screen .dashboard-kanban-card:hover {
+    border-color: color-mix(in srgb, var(--accent) 45%, var(--line-soft));
+}
+@media (prefers-reduced-motion: no-preference) {
+    .dash-screen .dashboard-kanban-card:hover { transform: translateY(-2px); }
+}
+
 /* ---- kanban: overflow-x + largura mínima por coluna no mobile (item 3) ---- */
 @media (max-width: 900px) {
     .dash-screen .dashboard-kanban-board {
