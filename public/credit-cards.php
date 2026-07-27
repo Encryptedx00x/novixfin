@@ -403,10 +403,17 @@ $error = flash('error');
 </section>
 
 <!-- Modal de Pagamento -->
-<dialog id="payBillModal" class="nvx-modal cards-modal bg-slate-900 rounded-3xl p-6 max-w-2xl w-full border border-white/10">
-        <h2 class="text-2xl font-semibold text-white mb-4">Registrar Pagamento</h2>
-        <p class="text-sm text-slate-400 mb-6" id="payBillCardName"></p>
-        
+<dialog id="payBillModal" class="nvx-modal nvx-modal--wide cards-modal bg-slate-900 rounded-3xl p-6 max-w-2xl w-full border border-white/10">
+        <div class="nvx-mhead">
+            <div class="nvx-mhead-txt">
+                <div class="nvx-mtitle">Registrar pagamento</div>
+                <div class="nvx-msub" id="payBillCardName"></div>
+            </div>
+            <button type="button" onclick="closePayBillModal()" aria-label="Fechar" class="nvx-mclose">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6 18 18M18 6 6 18"></path></svg>
+            </button>
+        </div>
+
         <form method="POST" action="/actions/credit-cards/pay-bill.php" id="payBillForm" class="space-y-4">
             <input type="hidden" name="_token" value="<?php echo csrfToken(); ?>">
             <input type="hidden" id="pay_bill_id" name="bill_id" value="">
@@ -502,9 +509,12 @@ $error = flash('error');
                 </div>
             </div>
             
-            <div class="flex gap-3 pt-4">
-                <button type="button" onclick="closePayBillModal()" class="flex-1 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 transition text-white">Cancelar</button>
-                <button type="submit" id="submitPayBill" class="flex-1 py-3 rounded-xl bg-violet-500 hover:bg-violet-400 transition text-white font-medium">Confirmar</button>
+            <div class="nvx-mfoot pt-2">
+                <button type="button" onclick="closePayBillModal()" class="nvx-mcancel">Cancelar</button>
+                <button type="submit" id="submitPayBill" class="nvx-mbtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+                    Confirmar
+                </button>
             </div>
         </form>
 </dialog>
@@ -779,9 +789,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- Modal de Configurações de Transações -->
 <dialog id="transactionSettingsModal" class="nvx-modal cards-modal cards-modal--sm bg-slate-900 rounded-3xl p-6 max-w-md w-full border border-white/10">
-        <h2 class="text-2xl font-semibold text-white mb-2">Configurações de Transações</h2>
-        <p class="text-sm text-slate-400 mb-6" id="transaction_settings_card_name"></p>
-        
+        <div class="nvx-mhead">
+            <div class="nvx-mhead-txt">
+                <div class="nvx-mtitle">Configurações de transações</div>
+                <div class="nvx-msub" id="transaction_settings_card_name"></div>
+            </div>
+            <button type="button" onclick="closeTransactionSettingsModal()" aria-label="Fechar" class="nvx-mclose">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6 18 18M18 6 6 18"></path></svg>
+            </button>
+        </div>
+
         <form method="POST" action="/actions/credit-cards/save-transaction-settings.php" class="space-y-4">
             <input type="hidden" name="_token" value="<?php echo csrfToken(); ?>">
             <input type="hidden" id="transaction_settings_account_id" name="account_id" value="">
@@ -814,9 +831,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 <p class="text-xs text-slate-400 mt-2 ml-8">Cria uma transação de receita com o valor do limite de crédito do cartão.</p>
             </div>
             
-            <div class="flex gap-3 pt-4">
-                <button type="button" onclick="closeTransactionSettingsModal()" class="flex-1 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 transition text-white">Cancelar</button>
-                <button type="submit" class="flex-1 py-3 rounded-xl bg-violet-500 hover:bg-violet-400 transition text-white font-medium">Salvar</button>
+            <div class="nvx-mfoot pt-2">
+                <button type="button" onclick="closeTransactionSettingsModal()" class="nvx-mcancel">Cancelar</button>
+                <button type="submit" class="nvx-mbtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+                    Salvar
+                </button>
             </div>
         </form>
 </dialog>

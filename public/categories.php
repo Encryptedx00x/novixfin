@@ -111,8 +111,16 @@ $error = flash('error');
 
 <!-- Modal Nova Categoria -->
 <dialog id="categoryModal" class="nvx-modal cat-modal bg-slate-900 backdrop:bg-slate-950/70 rounded-3xl p-6 max-w-md w-full border border-white/10">
-        <h2 class="text-2xl font-semibold text-white mb-6">Nova Categoria</h2>
-        
+        <div class="nvx-mhead">
+            <div class="nvx-mhead-txt">
+                <div class="nvx-mtitle">Nova categoria</div>
+                <div class="nvx-msub">Classifique receitas e despesas.</div>
+            </div>
+            <button type="button" onclick="closeModal()" aria-label="Fechar" class="nvx-mclose">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6 18 18M18 6 6 18"></path></svg>
+            </button>
+        </div>
+
         <form method="POST" action="/actions/categories/save.php" class="space-y-4">
             <input type="hidden" name="_token" value="<?php echo csrfToken(); ?>">
             
@@ -128,9 +136,12 @@ $error = flash('error');
                 </select>
             </div>
             
-            <div class="flex gap-3 pt-4">
-                <button type="button" onclick="closeModal()" class="flex-1 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 transition text-white">Cancelar</button>
-                <button type="submit" class="flex-1 py-3 rounded-xl bg-violet-500 hover:bg-violet-400 transition text-white font-medium">Adicionar</button>
+            <div class="nvx-mfoot pt-2">
+                <button type="button" onclick="closeModal()" class="nvx-mcancel">Cancelar</button>
+                <button type="submit" class="nvx-mbtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+                    Adicionar
+                </button>
             </div>
         </form>
 </dialog>

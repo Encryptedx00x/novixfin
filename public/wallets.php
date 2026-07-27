@@ -258,9 +258,17 @@ if ($viewWallet) :
 <?php endif; ?>
 
 <!-- Modal Nova/Editar Carteira -->
-<dialog id="walletModal" class="nvx-modal wallets-modal bg-slate-900 backdrop:bg-slate-950/70 rounded-3xl p-6 max-w-2xl w-full border border-white/10">
-        <h2 id="walletModalTitle" class="text-2xl font-semibold text-white mb-6">Nova Carteira</h2>
-        
+<dialog id="walletModal" class="nvx-modal nvx-modal--wide wallets-modal bg-slate-900 backdrop:bg-slate-950/70 rounded-3xl p-6 max-w-2xl w-full border border-white/10">
+        <div class="nvx-mhead">
+            <div class="nvx-mhead-txt">
+                <div id="walletModalTitle" class="nvx-mtitle">Nova carteira</div>
+                <div class="nvx-msub">Agrupe contas em espécie.</div>
+            </div>
+            <button type="button" onclick="closeWalletModal()" aria-label="Fechar" class="nvx-mclose">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6 18 18M18 6 6 18"></path></svg>
+            </button>
+        </div>
+
         <form id="walletForm" method="POST" action="/actions/wallets/save.php" class="space-y-4">
             <input type="hidden" name="_token" value="<?php echo csrfToken(); ?>">
             <input type="hidden" id="wallet_id" name="wallet_id" value="">
@@ -304,9 +312,12 @@ if ($viewWallet) :
                 </div>
             </div>
             
-            <div class="flex gap-3 pt-4">
-                <button type="button" onclick="closeWalletModal()" class="flex-1 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 transition text-white">Cancelar</button>
-                <button type="submit" class="flex-1 py-3 rounded-xl bg-violet-500 hover:bg-violet-400 transition text-white font-medium">Salvar</button>
+            <div class="nvx-mfoot pt-2">
+                <button type="button" onclick="closeWalletModal()" class="nvx-mcancel">Cancelar</button>
+                <button type="submit" class="nvx-mbtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+                    Salvar
+                </button>
             </div>
         </form>
 </dialog>

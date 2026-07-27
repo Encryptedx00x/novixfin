@@ -1,9 +1,35 @@
 # NovixFin v3 Execution Progress
 
 ## Current State
-- **Phase**: TOKENIZAÇÃO DOS MODAIS — **COMPLETA**. Componente compartilhado `nvx-modal`
-  (public/styles/modal.css) aplicado aos 11 <dialog> antigos. Parado para revisão.
-- Reskin **100%**; andaime removido; modais unificados sob um único vestido tokenizado.
+- **Phase**: MODAIS FIÉIS AO DESIGN — **COMPLETA**. O componente `nvx-modal` agora reproduz a
+  COMPOSIÇÃO do design (cabeçalho título+subtítulo+X, campo de valor com símbolo de moeda,
+  botão accent com --cut + ícone, backdrop tema-aware, bottom-sheet mobile). Parado para revisão.
+- Reskin **100%**; andaime removido; modais unificados E fiéis ao design.
+
+## Modais fiéis ao design — composição única (2026-07-26)
+- **Report**: /reports/checkpoint_modais_design.md
+- **Fonte**: Claude Design "NovixFin App.html" (seção "Sobreposições" + modal mTitle/mSub/mBtn/mSym).
+- **modal.css (reescrito)**: `dialog.nvx-modal` reproduz o card do design (surface/card-b/raio/
+  sombra + animação nvxPop); `::backdrop` color-mix(ink 45%)+blur; classes de composição
+  `.nvx-mhead/.nvx-mtitle/.nvx-msub/.nvx-mclose` (cabeçalho com X), `.nvx-mvalue/.nvx-msym/
+  .nvx-mval-input/.nvx-mval-line` (campo de valor grande com símbolo + sublinhado accent),
+  `.nvx-mfoot/.nvx-mbtn` (primário accent com clip-path --cut + ícone check) `/.nvx-mcancel`,
+  `.nvx-mdanger/.nvx-mdanger-icon` (confirmação de exclusão do design) e `nvx-modal--danger`
+  (borda neg) + `nvx-modal--wide` (540px). **MOBILE: bottom-sheet** (position fixed inset auto
+  0 0 0, sobe com nvxSheet). Mantém o mapa Tailwind->token.
+- **Símbolo de moeda dinâmico (mSym)**: `<span data-currency-symbol="#sel">` reflete R$/US$/€
+  conforme o select; wiring genérico em dashboard (cobre criar e editar).
+- **Aplicação nos 11 <dialog>** (cabeçalho + rodapé do design, sem tocar em forms/ids/names/
+  CSRF/handlers/confirmações):
+  - dashboard: criar ("Novo lançamento"/"Registre em segundos."/botão "Lançar" + símbolo),
+    editar ("Editar lançamento"/"Ajuste e salve — mesmos campos do novo."/"Salvar alterações"
+    + símbolo), inline-category, excluir (composição de perigo).
+  - accounts (conta + excluir-perigo), categories, goals (título criar/editar via goals.js +
+    fecha por qualquer [data-close-modal]), wallets (wide), credit-cards (payBill wide +
+    transactionSettings).
+- **goals.js**: closeButtons -> querySelectorAll (X + Cancelar); título alterna Nova/Editar meta.
+- **Validação**: node --check goals.js OK; modal.css 72/72 chaves; 4/2/2/1/1/1 <dialog>
+  balanceados; `php -l` pendente no servidor. Passe visual pendente (foco "Novo lançamento").
 
 ## Tokenização dos modais — componente compartilhado nvx-modal (2026-07-26)
 - **Report**: /reports/checkpoint_modais_tokenizados.md

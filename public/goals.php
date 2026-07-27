@@ -134,6 +134,15 @@ $error = flash('error');
     <form method="POST" action="/actions/goals/save.php" class="space-y-4">
         <input type="hidden" name="_token" value="<?php echo csrfToken(); ?>">
         <input type="hidden" name="id" value="">
+        <div class="nvx-mhead">
+            <div class="nvx-mhead-txt">
+                <div id="goal-modal-title" class="nvx-mtitle">Nova meta</div>
+                <div class="nvx-msub">Defina um objetivo ou um limite.</div>
+            </div>
+            <button type="button" data-close-modal aria-label="Fechar" class="nvx-mclose">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6 18 18M18 6 6 18"></path></svg>
+            </button>
+        </div>
         <div>
             <label class="text-sm text-slate-300" for="goal-title">Título</label>
             <input type="text" id="goal-title" name="title" required minlength="3" class="w-full mt-1 px-4 py-2 rounded-xl bg-slate-900 border border-white/10 text-sm">
@@ -186,9 +195,12 @@ $error = flash('error');
             </label>
             <p class="text-xs text-slate-500 mt-1">Se marcado, o progresso será atualizado automaticamente conforme você registra transações</p>
         </div>
-        <div class="flex items-center justify-end gap-3">
-            <button type="button" data-close-modal class="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition text-sm">Cancelar</button>
-            <button type="submit" class="px-4 py-2 rounded-lg bg-violet-500 hover:bg-violet-400 transition text-white text-sm">Salvar</button>
+        <div class="nvx-mfoot">
+            <button type="button" data-close-modal class="nvx-mcancel">Cancelar</button>
+            <button type="submit" class="nvx-mbtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+                Salvar
+            </button>
         </div>
     </form>
 </dialog>

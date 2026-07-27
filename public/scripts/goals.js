@@ -5,9 +5,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const modal = document.getElementById('modal-goal');
     const openButton = document.querySelector('[data-open-modal]');
-    const closeButton = modal?.querySelector('[data-close-modal]');
+    const closeButtons = modal ? modal.querySelectorAll('[data-close-modal]') : [];
+    const titleEl = modal?.querySelector('#goal-modal-title');
 
-    if (!modal || !openButton || !closeButton) {
+    if (!modal || !openButton || closeButtons.length === 0) {
         return;
     }
 
@@ -18,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     openButton.addEventListener('click', () => {
         resetForm();
+        if (titleEl) { titleEl.textContent = 'Nova meta'; }
         modal.showModal();
     });
 
@@ -47,6 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 modal.querySelector('input[name="auto_update"]').checked = goal.auto_update !== false;
             }
 
+            if (titleEl) { titleEl.textContent = 'Editar meta'; }
             modal.showModal();
         });
     });
@@ -55,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.close();
     };
 
-    closeButton.addEventListener('click', closeModal);
+    closeButtons.forEach((btn) => btn.addEventListener('click', closeModal));
     modal.addEventListener('cancel', (event) => {
         event.preventDefault();
         closeModal();

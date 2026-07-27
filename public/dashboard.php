@@ -1406,10 +1406,23 @@ $hasDashData = !empty($accounts);
             if (event.target === modal) { modal.close(); }
         });
     }
+    // Símbolo de moeda dinâmico (mSym do design): cada <span data-currency-symbol="#sel">
+    // reflete R$ / US$ / € conforme o <select> alvo. Cobre criar e editar.
+    function wireCurrencySymbols() {
+        var SYM = { BRL: 'R$', USD: 'US$', EUR: '€' };
+        document.querySelectorAll('[data-currency-symbol]').forEach(function (span) {
+            var sel = document.querySelector(span.getAttribute('data-currency-symbol'));
+            if (!sel) { return; }
+            var sync = function () { span.textContent = SYM[sel.value] || sel.value; };
+            sel.addEventListener('change', sync);
+            sync();
+        });
+    }
+    function wireAll() { wireCreateModal(); wireCurrencySymbols(); }
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', wireCreateModal);
+        document.addEventListener('DOMContentLoaded', wireAll);
     } else {
-        wireCreateModal();
+        wireAll();
     }
 })();
 </script>
@@ -1422,10 +1435,13 @@ $hasDashData = !empty($accounts);
      do bloco JSON abaixo, que lê $transactionCategories daqui.
      ========================================================= -->
 <dialog id="modal-create-dashboard" class="nvx-modal dash-screen bg-slate-900/90 backdrop:bg-slate-950/70 rounded-3xl border border-white/10 max-w-lg w-full p-6">
-    <div class="flex items-center justify-between mb-4">
-        <h2 class="text-xl font-semibold text-white">Novo lançamento</h2>
-        <button type="button" data-close-create-modal-dashboard aria-label="Fechar" class="w-9 h-9 grid place-items-center rounded-lg text-slate-400 hover:bg-white/10 transition">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"></path></svg>
+    <div class="nvx-mhead">
+        <div class="nvx-mhead-txt">
+            <div class="nvx-mtitle">Novo lançamento</div>
+            <div class="nvx-msub">Registre em segundos.</div>
+        </div>
+        <button type="button" data-close-create-modal-dashboard aria-label="Fechar" class="nvx-mclose">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6 18 18M18 6 6 18"></path></svg>
         </button>
     </div>
             <form method="POST" action="/actions/transactions/create.php" class="space-y-4">
@@ -1484,19 +1500,21 @@ $hasDashData = !empty($accounts);
                             title="Criar nova categoria inline">+ Nova categoria</button>
                     </div>
                 </div>
-                <div class="grid grid-cols-3 gap-3">
-                    <div class="col-span-2">
-                        <label class="text-sm text-slate-300" for="amount">Valor</label>
-                        <input type="number" id="amount" name="amount" min="0.01" step="0.01" required class="w-full mt-1 px-4 py-2 rounded-xl bg-slate-900 border border-white/10 focus:border-violet-500 focus:outline-none">
+                <div class="nvx-mvalue">
+                    <div class="nvx-mvalue-cap">Valor</div>
+                    <div class="nvx-mval-row">
+                        <span class="nvx-msym" data-currency-symbol="#currency">R$</span>
+                        <input type="number" id="amount" name="amount" min="0.01" step="0.01" required placeholder="0,00" class="nvx-mval-input">
                     </div>
-                    <div>
-                        <label class="text-sm text-slate-300" for="currency">Moeda</label>
-                        <select id="currency" name="currency" required class="w-full mt-1 px-4 py-2 rounded-xl bg-slate-900 border border-white/10 focus:border-violet-500 focus:outline-none">
-                            <option value="BRL">R$ BRL</option>
-                            <option value="USD">US$ USD</option>
-                            <option value="EUR">€ EUR</option>
-                        </select>
-                    </div>
+                    <div class="nvx-mval-line"></div>
+                </div>
+                <div>
+                    <label class="text-sm text-slate-300 nvx-mlabel" for="currency">Moeda</label>
+                    <select id="currency" name="currency" required class="w-full mt-1 px-4 py-2 rounded-xl bg-slate-900 border border-white/10 focus:border-violet-500 focus:outline-none">
+                        <option value="BRL">R$ BRL</option>
+                        <option value="USD">US$ USD</option>
+                        <option value="EUR">€ EUR</option>
+                    </select>
                 </div>
                 <div>
                     <label class="text-sm text-slate-300" for="description">Descrição</label>
@@ -1626,7 +1644,13 @@ $hasDashData = !empty($accounts);
                     }
                 }
                 </script>
-                <button type="submit" class="w-full py-3 rounded-xl bg-violet-500 hover:bg-violet-400 transition text-white font-medium">Salvar</button>
+                <div class="nvx-mfoot">
+                    <button type="button" data-close-create-modal-dashboard class="nvx-mcancel">Cancelar</button>
+                    <button type="submit" class="nvx-mbtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+                        Lançar
+                    </button>
+                </div>
             </form>
 </dialog>
 
@@ -1704,9 +1728,14 @@ $categoryOptionsJson = json_encode(array_map(static function (array $category): 
 
 <dialog id="inline-category-modal" class="nvx-modal dash-screen bg-slate-900/95 backdrop:bg-slate-950/70 rounded-3xl border border-white/10 max-w-md w-full p-6">
     <form id="inline-category-form" class="space-y-4">
-        <div>
-            <h3 class="text-lg font-semibold text-white mb-2">Nova categoria</h3>
-            <p class="text-sm text-slate-400">Crie uma categoria sem sair do lancamento.</p>
+        <div class="nvx-mhead">
+            <div class="nvx-mhead-txt">
+                <div class="nvx-mtitle">Nova categoria</div>
+                <div class="nvx-msub">Crie uma categoria sem sair do lançamento.</div>
+            </div>
+            <button type="button" data-close-inline-category aria-label="Fechar" class="nvx-mclose">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6 18 18M18 6 6 18"></path></svg>
+            </button>
         </div>
         <div>
             <label class="text-sm text-slate-300" for="inline-category-name">Nome</label>
@@ -1720,9 +1749,12 @@ $categoryOptionsJson = json_encode(array_map(static function (array $category): 
             </select>
         </div>
         <p id="inline-category-error" class="hidden text-sm text-rose-300"></p>
-        <div class="flex items-center justify-end gap-3">
-            <button type="button" data-close-inline-category class="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition text-sm">Cancelar</button>
-            <button type="submit" class="px-4 py-2 rounded-lg bg-violet-500 hover:bg-violet-400 transition text-white text-sm">Criar</button>
+        <div class="nvx-mfoot">
+            <button type="button" data-close-inline-category class="nvx-mcancel">Cancelar</button>
+            <button type="submit" class="nvx-mbtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+                Criar
+            </button>
         </div>
     </form>
 </dialog>
@@ -1732,6 +1764,15 @@ $categoryOptionsJson = json_encode(array_map(static function (array $category): 
         <input type="hidden" name="_token" value="<?php echo csrfToken(); ?>">
         <input type="hidden" name="redirect_to" value="dashboard.php">
         <input type="hidden" name="id" value="">
+        <div class="nvx-mhead">
+            <div class="nvx-mhead-txt">
+                <div class="nvx-mtitle">Editar lançamento</div>
+                <div class="nvx-msub">Ajuste e salve — mesmos campos do novo.</div>
+            </div>
+            <button type="button" data-close-edit-modal-dashboard aria-label="Fechar" class="nvx-mclose">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6 18 18M18 6 6 18"></path></svg>
+            </button>
+        </div>
         <div>
             <label class="text-sm text-slate-300" for="dashboard-modal-account">Conta/Banco</label>
             <select id="dashboard-modal-account" name="account_id" required class="w-full mt-1 px-4 py-2 rounded-xl bg-slate-900 border border-white/10 text-sm focus:border-violet-500 focus:outline-none">
@@ -1783,19 +1824,21 @@ $categoryOptionsJson = json_encode(array_map(static function (array $category): 
                         title="Criar nova categoria inline">+ Nova</button>
             </div>
         </div>
-        <div class="grid grid-cols-3 gap-3">
-            <div class="col-span-2">
-                <label class="text-sm text-slate-300" for="dashboard-modal-amount">Valor</label>
-                <input type="number" id="dashboard-modal-amount" name="amount" min="0.01" step="0.01" class="w-full mt-1 px-4 py-2 rounded-xl bg-slate-900 border border-white/10 text-sm">
+        <div class="nvx-mvalue">
+            <div class="nvx-mvalue-cap">Valor</div>
+            <div class="nvx-mval-row">
+                <span class="nvx-msym" data-currency-symbol="#dashboard-modal-currency">R$</span>
+                <input type="number" id="dashboard-modal-amount" name="amount" min="0.01" step="0.01" placeholder="0,00" class="nvx-mval-input">
             </div>
-            <div>
-                <label class="text-sm text-slate-300" for="dashboard-modal-currency">Moeda</label>
-                <select id="dashboard-modal-currency" name="currency" class="w-full mt-1 px-4 py-2 rounded-xl bg-slate-900 border border-white/10 text-sm">
-                    <option value="BRL">R$ BRL</option>
-                    <option value="USD">US$ USD</option>
-                    <option value="EUR">€ EUR</option>
-                </select>
-            </div>
+            <div class="nvx-mval-line"></div>
+        </div>
+        <div>
+            <label class="text-sm text-slate-300 nvx-mlabel" for="dashboard-modal-currency">Moeda</label>
+            <select id="dashboard-modal-currency" name="currency" class="w-full mt-1 px-4 py-2 rounded-xl bg-slate-900 border border-white/10 text-sm">
+                <option value="BRL">R$ BRL</option>
+                <option value="USD">US$ USD</option>
+                <option value="EUR">€ EUR</option>
+            </select>
         </div>
         <div>
             <label class="text-sm text-slate-300" for="dashboard-modal-description">Descrição</label>
@@ -1863,25 +1906,29 @@ $categoryOptionsJson = json_encode(array_map(static function (array $category): 
                 </div>
             </div>
         </div>
-        <div class="flex items-center justify-end gap-3">
-            <button type="button" data-close-edit-modal-dashboard class="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition text-sm">Cancelar</button>
-            <button type="submit" class="px-4 py-2 rounded-lg bg-violet-500 hover:bg-violet-400 transition text-white text-sm">Salvar</button>
+        <div class="nvx-mfoot">
+            <button type="button" data-close-edit-modal-dashboard class="nvx-mcancel">Cancelar</button>
+            <button type="submit" class="nvx-mbtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+                Salvar alterações
+            </button>
         </div>
     </form>
 </dialog>
 
-<dialog id="modal-delete-dashboard" class="nvx-modal dash-screen bg-slate-900/90 backdrop:bg-slate-950/70 rounded-3xl border border-white/10 max-w-md w-full p-6">
-    <div class="space-y-4">
-        <div>
-            <h3 class="text-lg font-semibold text-white mb-2">Confirmar exclusão</h3>
-            <p class="text-sm text-slate-300">Tem certeza que deseja excluir esta transação?</p>
-        </div>
-        <form method="POST" action="/actions/transactions/delete.php" class="flex items-center justify-end gap-3">
+<dialog id="modal-delete-dashboard" class="nvx-modal nvx-modal--danger dash-screen bg-slate-900/90 backdrop:bg-slate-950/70 rounded-3xl border border-white/10 max-w-md w-full p-6">
+    <div class="nvx-mdanger">
+        <span class="nvx-mdanger-icon">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18 M8 6V4h8v2 M19 6l-1 14H6L5 6 M10 11v5 M14 11v5"></path></svg>
+        </span>
+        <div class="nvx-mtitle" style="margin-top:15px;">Excluir lançamento?</div>
+        <div class="nvx-msub" style="font-size:13.5px; margin-top:8px;">Tem certeza que deseja excluir esta transação? Não dá para desfazer.</div>
+        <form method="POST" action="/actions/transactions/delete.php" class="nvx-mfoot" style="margin-top:18px;">
             <input type="hidden" name="_token" value="<?php echo csrfToken(); ?>">
             <input type="hidden" name="redirect_to" value="dashboard.php">
             <input type="hidden" name="id" id="dashboard-delete-id" value="">
-            <button type="button" data-close-delete-modal-dashboard class="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition text-sm">Cancelar</button>
-            <button type="submit" class="px-4 py-2 rounded-lg bg-rose-500 hover:bg-rose-400 transition text-white text-sm">Confirmar exclusão</button>
+            <button type="button" data-close-delete-modal-dashboard class="nvx-mcancel" style="flex:1;">Cancelar</button>
+            <button type="submit" class="nvx-mbtn nvx-mbtn--danger">Excluir</button>
         </form>
     </div>
 </dialog>

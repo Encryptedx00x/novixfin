@@ -84,8 +84,16 @@ $error = flash('error');
 <!-- Modais renderizados primeiro para garantir que existam no DOM -->
 <!-- Modal Nova/Editar Conta -->
 <dialog id="accountModal" class="nvx-modal acc-overlay bg-slate-900 rounded-3xl p-6 max-w-md w-full border border-white/10">
-        <h2 id="modalTitle" class="text-2xl font-semibold text-white mb-6">Nova conta</h2>
-        
+        <div class="nvx-mhead">
+            <div class="nvx-mhead-txt">
+                <div id="modalTitle" class="nvx-mtitle">Nova conta</div>
+                <div class="nvx-msub">Onde seu dinheiro fica.</div>
+            </div>
+            <button type="button" onclick="closeModal()" aria-label="Fechar" class="nvx-mclose">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6 18 18M18 6 6 18"></path></svg>
+            </button>
+        </div>
+
         <form id="accountForm" method="POST" action="/actions/accounts/save.php" class="space-y-4">
             <input type="hidden" name="_token" value="<?php echo csrfToken(); ?>">
             <input type="hidden" id="account_id" name="account_id" value="">
@@ -139,19 +147,29 @@ $error = flash('error');
                 <input type="text" id="color" name="color" maxlength="20" placeholder="#6366f1" class="w-full mt-1 px-4 py-2 rounded-xl bg-slate-900 border border-white/10 focus:border-violet-500 focus:outline-none">
             </div>
             
-            <div class="flex gap-3 pt-4">
-                <button type="button" onclick="closeModal()" class="flex-1 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 transition text-white">Cancelar</button>
-                <button type="submit" class="flex-1 py-3 rounded-xl bg-violet-500 hover:bg-violet-400 transition text-white font-medium">Salvar</button>
+            <div class="nvx-mfoot pt-2">
+                <button type="button" onclick="closeModal()" class="nvx-mcancel">Cancelar</button>
+                <button type="submit" class="nvx-mbtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+                    Salvar
+                </button>
             </div>
         </form>
 </dialog>
 
 <!-- Modal Excluir Conta -->
-<dialog id="deleteModal" class="nvx-modal acc-overlay bg-slate-900 rounded-3xl p-6 max-w-md w-full border border-white/10">
-        <h2 class="text-2xl font-semibold text-white mb-4">Excluir conta</h2>
-        <p class="text-slate-300 mb-6">Tem certeza que deseja excluir a conta <strong id="deleteAccountName"></strong>?</p>
-        
-        <form method="POST" action="/actions/accounts/delete.php" class="space-y-4">
+<dialog id="deleteModal" class="nvx-modal nvx-modal--danger acc-overlay bg-slate-900 rounded-3xl p-6 max-w-md w-full border border-white/10">
+        <div class="nvx-mhead">
+            <div class="nvx-mhead-txt">
+                <div class="nvx-mtitle">Excluir conta</div>
+                <div class="nvx-msub">Tem certeza que deseja excluir a conta <strong id="deleteAccountName" style="color:var(--ink);"></strong>?</div>
+            </div>
+            <button type="button" onclick="closeDeleteModal()" aria-label="Fechar" class="nvx-mclose">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6 18 18M18 6 6 18"></path></svg>
+            </button>
+        </div>
+
+        <form method="POST" action="/actions/accounts/delete.php" class="space-y-4" style="margin-top:18px;">
             <input type="hidden" name="_token" value="<?php echo csrfToken(); ?>">
             <input type="hidden" id="delete_account_id" name="account_id" value="">
             
@@ -163,9 +181,9 @@ $error = flash('error');
                 <p class="text-xs text-slate-400 mt-2">Se desmarcar, as transações ficarão sem conta vinculada.</p>
             </div>
             
-            <div class="flex gap-3">
-                <button type="button" onclick="closeDeleteModal()" class="flex-1 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 transition text-white">Cancelar</button>
-                <button type="submit" class="flex-1 py-3 rounded-xl bg-rose-500 hover:bg-rose-400 transition text-white font-medium">Excluir</button>
+            <div class="nvx-mfoot">
+                <button type="button" onclick="closeDeleteModal()" class="nvx-mcancel" style="flex:1;">Cancelar</button>
+                <button type="submit" class="nvx-mbtn nvx-mbtn--danger">Excluir</button>
             </div>
         </form>
 </dialog>
