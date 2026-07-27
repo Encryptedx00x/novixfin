@@ -8,7 +8,6 @@ require_once __DIR__ . '/../../includes/csrf.php';
 require_once __DIR__ . '/../../includes/goals.php';
 requireAuth();
 
-use DateTimeImmutable;
 use Novix\Database\Connection;
 use Novix\Repositories\TransactionRepository;
 use Novix\Repositories\CreditCardBillRepository;
@@ -79,7 +78,7 @@ if (!in_array($currency, ['BRL', 'USD', 'EUR'], true)) {
 }
 
 try {
-    $date = new DateTimeImmutable($transactionDate);
+    $date = new \DateTimeImmutable($transactionDate);
 } catch (Exception $e) {
     flash('error', 'Data inválida.');
     redirect($redirectTo);
@@ -134,7 +133,7 @@ if ($isRecurring) {
 $recurrenceEndDateObj = null;
 if ($recurrenceEndDate) {
     try {
-        $recurrenceEndDateObj = new DateTimeImmutable($recurrenceEndDate);
+        $recurrenceEndDateObj = new \DateTimeImmutable($recurrenceEndDate);
         if ($recurrenceEndDateObj < $date) {
             flash('error', 'Data final da recorrência não pode ser anterior à data da transação.');
             redirect($redirectTo);
@@ -149,7 +148,7 @@ if ($recurrenceEndDate) {
 $effectiveDateObj = null;
 if (!empty($effectiveDate) && !$isEffective) {
     try {
-        $effectiveDateObj = new DateTimeImmutable($effectiveDate);
+        $effectiveDateObj = new \DateTimeImmutable($effectiveDate);
     } catch (Exception $e) {
         // Ignora se inválida
     }
@@ -274,10 +273,10 @@ if ($type === 'expense') {
             $currentBill = $stmt->fetch(PDO::FETCH_ASSOC);
             
             if ($currentBill && isset($currentBill['due_date'])) {
-                $currentDueDate = new DateTimeImmutable($currentBill['due_date']);
+                $currentDueDate = new \DateTimeImmutable($currentBill['due_date']);
                 if ($effectiveDateObj > $currentDueDate && isset($currentBill['billing_month'])) {
                     // Vai para próxima fatura
-                    $currentBillingDate = new DateTimeImmutable($currentBill['billing_month'] . '-01');
+                    $currentBillingDate = new \DateTimeImmutable($currentBill['billing_month'] . '-01');
                     $billingMonth = $currentBillingDate->modify('+1 month')->format('Y-m');
                     $dateForBilling = null; // Já temos o billingMonth
                 } else {

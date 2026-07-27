@@ -29,7 +29,6 @@ require_once __DIR__ . '/../../includes/bootstrap.php';
 // the end of the batch).
 require_once __DIR__ . '/../../includes/goals.php';
 
-use DateTimeImmutable;
 use Novix\Database\Connection;
 use Novix\Repositories\TransactionRepository;
 use Novix\Repositories\CreditCardBillRepository;
@@ -38,7 +37,7 @@ $pdo = Connection::get();
 $transactionRepository = new TransactionRepository($pdo);
 $billRepository = new CreditCardBillRepository($pdo);
 
-$today = new DateTimeImmutable();
+$today = new \DateTimeImmutable();
 
 // Busca transações não efetivadas com data de efetivação igual ou anterior a hoje
 $stmt = $pdo->prepare('
@@ -53,7 +52,7 @@ $stmt->execute(['today' => $today->format('Y-m-d')]);
 $transactions = $stmt->fetchAll();
 
 $count = 0;
-$now = new DateTimeImmutable();
+$now = new \DateTimeImmutable();
 $touchedUsers = []; // v3 validation fix: track affected users for goal recalc.
 
 foreach ($transactions as $transaction) {
@@ -65,7 +64,7 @@ foreach ($transactions as $transaction) {
         
         // Usa a data de efetivação se existir, senão usa a data atual
         $effectiveDate = $transData['effective_date'] ?? $transData['transaction_date'] ?? $today->format('Y-m-d');
-        $effectiveDateTime = new DateTimeImmutable($effectiveDate . ' ' . $now->format('H:i:s'));
+        $effectiveDateTime = new \DateTimeImmutable($effectiveDate . ' ' . $now->format('H:i:s'));
         
         // Efetiva a transação usando a data de efetivação como data/hora de efetivação
         $stmt = $pdo->prepare('

@@ -6,7 +6,6 @@ require_once __DIR__ . '/../../includes/bootstrap.php';
 require_once __DIR__ . '/../../includes/csrf.php';
 requireAuth();
 
-use DateTimeImmutable;
 use Novix\Database\Connection;
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -40,7 +39,7 @@ if ($currentAmount === false || $currentAmount < 0) {
 
 if ($deadline) {
     try {
-        $deadlineDate = new DateTimeImmutable($deadline);
+        $deadlineDate = new \DateTimeImmutable($deadline);
         $deadline = $deadlineDate->format('Y-m-d');
     } catch (Exception $e) {
         flash('error', 'Data inválida.');

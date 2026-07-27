@@ -17,7 +17,6 @@ try {
     die('Erro ao carregar aplicação. Verifique os logs do servidor.');
 }
 
-use DateTimeImmutable;
 use Novix\Database\Connection;
 use Novix\Repositories\TransactionRepository;
 use Novix\Repositories\CreditCardBillRepository;
@@ -105,7 +104,7 @@ if (!in_array($currency, ['BRL', 'USD', 'EUR'], true)) {
 }
 
 try {
-    $date = new DateTimeImmutable($transactionDate);
+    $date = new \DateTimeImmutable($transactionDate);
 } catch (Exception $e) {
     flash('error', 'Data inválida.');
     redirect('dashboard.php');
@@ -162,7 +161,7 @@ if ($isRecurring) {
 $recurrenceEndDateObj = null;
 if ($recurrenceEndDate) {
     try {
-        $recurrenceEndDateObj = new DateTimeImmutable($recurrenceEndDate);
+        $recurrenceEndDateObj = new \DateTimeImmutable($recurrenceEndDate);
         if ($recurrenceEndDateObj < $date) {
             flash('error', 'Data final da recorrência não pode ser anterior à data da transação.');
             redirect('dashboard.php');
@@ -180,7 +179,7 @@ $transactionRepository = new TransactionRepository($pdo);
 $effectiveDateObj = null;
 if ($effectiveDate && !$isEffective) {
     try {
-        $effectiveDateObj = new DateTimeImmutable($effectiveDate);
+        $effectiveDateObj = new \DateTimeImmutable($effectiveDate);
         if ($effectiveDateObj < $date) {
             flash('error', 'Data de efetivação não pode ser anterior à data da transação.');
             redirect('dashboard.php');
@@ -191,7 +190,7 @@ if ($effectiveDate && !$isEffective) {
     }
 } elseif ($isEffective) {
     // Se estiver marcando como efetivada, usa a data/hora atual
-    $effectiveDateObj = new DateTimeImmutable();
+    $effectiveDateObj = new \DateTimeImmutable();
 }
 
 // Verifica se é uma despesa em cartão de crédito
@@ -221,7 +220,7 @@ if ($type === 'expense') {
             $totalSpent = (float) ($spent['total_spent'] ?? 0);
             
             // Se a transação será efetivada, considera no total
-            if ($isEffective || ($effectiveDateObj && $effectiveDateObj <= new DateTimeImmutable())) {
+            if ($isEffective || ($effectiveDateObj && $effectiveDateObj <= new \DateTimeImmutable())) {
                 $totalSpent += $amount;
             }
             
@@ -253,7 +252,7 @@ if ($type === 'expense') {
                 $currentBill = $stmt->fetch(PDO::FETCH_ASSOC);
                 
                 if ($currentBill && isset($currentBill['due_date'])) {
-                    $currentDueDate = new DateTimeImmutable($currentBill['due_date']);
+                    $currentDueDate = new \DateTimeImmutable($currentBill['due_date']);
                     
                     // Se a data de efetivação for posterior ao vencimento da fatura atual, vai para a próxima fatura
                     if ($effectiveDateObj > $currentDueDate) {
@@ -262,7 +261,7 @@ if ($type === 'expense') {
                         // Então se a fatura atual fecha em jan/2026 e vence em fev/2026,
                         // a próxima fecha em fev/2026 e vence em mar/2026
                         $currentBillingMonth = $currentBill['billing_month']; // formato: YYYY-MM
-                        $currentBillingDate = new DateTimeImmutable($currentBillingMonth . '-01');
+                        $currentBillingDate = new \DateTimeImmutable($currentBillingMonth . '-01');
                         $nextBillingMonth = $currentBillingDate->modify('+1 month')->format('Y-m');
                         
                         // Usa o billing_month calculado para buscar/criar a fatura

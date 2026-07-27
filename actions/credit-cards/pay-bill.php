@@ -6,7 +6,6 @@ require_once __DIR__ . '/../../includes/bootstrap.php';
 require_once __DIR__ . '/../../includes/csrf.php';
 requireAuth();
 
-use DateTimeImmutable;
 use Novix\Database\Connection;
 use Novix\Repositories\CreditCardBillRepository;
 use Novix\Repositories\TransactionRepository;
@@ -35,7 +34,7 @@ if ($paidAmount === false || $paidAmount <= 0) {
 }
 
 try {
-    $paidAtDate = new DateTimeImmutable($paidAt);
+    $paidAtDate = new \DateTimeImmutable($paidAt);
 } catch (Exception $e) {
     flash('error', 'Data inválida.');
     redirect('/public/credit-cards.php');

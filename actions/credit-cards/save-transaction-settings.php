@@ -6,7 +6,6 @@ require_once __DIR__ . '/../../includes/bootstrap.php';
 require_once __DIR__ . '/../../includes/csrf.php';
 requireAuth();
 
-use DateTimeImmutable;
 use Novix\Database\Connection;
 use Novix\Repositories\TransactionRepository;
 
@@ -321,7 +320,7 @@ if ($turnedOnLimitAsIncome && (float) ($account['credit_limit'] ?? 0) > 0) {
                     'income',
                     (float) $account['credit_limit'],
                     $description,
-                    new DateTimeImmutable(),
+                    new \DateTimeImmutable(),
                     'BRL',
                     true, // isEffective
                     false, // isRecurring

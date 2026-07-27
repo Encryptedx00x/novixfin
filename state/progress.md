@@ -5,6 +5,14 @@
   (recompute) ENTREGUE, precisa rodar no SERVIDOR (backup + dry-run + --apply). Parado p/ revisão.
 - Reskin **100%**; modais completos; agora saldo consistente com as transações.
 
+## Fix warning PHP 8 "use non-compound has no effect" (2026-07-27)
+- `use DateTimeImmutable;` em escopo GLOBAL é no-op → warning. Ocorria nos 6 handlers sem
+  namespace: actions/{transactions/create,update,auto-effective, credit-cards/pay-bill,
+  save-transaction-settings, goals/save}.php. Removido o `use` e prefixado `new \DateTimeImmutable`
+  (funciona com/sem namespace). Os `src/*` (com namespace: TransactionRepository,
+  CreditCardBillRepository, RecurringService) NÃO foram tocados — ali o `use` é significativo e
+  não emite warning (e respeita a proteção do RecurringService). Estático OK (braces/parens).
+
 ## Correção do saldo desnormalizado (2026-07-27)
 - **Report**: /reports/checkpoint_saldo_recompute.md
 - **PARTE 1 — auditoria dos handlers**: o modelo de saldo é 100% dirigido por transações (conta
