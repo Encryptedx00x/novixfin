@@ -32,7 +32,7 @@ $isAuthenticated = isAuthenticated();
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Spline+Sans+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/public/styles/landing.css">
+    <link rel="stylesheet" href="/public/styles/landing.css?v=<?php echo (int) @filemtime(__DIR__ . '/styles/landing.css'); ?>">
 </head>
 <body>
 <div style="font-family: var(--f-b); background: var(--bg); color: var(--ink); overflow-x: hidden;">
@@ -62,6 +62,41 @@ $isAuthenticated = isAuthenticated();
       </button>
     </div>
   </nav>
+  <script>
+  /* NAV MOBILE: hambúrguer abre/fecha o painel (links + CTAs).
+     Inline e logo após o nav de propósito: não depende do landing.js ser
+     carregado/atualizado (cache) nem da ordem de execução dele. Delegação no
+     document para funcionar mesmo se o botão só existir depois.
+     Não encosta no switcher de tema. */
+  (function () {
+    'use strict';
+    var nav = document.currentScript && document.currentScript.previousElementSibling;
+    if (!nav || nav.tagName !== 'NAV') { nav = document.querySelector('nav[data-screen-label="nav"]'); }
+    if (!nav) { return; }
+
+    function isOpen() { return nav.getAttribute('data-navopen') === '1'; }
+    function setOpen(open) {
+      var btn = document.getElementById('lp-navtoggle');
+      if (open) { nav.setAttribute('data-navopen', '1'); } else { nav.removeAttribute('data-navopen'); }
+      if (btn) {
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        btn.setAttribute('aria-label', open ? 'Fechar menu' : 'Abrir menu');
+      }
+    }
+
+    document.addEventListener('click', function (e) {
+      if (!e.target || !e.target.closest) { return; }
+      if (e.target.closest('#lp-navtoggle')) { e.preventDefault(); setOpen(!isOpen()); return; }
+      if (isOpen() && e.target.closest('nav[data-screen-label="nav"] a[href]')) { setOpen(false); }
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && isOpen()) { setOpen(false); }
+    });
+    window.addEventListener('resize', function () {
+      if (window.innerWidth > 768 && isOpen()) { setOpen(false); }
+    });
+  })();
+  </script>
 
   <!-- ============ HERO ============ -->
   <header data-screen-label="hero" style="position: relative; overflow: hidden;">
@@ -750,6 +785,6 @@ $isAuthenticated = isAuthenticated();
   </footer>
 </div>
 
-    <script src="/public/scripts/landing.js"></script>
+    <script src="/public/scripts/landing.js?v=<?php echo (int) @filemtime(__DIR__ . '/scripts/landing.js'); ?>"></script>
 </body>
 </html>

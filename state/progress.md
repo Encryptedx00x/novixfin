@@ -5,6 +5,35 @@
   (recompute) ENTREGUE, precisa rodar no SERVIDOR (backup + dry-run + --apply). Parado p/ revisão.
 - Reskin **100%**; modais completos; agora saldo consistente com as transações.
 
+## CORREÇÃO — landing mobile: seções + hambúrguer (2026-07-29)
+- **Report**: /reports/checkpoint_landing_mobile_fix.md
+- **Levantamento**: os 17 blocos de primeiro nível da landing (1 nav, 1 header, 14 section,
+  1 footer) TODOS têm `data-screen-label`, mas seguem DOIS padrões estruturais:
+  (A) a própria seção carrega `max-width:1220px; padding:112px 32px`; (B) a seção é full-bleed
+  (cor de fundo) e o padding está num **div interno** com max-width.
+  A regra anterior mirava `section[data-screen-label]` → cobria só (A) e ignorava nav/header/
+  footer. Por isso "cta final" (fundo `--stage`, padding 132px no div interno), footer, demo,
+  comparativo etc. continuavam com respiro de desktop = **"bloco de cor chapado"**. O
+  "Escolher meu tema" que o usuário citou está justamente na seção **cta final**, não na de temas.
+- **Correção 1**: regra única cobrindo os DOIS padrões —
+  `[data-screen-label][style*="max-width"], [data-screen-label] > div[style*="max-width"]:not(#lp-navinner)`
+  → largura 100%, padding lateral 18px, vertical 56/52px. Mais: `h2` em clamp(26px,7.4vw,38px),
+  parágrafos 15.5px, e os blocos decorativos absolutos (`aria-hidden`/`data-parallax`) ocultos
+  para não gerar rolagem lateral.
+- **Exceção documentada**: a tabela **comparativo** (RECURSO|NOVIXFIN|PLANILHA|APPS) NÃO empilha —
+  as colunas são a comparação e não há rótulo por célula; mantém 4 colunas com fonte/padding
+  comprimidos.
+- **Correção 2 (hambúrguer)**: estaticamente o listener e o CSS estavam corretos (o CSS de abrir
+  vence o de fechar por especificidade). Causas prováveis do "não abre": **landing.js em cache**
+  (os assets não tinham versionamento) e a fragilidade de depender de um append no fim de um
+  arquivo grande. Correção: o toggle virou **script inline logo após o `<nav>`** (delegação no
+  document, Esc, fecha ao tocar link, reset ao voltar ao desktop), a IIFE duplicada saiu do
+  landing.js, e landing.css/landing.js ganharam **cache-busting `?v=filemtime()`**.
+- **Preservado**: switcher de tema, localStorage, handlers, CSRF. Desktop intacto acima de 768px.
+- **Validação**: landing.css 157/157 chaves; landing.js `node --check` OK; index.php balanceado
+  (div 421/421, button 12/12, script 3/3, nav 1/1). `php -l` e passe visual PENDENTES.
+- **Login/registro NÃO verificados nesta fatia** (o usuário ainda não testou) — seguem como estão.
+
 ## RESPONSIVIDADE MOBILE — telas de ENTRADA (2026-07-29)
 - **Report**: /reports/checkpoint_responsivo_entrada.md
 - Completa a fatia anterior (que cobriu as 9 telas internas do shell). A entrada tem estrutura

@@ -661,40 +661,6 @@
   else boot();
 })();
 
-/* ---- NAV MOBILE: hambúrguer abre/fecha o painel (links + CTAs) ----
-   Só existe abaixo de 768px (o botão é display:none no desktop, via CSS).
-   Não toca no switcher de tema nem em nada da lógica da landing. */
-(function () {
-    'use strict';
-    function boot() {
-        var nav = document.querySelector('nav[data-screen-label="nav"]');
-        var toggle = document.getElementById('lp-navtoggle');
-        if (!nav || !toggle) { return; }
-
-        function setOpen(open) {
-            if (open) { nav.setAttribute('data-navopen', '1'); }
-            else { nav.removeAttribute('data-navopen'); }
-            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-            toggle.setAttribute('aria-label', open ? 'Fechar menu' : 'Abrir menu');
-        }
-        function isOpen() { return nav.getAttribute('data-navopen') === '1'; }
-
-        toggle.addEventListener('click', function () { setOpen(!isOpen()); });
-
-        // navegar por âncora fecha o painel
-        nav.addEventListener('click', function (e) {
-            if (e.target.closest('a[href]') && isOpen()) { setOpen(false); }
-        });
-
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape' && isOpen()) { setOpen(false); }
-        });
-
-        window.addEventListener('resize', function () {
-            if (window.innerWidth > 768 && isOpen()) { setOpen(false); }
-        });
-    }
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', boot);
-    } else { boot(); }
-})();
+/* NAV MOBILE: o toggle do hamburguer foi movido para um <script> inline
+   logo apos o <nav> em public/index.php, para nao depender do cache nem da
+   ordem de execucao deste arquivo. Ver o comentario la. */
