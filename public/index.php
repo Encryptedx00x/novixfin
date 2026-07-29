@@ -39,24 +39,27 @@ $isAuthenticated = isAuthenticated();
 
   <!-- ============ NAV ============ -->
   <nav data-screen-label="nav" style="position: sticky; top: 0; z-index: 60; background: color-mix(in srgb, var(--surface) 72%, transparent); backdrop-filter: blur(14px) saturate(1.15); -webkit-backdrop-filter: blur(14px) saturate(1.15); border-bottom: 1px solid var(--line-soft);">
-    <div style="max-width: 1220px; margin: 0 auto; padding: 0 32px; min-height: 66px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 24px;">
-      <div style="display: flex; align-items: center; gap: 13px;">
+    <div id="lp-navinner" style="max-width: 1220px; margin: 0 auto; padding: 0 32px; min-height: 66px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 24px;">
+      <div id="lp-brandgroup" style="display: flex; align-items: center; gap: 13px;">
         <div style="display: flex; align-items: center; gap: 8px;">
           <div style="width: 15px; height: 15px; background: var(--sheen); clip-path: var(--cut); border-radius: var(--r-chip); flex-shrink: 0;"></div>
           <span style="font-family: var(--f-d); font-size: 20px; font-weight: var(--w-d); letter-spacing: var(--ls-d);">novixfin</span>
         </div>
         <span style="font-family: var(--f-m); font-size: 10.5px; letter-spacing: .2em; color: var(--muted); font-weight: 600; border-left: 1px solid var(--line-soft); padding-left: 13px;">FINANÇAS PESSOAIS</span>
       </div>
-      <div style="display: flex; gap: 2px; justify-content: center;">
+      <div id="lp-navlinks" style="display: flex; gap: 2px; justify-content: center;">
         <a href="#previsao" style="color: var(--muted); font-size: 12.5px; letter-spacing: .15em; font-weight: 700; min-height: 44px; padding: 0 14px; display: inline-flex; align-items: center;">PRODUTO</a>
         <a href="#temas" style="color: var(--muted); font-size: 12.5px; letter-spacing: .15em; font-weight: 700; min-height: 44px; padding: 0 14px; display: inline-flex; align-items: center;">TEMAS</a>
         <a href="#seguranca" style="color: var(--muted); font-size: 12.5px; letter-spacing: .15em; font-weight: 700; min-height: 44px; padding: 0 14px; display: inline-flex; align-items: center;">SEGURANÇA</a>
         <a href="#faq" style="color: var(--muted); font-size: 12.5px; letter-spacing: .15em; font-weight: 700; min-height: 44px; padding: 0 14px; display: inline-flex; align-items: center;">FAQ</a>
       </div>
-      <div style="display: flex; gap: 10px; align-items: center; justify-content: flex-end;">
+      <div id="lp-navcta" style="display: flex; gap: 10px; align-items: center; justify-content: flex-end;">
         <a href="<?php echo $isAuthenticated ? '/public/dashboard.php' : '/public/login.php'; ?>" style="font-size: 13.5px; font-weight: 700; cursor: pointer; min-height: 44px; padding: 0 10px; display: inline-flex; align-items: center; color: var(--ink);"><?php echo $isAuthenticated ? 'Abrir app' : 'Entrar'; ?></a>
         <a href="<?php echo $isAuthenticated ? '/public/dashboard.php' : '/public/register.php'; ?>" style="background: var(--sheen); color: var(--accent-ink); font-family: var(--f-d); font-weight: 700; font-size: 14px; padding: 11px 20px; clip-path: var(--cut); border-radius: var(--r-btn); cursor: pointer; border: var(--card-b); box-shadow: var(--card-sh); transition: transform .16s cubic-bezier(.16,1,.3,1);" data-cta="1" data-hv="lp-hv-1"><?php echo $isAuthenticated ? 'Abrir app' : 'Criar conta grátis'; ?></a>
       </div>
+      <button type="button" id="lp-navtoggle" aria-label="Abrir menu" aria-expanded="false" aria-controls="lp-navlinks">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>
+      </button>
     </div>
   </nav>
 

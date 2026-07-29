@@ -176,24 +176,110 @@
 [data-hv="lp-hv-6"]:hover{ transform: translateY(-4px); }
 [data-hv="lp-hv-7"]:hover{ transform: scale(1.12); color: var(--accent); border-color: color-mix(in srgb, var(--accent) 50%, transparent); }
 
-  /* ============ MOBILE (<=768px) ============
-     A landing usa grades e paddings em estilo inline nas <section>; aqui elas
-     empilham em 1 coluna e o respiro lateral encolhe. !important porque o
-     inline vence qualquer seletor. Desktop intacto acima de 768px. */
+  /* ================= MOBILE (<=768px) =================
+     Fonte: mockup "Mobile NovixFin.dc.html" (tela 10b · Landing). A landing usa
+     grades e paddings em estilo inline, por isso os overrides levam !important.
+     Nada de markup próprio de mobile: é o mesmo HTML do desktop. */
+
+  /* hambúrguer só existe no mobile */
+  #lp-navtoggle { display: none; }
+
   @media (max-width: 768px) {
+    /* ---- NAV: logo + hambúrguer; links e CTAs viram painel ---- */
+    #lp-navinner {
+      grid-template-columns: 1fr auto !important;
+      padding: 0 16px !important;
+      gap: 8px !important;
+    }
+    #lp-brandgroup { grid-column: 1; grid-row: 1; }
+    #lp-navtoggle {
+      display: grid;
+      grid-column: 2; grid-row: 1;
+      width: 44px; height: 44px;
+      place-items: center;
+      background: none; border: none; color: var(--ink); cursor: pointer;
+    }
+    /* a etiqueta ao lado do logo não cabe no estreito */
+    #lp-brandgroup > span { display: none !important; }
+
+    #lp-navlinks, #lp-navcta { display: none !important; }
+    nav[data-navopen="1"] #lp-navlinks,
+    nav[data-navopen="1"] #lp-navcta {
+      display: flex !important;
+      grid-column: 1 / -1;
+      flex-direction: column;
+      align-items: stretch !important;
+      justify-content: flex-start !important;
+      gap: 4px !important;
+      padding-bottom: 10px;
+    }
+    nav[data-navopen="1"] #lp-navlinks { grid-row: 2; border-top: 1px solid var(--line-soft); padding-top: 8px; }
+    nav[data-navopen="1"] #lp-navcta { grid-row: 3; gap: 10px !important; padding-bottom: 14px; }
+    nav[data-navopen="1"] #lp-navlinks a,
+    nav[data-navopen="1"] #lp-navcta a {
+      justify-content: center;
+      text-align: center;
+      min-height: 46px;
+    }
+
+    /* ---- HERO: empilha (é <header>, não <section>) ---- */
+    [data-screen-label] [style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
+    header[data-screen-label="hero"] > div:last-child {
+      padding: 70px 18px 34px !important;
+      gap: 26px !important;
+    }
+    h1 { font-size: clamp(30px, 8.6vw, 42px) !important; }
+    h1, h2 { overflow-wrap: anywhere; }
+    header[data-screen-label="hero"] p { font-size: 15.5px !important; }
+
+    /* CTAs da hero em largura total, empilhados (mockup) */
+    header[data-screen-label="hero"] [style*="flex-wrap: wrap"] {
+      flex-direction: column;
+      align-items: stretch !important;
+    }
+    header[data-screen-label="hero"] [style*="flex-wrap: wrap"] > a,
+    header[data-screen-label="hero"] [style*="flex-wrap: wrap"] > button {
+      width: 100%;
+      min-height: 52px;
+      justify-content: center;
+      text-align: center;
+    }
+
+    /* mock em perspectiva: sem tilt e sem estourar a viewport */
+    [data-mockwrap] { padding: 0 0 40px !important; }
+    [data-mocktilt] { transform: none !important; }
+
+    /* ---- CENA DE CRISTAL: não pode vazar no estreito ----
+       As imagens são backgrounds posicionados para telas largas; no mobile
+       ficam ocultas (o gradiente/mármore do tema seguem dando o clima). */
+    [data-crys], [data-crys-abstract], [data-marble] { display: none !important; }
+    [data-sig="regmarks"], [data-sig="regmarks2"] { display: none !important; }
+
+    /* ---- SELETOR DE TEMA (hero): setas flanqueiam o nome, sob os CTAs ---- */
+    #lp-hero-label { padding: 4px 16px 30px !important; gap: 10px !important; }
+    .lp-hero-arrow {
+      position: static !important;
+      transform: none !important;
+      width: 48px !important;
+      height: 48px !important;
+    }
+    .lp-hero-halo { width: 44px !important; height: 44px !important; }
+    .lp-hero-halo svg { width: 26px !important; height: 26px !important; }
+
+    /* ---- SEÇÕES ---- */
     section[data-screen-label] {
       padding-left: 18px !important;
       padding-right: 18px !important;
       padding-top: 56px !important;
       padding-bottom: 52px !important;
     }
-    section[data-screen-label] [style*="grid-template-columns"] {
-      grid-template-columns: 1fr !important;
-    }
-    /* tipografia da hero e títulos não podem estourar a viewport */
-    h1, h2 { overflow-wrap: anywhere; }
+
+    /* ---- "15 temas": setas menores e o nome sem largura mínima de desktop ---- */
+    #lp-sel { gap: 10px !important; padding: 18px 4px 10px !important; }
+    #lp-sel > button { width: 48px !important; height: 48px !important; }
+    #lp-sel > div { min-width: 0 !important; }
+    #lp-sel > div > span[aria-live] { min-height: 46px !important; font-size: 26px !important; }
+
     /* alvos de toque */
     a[href], button { min-height: 44px; }
-    /* o seletor de tema vira faixa rolável em vez de comprimir */
-    .lp-track { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   }

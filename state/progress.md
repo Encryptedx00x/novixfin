@@ -5,6 +5,37 @@
   (recompute) ENTREGUE, precisa rodar no SERVIDOR (backup + dry-run + --apply). Parado p/ revisão.
 - Reskin **100%**; modais completos; agora saldo consistente com as transações.
 
+## RESPONSIVIDADE MOBILE — telas de ENTRADA (2026-07-29)
+- **Report**: /reports/checkpoint_responsivo_entrada.md
+- Completa a fatia anterior (que cobriu as 9 telas internas do shell). A entrada tem estrutura
+  própria, sem shell/sidebar, então ficou de fora — agora responsiva no mesmo breakpoint (768px)
+  e com os mesmos alvos (>=44px, inputs 16px).
+- **Fonte**: mockup "Mobile NovixFin.dc.html", telas **10 · Entrada · Login** e **10b · Landing**.
+  Nota do mockup respeitada: "o mesmo HTML do desktop com CSS a partir de 768px".
+- **LANDING (index.php + landing.css + landing.js)**:
+  - NAV vira logo + hambúrguer: novo `#lp-navtoggle` (4º filho do grid, `display:none` no
+    desktop) e ids `#lp-navinner/#lp-brandgroup/#lp-navlinks/#lp-navcta`; com `data-navopen`
+    os links e os CTAs viram painel empilhado abaixo. Toggle em landing.js (Esc, âncora e
+    volta ao desktop fecham). **Não toca no switcher de tema.**
+  - HERO empilha (é `<header>`, não `<section>` — a regra da fatia anterior não pegava),
+    headline em `clamp(30px, 8.6vw, 42px)`, CTAs em largura total (52px), mock sem tilt.
+  - SELETOR DE TEMA (hero): as setas já viravam `position:static` em 1280px — agora ficam em
+    48px flanqueando o nome, como o mockup ("as setas descem para uma barra sob os CTAs").
+    Seção "15 temas": setas 48px e o nome sem `min-width` de desktop.
+  - **CENA DE CRISTAL ocultada no mobile** (`[data-crys]`, `[data-crys-abstract]`, `[data-marble]`,
+    regmarks): são backgrounds posicionados para telas largas e vazariam no estreito — o mockup
+    mobile também não os mostra. Decisão reportada.
+- **LOGIN/REGISTRO (entrada.css)**: o `#lg-shell` já empilhava em 900px; agora a faixa de
+  cristal `#lg-brand` tem **altura fixa de 240px** com o conteúdo ancorado embaixo (mockup:
+  "faixa superior de ~240px"), `#lg-gemwrap` contido (210x230, sem vazar) e o formulário ocupa o
+  resto em largura total. `.lg-input` 50px/16px, `.lg-btn` 54px, safe-area no rodapé. Os dois
+  compartilham o partial `novix_entrada_brand()` e as classes `.lg-*`, então valem para ambos.
+- **Preservado**: switcher de tema (View Transitions/localStorage), herança de tema pré-auth,
+  handlers de login/registro, CSRF. Só reflow.
+- **Validação**: landing.css 152/152 e entrada.css 135/135 chaves, blocos em profundidade 0
+  (não aninhados); landing.js `node --check` OK; index/login/register com div/button/php
+  balanceados. `php -l` e passe visual PENDENTES no servidor.
+
 ## RESPONSIVIDADE MOBILE — todas as telas (2026-07-28)
 - **Report**: /reports/checkpoint_responsivo_mobile.md
 - **Fonte**: Claude Design MCP, "Mobile NovixFin.dc.html" (mockup mobile aprovado). Padrões

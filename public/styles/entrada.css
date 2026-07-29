@@ -210,12 +210,36 @@ input::placeholder{ color:var(--muted); opacity:.65; }
   #lg-shell *{ animation:none !important; transition:none !important; }
 }
 
-/* ============ MOBILE (<=768px) ============
-   O #lg-shell já empilha em 900px; aqui só o conforto de toque e o respiro
-   lateral do mockup mobile. Desktop intacto. */
+/* ================= MOBILE (<=768px) =================
+   Fonte: mockup "Mobile NovixFin.dc.html" (tela 10 · Entrada · Login): "a cena
+   de cristal vira faixa superior de ~240px e o formulário ocupa o resto".
+   O #lg-shell já empilha em 900px; aqui a faixa encolhe para não empurrar o
+   formulário para fora da dobra, e os alvos ficam confortáveis no toque.
+   Registro usa o mesmo shell/partial — vale para os dois. Desktop intacto. */
 @media (max-width:768px){
-  #lg-formcol{ padding:32px 18px 56px !important; }
-  #lg-brand{ min-height:260px !important; padding:26px 18px !important; }
-  #lg-shell input, #lg-shell select{ min-height:46px; font-size:16px; } /* 16px evita zoom no iOS */
+  #lg-shell{ min-height:100dvh; }
+
+  /* faixa de cristal no topo: altura fixa, conteúdo ancorado embaixo */
+  #lg-brand{
+    min-height:0 !important;
+    height:240px !important;
+    padding:20px 18px !important;
+    justify-content:flex-end !important;
+  }
+  /* o cristal não pode vazar da faixa nem capturar toque */
+  #lg-gemwrap{
+    right:-52px !important; top:auto !important; bottom:-40px !important;
+    width:210px !important; height:230px !important;
+    transform:none !important; opacity:.9;
+  }
+
+  /* formulário ocupa o resto, largura total com respiro */
+  #lg-formcol{ padding:26px 18px calc(48px + env(safe-area-inset-bottom, 0px)) !important; justify-content:flex-start !important; }
+  .lg-form{ width:100% !important; }
+  .lg-title{ font-size:26px; }
+
+  /* alvos de toque (>=44px) e 16px para não dar zoom no iOS */
+  .lg-input{ min-height:50px; font-size:16px; padding:13px 14px; }
+  .lg-btn{ min-height:54px; }
   #lg-shell button, #lg-shell a[href]{ min-height:44px; }
 }
