@@ -233,16 +233,45 @@
     header[data-screen-label="hero"] p { font-size: 15.5px !important; }
 
     /* CTAs da hero em largura total, empilhados (mockup) */
-    header[data-screen-label="hero"] [style*="flex-wrap: wrap"] {
+    /* ---- LINHAS DE CTA: hero E bloco final ----
+       A regra de empilhamento global mira `grid-template-columns`; a seção
+       "cta final" NÃO tem nenhum grid — ela monta tudo com `flex-wrap: wrap`
+       (2 botões + 4 selos). Por isso escapou, como o hero escapou por ser
+       <header>. Aqui as duas seções de CTA são tratadas juntas.
+       As OUTRAS linhas flex-wrap da landing (chips do "demo", selos da
+       "gamificação", abas do "tour") quebram bem sozinhas e NÃO são empilhadas
+       de propósito — virar 4 abas/chips full-width pioraria a leitura. */
+    header[data-screen-label="hero"] [style*="flex-wrap: wrap"],
+    section[data-screen-label="cta final"] [style*="flex-wrap: wrap"] {
       flex-direction: column;
       align-items: stretch !important;
+      gap: 10px !important;
     }
     header[data-screen-label="hero"] [style*="flex-wrap: wrap"] > a,
-    header[data-screen-label="hero"] [style*="flex-wrap: wrap"] > button {
+    header[data-screen-label="hero"] [style*="flex-wrap: wrap"] > button,
+    section[data-screen-label="cta final"] [style*="flex-wrap: wrap"] > a,
+    section[data-screen-label="cta final"] [style*="flex-wrap: wrap"] > button {
       width: 100%;
       min-height: 52px;
       justify-content: center;
       text-align: center;
+    }
+
+    /* os 4 selos ("grátis pra sempre" etc.): 1 por linha, centrados, com
+       respiro menor que os 22px de desktop */
+    section[data-screen-label="cta final"] [style*="flex-wrap: wrap"] > span {
+      text-align: center;
+      min-height: 26px;
+    }
+
+    /* botão fantasma "Escolher meu tema": a borda de 1.5px em --stage-line
+       quase some sobre o roxo e o inline-flex sem justify deixava o rótulo
+       torto. Ganha contraste, altura e centralização iguais ao primário. */
+    section[data-screen-label="cta final"] a[style*="border: 1.5px"] {
+      border-width: 1px !important;
+      border-color: color-mix(in srgb, var(--stage-ink) 55%, transparent) !important;
+      padding-top: 14px !important;
+      padding-bottom: 14px !important;
     }
 
     /* mock em perspectiva: sem tilt, sem estourar e sem o vão de 98px */

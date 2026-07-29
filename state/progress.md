@@ -5,6 +5,31 @@
   (recompute) ENTREGUE, precisa rodar no SERVIDOR (backup + dry-run + --apply). Parado p/ revisão.
 - Reskin **100%**; modais completos; agora saldo consistente com as transações.
 
+## CORREÇÃO — seção "cta final" mobile + varredura anti-recorrência (2026-07-29)
+- **Report**: /reports/checkpoint_landing_cta_final.md
+- **Causa do escape (mesma classe do hero)**: a seção do CTA de fechamento é
+  `<section data-screen-label="cta final">` e **NÃO tem NENHUM grid** — monta tudo com
+  `flex-wrap: wrap` (uma linha com os 2 botões, outra com os 4 selos). A regra global de
+  empilhamento mira `grid-template-columns`, e a de `flex-wrap` estava **escopada ao hero**.
+  Por isso os botões ficaram lado a lado e os 4 selos espremidos em 2 colunas.
+  (O padding interno JÁ estava correto: o div de conteúdo é filho direto com `max-width:900px`,
+  alcançado pela regra de contêineres → 56/18/52.)
+- **Corrigido**: a regra de linha-de-CTA passou a cobrir hero **e** "cta final" — botões em
+  largura total empilhados (52px, `--cut` já normalizado para simétrico pela fatia anterior),
+  gap 10px; os 4 selos 1 por linha, centrados; e o botão fantasma "Escolher meu tema" ganhou
+  contraste de borda (`--stage-line` quase sumia sobre o roxo) + altura e centralização iguais
+  ao primário.
+- **Decisão documentada**: as OUTRAS linhas `flex-wrap` da landing (chips do "demo", selos da
+  "gamificação", abas do "tour") **continuam quebrando naturalmente** — empilhar 4 abas/chips
+  em largura total pioraria a leitura. Os cards de "features" já empilham pela guarda de largura.
+- **VARREDURA ANTI-RECORRÊNCIA (17/17)**: para cada seção de primeiro nível verifiquei se existe
+  contêiner alcançado pela regra de padding (a própria seção com `max-width` ou um div filho
+  direto com `max-width`). **16 cobertas**; a única fora é a **esteira (credibilidade)**, e
+  corretamente: usa `padding: 26px 0` (sem respiro lateral de desktop) e é full-bleed de
+  propósito, com `width:max-content` já excluído da guarda de largura. **Nenhuma seção sobrou.**
+- **Validação**: landing.css 169/169 chaves, bloco na profundidade 1. `php -l` e passe visual
+  pendentes. Switcher/localStorage/handlers/CSRF intocados; desktop acima de 768px inalterado.
+
 ## AUDITORIA + correção da landing mobile (2026-07-29)
 - **Report**: /reports/checkpoint_landing_auditoria_mobile.md (relatório completo da Fase 1)
 - **Auditoria programática** dos 17 blocos em ~390px: **81 ocorrências** de 6 tipos —
