@@ -233,6 +233,14 @@ input::placeholder{ color:var(--muted); opacity:.65; }
     transform:none !important; opacity:.9;
   }
 
+  /* a copy precisa CABER na faixa de 240px: a headline tem clamp(34px,…) no
+     desktop, que em 3 linhas estouraria a faixa. Tamanhos do mockup mobile. */
+  .lg-headline-wrap{ max-width:100%; }
+  .lg-headline{ font-size:clamp(22px, 6.6vw, 27px) !important; }
+  .lg-subline{ font-size:13px; margin-top:8px; max-width:100%; }
+  /* estilhaços decorativos só poluem a faixa curta */
+  .lg-shard{ display:none !important; }
+
   /* formulário ocupa o resto, largura total com respiro */
   #lg-formcol{ padding:26px 18px calc(48px + env(safe-area-inset-bottom, 0px)) !important; justify-content:flex-start !important; }
   .lg-form{ width:100% !important; }

@@ -5,6 +5,35 @@
   (recompute) ENTREGUE, precisa rodar no SERVIDOR (backup + dry-run + --apply). Parado p/ revisão.
 - Reskin **100%**; modais completos; agora saldo consistente com as transações.
 
+## AUDITORIA + correção da landing mobile (2026-07-29)
+- **Report**: /reports/checkpoint_landing_auditoria_mobile.md (relatório completo da Fase 1)
+- **Auditoria programática** dos 17 blocos em ~390px: **81 ocorrências** de 6 tipos —
+  `padding-desktop` (32px lateral), `grid-fixo`, `fonte-grande` (30–44px sem clamp),
+  `width-fixa` (380–560px), `abs-negativo`, `clip-path-px`.
+- **Já cobertos** pelas fatias anteriores: paddings dos contêineres com max-width, grids
+  multi-coluna, decorativos absolutos das seções, nav/hero.
+- **DEFEITOS NOVOS corrigidos agora** (num diff, por regras genéricas — não seção a seção):
+  1. **Cards de largura fixa** (420px no "demo", 380px×2 na "gamificação") estouravam os 354px
+     úteis → guarda geral `[data-screen-label] *:not(.lp-track):not([data-mq-track]){max-width:100%}`
+     + `width:100%` nos dois tamanhos. As duas faixas que rolam de propósito (carrossel de temas
+     e esteira) ficaram de fora da guarda.
+  2. **Tipografia inline sem clamp** (44/40/34/32/30px em 13 pontos de 7 seções) → um clamp por
+     tamanho, cobrindo todas as ocorrências de uma vez.
+  3. **Botão "Criar conta grátis"**: `var(--cut)` recorta SÓ o canto superior direito (14px);
+     num botão de largura total lê como defeito → no mobile `clip-path:none` + padding lateral
+     20px + 52px de altura, valendo para TODOS os CTAs com esse corte (hero e cta final).
+  4. **Espaçamento vertical**: `[data-mockwrap]` tinha 98px de padding inferior → 22px; cards
+     `data-card` com padding de desktop → 18px.
+  5. **Diagonal do "cta final"**: `polygon(0 46px, …)` íngreme no estreito → 18px.
+- **LOGIN/REGISTRO verificados**: a faixa de 240px + form estava certa, MAS a `.lg-headline`
+  usa `clamp(34px,…)` — em 3 linhas estouraria a faixa curta. Ajustado para
+  `clamp(22px,6.6vw,27px)` (tamanho do mockup), subline 13px e estilhaços decorativos ocultos.
+  Contas: faixa 240 + form ~504px ≈ 744px, cabe em telas de 390x844 sem rolagem.
+- **Hambúrguer**: já corrigido na fatia anterior (script inline após o `<nav>` + cache-busting);
+  confirmado presente. Switcher de tema, localStorage, handlers e CSRF intocados.
+- **Validação**: landing.css 167/167 e entrada.css 139/139 chaves (bloco novo na profundidade 1);
+  landing.js OK; index.php balanceado. `php -l` e passe visual PENDENTES.
+
 ## CORREÇÃO — landing mobile: seções + hambúrguer (2026-07-29)
 - **Report**: /reports/checkpoint_landing_mobile_fix.md
 - **Levantamento**: os 17 blocos de primeiro nível da landing (1 nav, 1 header, 14 section,

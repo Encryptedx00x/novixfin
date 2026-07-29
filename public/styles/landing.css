@@ -245,9 +245,47 @@
       text-align: center;
     }
 
-    /* mock em perspectiva: sem tilt e sem estourar a viewport */
-    [data-mockwrap] { padding: 0 0 40px !important; }
+    /* mock em perspectiva: sem tilt, sem estourar e sem o vão de 98px */
+    [data-mockwrap] { padding: 0 0 22px !important; }
     [data-mocktilt] { transform: none !important; }
+    [data-card="1"] { padding: 18px !important; }
+
+    /* ---- GUARDA GERAL DE LARGURA (auditoria) ----
+       A landing tem cards com largura FIXA de desktop (420px no "demo",
+       380px na "gamificação", etc.) que estouram os 354px úteis de um 390px.
+       Em vez de consertar card a card, nenhum descendente de seção passa de
+       100%. Exceções: as duas faixas que rolam de propósito (carrossel de
+       temas e a esteira de credibilidade), que usam width:max-content. */
+    [data-screen-label] *:not(.lp-track):not([data-mq-track]) { max-width: 100%; }
+    [data-screen-label] [style*="width: 420px"],
+    [data-screen-label] [style*="width: 380px"] { width: 100% !important; }
+
+    /* ---- TIPOGRAFIA INLINE SEM CLAMP (auditoria) ----
+       Números e títulos de destaque estão com font-size fixo no inline
+       (44/40/34/32/30px) e dominam ou estouram no estreito. Cada tamanho é
+       reduzido uma vez, o que cobre todas as ocorrências de todas as seções. */
+    [data-screen-label] [style*="font-size: 44px"] { font-size: clamp(26px, 7.4vw, 32px) !important; }
+    [data-screen-label] [style*="font-size: 40px"] { font-size: clamp(25px, 7vw, 30px) !important; }
+    [data-screen-label] [style*="font-size: 34px"] { font-size: clamp(23px, 6.4vw, 28px) !important; }
+    [data-screen-label] [style*="font-size: 32px"] { font-size: clamp(22px, 6.2vw, 27px) !important; }
+    [data-screen-label] [style*="font-size: 30px"] { font-size: clamp(21px, 6vw, 26px) !important; }
+
+    /* ---- CTAs: corte --cut assimétrico vira canto simétrico ----
+       var(--cut) recorta SÓ o canto superior direito (14px). Num botão de
+       largura total isso lê como defeito. No mobile o corte sai e fica o
+       border-radius do tema (simétrico); o respiro lateral também encolhe. */
+    [data-screen-label] a[style*="clip-path: var(--cut)"],
+    [data-screen-label] button[style*="clip-path: var(--cut)"] {
+      clip-path: none !important;
+      padding-left: 20px !important;
+      padding-right: 20px !important;
+      min-height: 52px;
+    }
+
+    /* diagonal do bloco final: 46px é íngreme demais num bloco estreito */
+    section[data-screen-label="cta final"] {
+      clip-path: polygon(0 18px, 100% 0, 100% 100%, 0 100%) !important;
+    }
 
     /* ---- CENA DE CRISTAL: não pode vazar no estreito ----
        As imagens são backgrounds posicionados para telas largas; no mobile
