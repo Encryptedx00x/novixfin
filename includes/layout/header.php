@@ -189,14 +189,23 @@ $novixShowBalanceToggle = function_exists('isAuthenticated') && isAuthenticated(
 ?>
 <div id="nvx-shell">
 
-    <!-- ============ SIDEBAR ============ -->
+    <!-- Overlay do drawer (mobile). Tocar fora fecha — ver shell.js. -->
+    <div id="nvx-drawer-ov" hidden></div>
+
+    <!-- ============ SIDEBAR (vira DRAWER no mobile) ============ -->
     <aside id="nvx-side">
-        <a href="/public/dashboard.php" class="nvx-sbrand" title="NovixFin">
-            <span class="nvx-smark" aria-hidden="true">
-                <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="var(--accent-ink)" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18 L10 8 L14 14 L20 5"></path></svg>
-            </span>
-            <span class="nvx-slogo nvx-slab">novixfin</span>
-        </a>
+        <div class="nvx-sbrand-row">
+            <a href="/public/dashboard.php" class="nvx-sbrand" title="NovixFin">
+                <span class="nvx-smark" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="var(--accent-ink)" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18 L10 8 L14 14 L20 5"></path></svg>
+                </span>
+                <span class="nvx-slogo nvx-slab">novixfin</span>
+            </a>
+            <!-- Fechar o drawer (só mobile, conforme o mockup) -->
+            <button type="button" id="nvx-drawer-close" class="nvx-drawer-x" aria-label="Fechar menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6 18 18M18 6 6 18"></path></svg>
+            </button>
+        </div>
 
         <nav id="nvx-nav">
             <span class="nvx-group nvx-slab">Principal</span>
@@ -261,6 +270,10 @@ $novixShowBalanceToggle = function_exists('isAuthenticated') && isAuthenticated(
              de ocultar saldos fica na sidebar (onde a feature é ligada). -->
         <header id="nvx-top">
             <div class="nvx-top-inner">
+                <!-- Hambúrguer: abre o drawer. Só aparece no mobile (shell.css). -->
+                <button type="button" id="nvx-drawer-toggle" class="nvx-burger" aria-label="Abrir menu" aria-expanded="false" aria-controls="nvx-side">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>
+                </button>
                 <div style="min-width:0;">
                     <div class="nvx-eyebrow"><?php echo sanitize($novixEyebrow); ?></div>
                     <h1 class="nvx-pagetitle"><?php echo sanitize($novixPageTitle); ?></h1>
@@ -268,14 +281,8 @@ $novixShowBalanceToggle = function_exists('isAuthenticated') && isAuthenticated(
             </div>
         </header>
 
-        <!-- NAV MOBILE (faixa horizontal, só < 1020px) -->
-        <nav id="nvx-mnav" aria-label="Navegação">
-            <?php foreach (array_merge($novixNavMain, $novixNavGest) as $item) : ?>
-                <a href="<?php echo sanitize($item['href']); ?>" class="nvx-mnav-item"<?php echo $novixIsActive($item) ? ' aria-current="page"' : ''; ?>>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="<?php echo $novixNavIcons[$item['icon']]; ?>"></path></svg>
-                    <?php echo sanitize($item['label']); ?>
-                </a>
-            <?php endforeach; ?>
-        </nav>
+        <!-- NAV MOBILE: a faixa horizontal foi substituída pelo DRAWER (padrão
+             único do mockup mobile) — a própria #nvx-side vira gaveta abaixo de
+             1020px, aberta pelo hambúrguer acima. Ver shell.css / shell.js. -->
 
         <div class="nvx-content nvx-content-pad">

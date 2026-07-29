@@ -175,3 +175,25 @@
 [data-hv="lp-hv-5"]:hover{ transform: perspective(1200px) rotateY(0deg); }
 [data-hv="lp-hv-6"]:hover{ transform: translateY(-4px); }
 [data-hv="lp-hv-7"]:hover{ transform: scale(1.12); color: var(--accent); border-color: color-mix(in srgb, var(--accent) 50%, transparent); }
+
+  /* ============ MOBILE (<=768px) ============
+     A landing usa grades e paddings em estilo inline nas <section>; aqui elas
+     empilham em 1 coluna e o respiro lateral encolhe. !important porque o
+     inline vence qualquer seletor. Desktop intacto acima de 768px. */
+  @media (max-width: 768px) {
+    section[data-screen-label] {
+      padding-left: 18px !important;
+      padding-right: 18px !important;
+      padding-top: 56px !important;
+      padding-bottom: 52px !important;
+    }
+    section[data-screen-label] [style*="grid-template-columns"] {
+      grid-template-columns: 1fr !important;
+    }
+    /* tipografia da hero e títulos não podem estourar a viewport */
+    h1, h2 { overflow-wrap: anywhere; }
+    /* alvos de toque */
+    a[href], button { min-height: 44px; }
+    /* o seletor de tema vira faixa rolável em vez de comprimir */
+    .lp-track { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  }

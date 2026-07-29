@@ -393,33 +393,33 @@ $viewMode = $_GET['view'] ?? 'table';
                         }
                     ?>
                         <tr>
-                            <td style="font-family:var(--f-num); font-variant-numeric:tabular-nums;"><?php echo date('d/m/Y', strtotime($transaction['transaction_date'])); ?></td>
-                            <td>
+                            <td data-label="Data" style="font-family:var(--f-num); font-variant-numeric:tabular-nums;"><?php echo date('d/m/Y', strtotime($transaction['transaction_date'])); ?></td>
+                            <td data-label="Conta">
                                 <?php if ($transaction['account_name']) : ?>
                                     <?php echo sanitize(($transaction['account_icon'] ?? '') . ' ' . $transaction['account_name']); ?>
                                 <?php else : ?>
                                     <span style="color:var(--muted);">—</span>
                                 <?php endif; ?>
                             </td>
-                            <td><?php echo sanitize($transaction['category_name']); ?></td>
-                            <td>
+                            <td data-label="Categoria"><?php echo sanitize($transaction['category_name']); ?></td>
+                            <td data-label="Tipo">
                                 <span class="hist-pill <?php echo $transaction['type'] === 'income' ? 'hist-pill--income' : 'hist-pill--expense'; ?>">
                                     <?php echo $transaction['type'] === 'income' ? 'Receita' : 'Despesa'; ?>
                                 </span>
                             </td>
-                            <td><?php echo sanitize($transaction['description'] ?? '—'); ?></td>
-                            <td class="hist-num" style="color: <?php echo $transaction['type'] === 'income' ? 'var(--pos)' : 'var(--neg)'; ?>;" data-balance>
+                            <td data-label="Descrição"><?php echo sanitize($transaction['description'] ?? '—'); ?></td>
+                            <td data-label="Valor" class="hist-num" style="color: <?php echo $transaction['type'] === 'income' ? 'var(--pos)' : 'var(--neg)'; ?>;" data-balance>
                                 <?php echo $transaction['type'] === 'income' ? '+' : '-'; ?> <?php echo formatCurrency((float) $transaction['amount'], $transaction['currency'] ?? 'BRL'); ?>
                             </td>
-                            <td style="font-family:var(--f-num);"><?php echo sanitize($transaction['currency'] ?? 'BRL'); ?></td>
-                            <td class="hist-sheet-center"><?php echo ($transaction['is_effective'] ?? true) ? '✓' : '—'; ?></td>
-                            <td class="hist-sheet-center">
+                            <td data-label="Moeda" style="font-family:var(--f-num);"><?php echo sanitize($transaction['currency'] ?? 'BRL'); ?></td>
+                            <td data-label="Efetivada" class="hist-sheet-center"><?php echo ($transaction['is_effective'] ?? true) ? '✓' : '—'; ?></td>
+                            <td data-label="Fixa" class="hist-sheet-center">
                                 <?php echo ($transaction['is_recurring'] ?? false) ? '✓' : '—'; ?>
                                 <?php if ($installmentTotal !== null && $installmentIndex !== null) : ?>
                                     <div style="margin-top:4px; font-family:var(--f-num); font-size:11px; color:var(--accent-2);"><?php echo $installmentIndex; ?>/<?php echo $installmentTotal; ?></div>
                                 <?php endif; ?>
                             </td>
-                            <td class="hist-sheet-center">
+                            <td data-label="Ações" class="hist-sheet-center">
                                 <div style="display:inline-flex; gap:6px;">
                                     <button type="button" data-edit="<?php echo (int) $transaction['id']; ?>" class="hist-iconbtn" title="Editar lançamento" aria-label="Editar lançamento">
                                         <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" stroke="none"><circle cx="12" cy="5.5" r="1.6"></circle><circle cx="12" cy="12" r="1.6"></circle><circle cx="12" cy="18.5" r="1.6"></circle></svg>

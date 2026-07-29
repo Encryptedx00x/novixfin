@@ -31,3 +31,34 @@ dialog.wallets-modal::backdrop { background: color-mix(in srgb, var(--ink) 45%, 
 .wallets-modal .focus\:border-violet-500:focus { border-color: var(--accent) !important; }
 .wallets-modal .rounded-3xl { border-radius: calc(var(--r) + 10px); }
 .wallets-modal .rounded-xl { border-radius: calc(var(--r) + 2px); }
+
+/* ============ MOBILE (<=768px) ============
+   A "tabela" de contas da carteira (grid de divs) vira cartão, como o extrato:
+   cabeçalho some e cada valor ganha seu rótulo (data-label no wallets.php).
+   O empilhamento genérico das grades vem do shell.css. */
+@media (max-width: 768px) {
+    .wallets-screen .wal-thead { display: none !important; }
+
+    .wallets-screen .wal-trow {
+        display: flex !important;
+        flex-direction: column;
+        gap: 8px;
+        padding: 14px 16px;
+    }
+    .wallets-screen .wal-trow > span[data-label] {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        text-align: right;
+    }
+    .wallets-screen .wal-trow > span[data-label]::before {
+        content: attr(data-label);
+        font-family: var(--f-m);
+        font-size: 10px;
+        letter-spacing: .14em;
+        text-transform: uppercase;
+        color: var(--muted);
+        text-align: left;
+    }
+}

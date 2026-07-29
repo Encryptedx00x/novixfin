@@ -225,22 +225,68 @@ dialog.nvx-modal.nvx-modal--danger { border: 1px solid color-mix(in srgb, var(--
 .nvx-modal .rounded-lg { border-radius: var(--r-chip); }
 .nvx-modal [data-balance] { font-family: var(--f-num); font-variant-numeric: tabular-nums; }
 
-/* ===== MOBILE: bottom sheet (design sobe de baixo) ===== */
-@media (max-width: 560px) {
+/* ===== MOBILE: BOTTOM SHEET (padrão do mockup mobile, <=768px) =====
+   Todo modal sobe de baixo, largura total, com puxador (grab), scroll interno
+   e ações fixas no rodapé. Os seletores repetem --wide/--tx para vencer as
+   larguras específicas (especificidade 0,2,1) declaradas acima. */
+@media (max-width: 768px) {
     dialog.nvx-modal,
-    dialog.nvx-modal.nvx-modal--wide {
+    dialog.nvx-modal.nvx-modal--wide,
+    dialog.nvx-modal.nvx-tx-modal {
         width: 100%;
         max-width: 100%;
         margin: 0;
         position: fixed;
         inset: auto 0 0 0;
         max-height: 92vh;
+        max-height: 92dvh;
         overflow-y: auto;
-        border-radius: calc(var(--r) + 12px) calc(var(--r) + 12px) 0 0;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
+        padding: 0 16px calc(16px + env(safe-area-inset-bottom, 0px));
+        border-radius: calc(var(--r) + 18px) calc(var(--r) + 18px) 0 0;
         animation: nvxSheet .3s cubic-bezier(.16, 1, .3, 1);
     }
-    .nvx-mval-input { width: 150px; font-size: 38px; }
-    .nvx-mval-line { width: 150px; }
+
+    /* puxador do sheet */
+    dialog.nvx-modal::before {
+        content: "";
+        display: block;
+        width: 38px; height: 4px;
+        margin: 10px auto 6px;
+        border-radius: 999px;
+        background: var(--line);
+        opacity: .5;
+    }
+
+    /* cabeçalho gruda no topo enquanto o corpo rola */
+    .nvx-mhead {
+        position: sticky; top: 0; z-index: 2;
+        background: var(--surface);
+        padding: 4px 0 10px;
+        margin-bottom: 0;
+    }
+
+    /* ações fixas no rodapé do sheet */
+    .nvx-mfoot {
+        position: sticky; bottom: 0; z-index: 2;
+        background: var(--surface);
+        padding: 12px 0 4px;
+        border-top: 1px solid var(--line-soft);
+        margin-top: 16px;
+    }
+    .nvx-mbtn, .nvx-mcancel { min-height: 48px; }
+
+    /* campos confortáveis no toque */
+    .nvx-modal input,
+    .nvx-modal select,
+    .nvx-modal textarea { min-height: 46px; font-size: 16px; } /* 16px evita zoom no iOS */
+    .nvx-modal input.nvx-mval-input { min-height: 0; }
+    .nvx-seg-btn { min-height: 44px; }
+    .nvx-chip { min-height: 38px; }
+
+    .nvx-mval-input { width: 170px; font-size: 38px; }
+    .nvx-mgrid, .nvx-mgrid--status { grid-template-columns: 1fr; }
 }
 
 @media (prefers-reduced-motion: reduce) {

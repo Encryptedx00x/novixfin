@@ -331,28 +331,28 @@ $error = flash('error');
                                         ];
                                     ?>
                                         <tr class="hover:bg-white/5 transition">
-                                            <td class="py-3 text-white">
+                                            <td data-label="Mês" class="py-3 text-white">
                                                 <?php 
                                                 $month = explode('-', $bill['billing_month']);
                                                 echo date('M/Y', mktime(0, 0, 0, (int) $month[1], 1, (int) $month[0]));
                                                 ?>
                                             </td>
-                                            <td class="py-3 text-right text-slate-300">
+                                            <td data-label="Fechamento" class="py-3 text-right text-slate-300">
                                                 <?php echo date('d/m/Y', strtotime($bill['closing_date'])); ?>
                                             </td>
-                                            <td class="py-3 text-right text-slate-300">
+                                            <td data-label="Vencimento" class="py-3 text-right text-slate-300">
                                                 <?php echo date('d/m/Y', strtotime($bill['due_date'])); ?>
                                             </td>
-                                            <td class="py-3 text-right text-white font-medium" data-balance>
+                                            <td data-label="Total" class="py-3 text-right text-white font-medium" data-balance>
                                                 <?php echo formatCurrency((float) ($bill['total_amount'] ?? 0), $bill['currency'] ?? 'BRL'); ?>
                                             </td>
-                                            <td class="py-3 text-right text-emerald-300" data-balance>
+                                            <td data-label="Pago" class="py-3 text-right text-emerald-300" data-balance>
                                                 <?php echo formatCurrency((float) ($bill['paid_amount'] ?? 0), $bill['currency'] ?? 'BRL'); ?>
                                             </td>
-                                            <td class="py-3 text-right text-rose-300" data-balance>
+                                            <td data-label="Juros" class="py-3 text-right text-rose-300" data-balance>
                                                 <?php echo formatCurrency((float) ($bill['interest_amount'] ?? 0), $bill['currency'] ?? 'BRL'); ?>
                                             </td>
-                                            <td class="py-3 text-center">
+                                            <td data-label="Status" class="py-3 text-center">
                                                 <div class="flex items-center justify-center gap-2">
                                                     <span class="px-2 py-1 rounded text-xs <?php echo $statusColors[$billStatus] ?? $statusColors['open']; ?>">
                                                         <?php echo $statusLabels[$billStatus] ?? 'Aberta'; ?>

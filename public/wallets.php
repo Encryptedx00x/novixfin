@@ -148,7 +148,7 @@ if ($viewWallet) :
 
     <?php if (!empty($viewWalletAccounts)) : ?>
         <div style="background:var(--surface); border:var(--card-b); box-shadow:var(--card-sh); border-radius:var(--r); overflow:hidden;">
-            <div style="display:grid; grid-template-columns:minmax(180px,1fr) 120px 120px 130px; gap:14px; padding:11px 22px; border-bottom:1px solid var(--line-soft); font-family:var(--f-m); font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted);">
+            <div class="wal-thead" style="display:grid; grid-template-columns:minmax(180px,1fr) 120px 120px 130px; gap:14px; padding:11px 22px; border-bottom:1px solid var(--line-soft); font-family:var(--f-m); font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted);">
                 <span>Conta</span><span style="text-align:right;">Receitas</span><span style="text-align:right;">Despesas</span><span style="text-align:right;">Saldo</span>
             </div>
             <?php foreach ($viewWalletAccounts as $account) :
@@ -164,14 +164,14 @@ if ($viewWallet) :
                 $primaryTotal = $accountTotals[0] ?? ['income' => 0, 'expense' => 0, 'currency' => 'BRL'];
                 $accBalance = (float) $primaryTotal['income'] - (float) $primaryTotal['expense'];
             ?>
-            <div style="display:grid; grid-template-columns:minmax(180px,1fr) 120px 120px 130px; gap:14px; padding:12px 22px; border-bottom:1px solid var(--line-soft); align-items:center;">
+            <div class="wal-trow" style="display:grid; grid-template-columns:minmax(180px,1fr) 120px 120px 130px; gap:14px; padding:12px 22px; border-bottom:1px solid var(--line-soft); align-items:center;">
                 <span style="display:flex; align-items:center; gap:10px; min-width:0;">
                     <span style="width:32px; height:32px; flex:none; display:grid; place-items:center; font-size:15px; border-radius:9px; background:color-mix(in srgb, var(--accent) 13%, transparent);"><?php echo sanitize($account['icon'] ?? ''); ?></span>
                     <span style="min-width:0;"><span style="display:block; font-size:13.5px; font-weight:700; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"><?php echo sanitize($account['name']); ?></span><span style="display:block; font-size:11px; color:var(--muted); text-transform:capitalize;"><?php echo sanitize($account['type']); ?></span></span>
                 </span>
-                <span style="text-align:right; font-family:var(--f-m); font-size:12.5px; font-weight:600; color:var(--pos);" data-balance><?php echo formatCurrency((float) $primaryTotal['income'], $primaryTotal['currency']); ?></span>
-                <span style="text-align:right; font-family:var(--f-m); font-size:12.5px; font-weight:600; color:var(--neg);" data-balance><?php echo formatCurrency((float) $primaryTotal['expense'], $primaryTotal['currency']); ?></span>
-                <span style="text-align:right; font-family:var(--f-num); font-size:13.5px; font-weight:700; font-variant-numeric:tabular-nums; color:<?php echo $accBalance < 0 ? 'var(--neg)' : 'var(--ink)'; ?>;" data-balance><?php echo formatCurrency($accBalance, $primaryTotal['currency']); ?></span>
+                <span data-label="Receitas" style="text-align:right; font-family:var(--f-m); font-size:12.5px; font-weight:600; color:var(--pos);" data-balance><?php echo formatCurrency((float) $primaryTotal['income'], $primaryTotal['currency']); ?></span>
+                <span data-label="Despesas" style="text-align:right; font-family:var(--f-m); font-size:12.5px; font-weight:600; color:var(--neg);" data-balance><?php echo formatCurrency((float) $primaryTotal['expense'], $primaryTotal['currency']); ?></span>
+                <span data-label="Saldo" style="text-align:right; font-family:var(--f-num); font-size:13.5px; font-weight:700; font-variant-numeric:tabular-nums; color:<?php echo $accBalance < 0 ? 'var(--neg)' : 'var(--ink)'; ?>;" data-balance><?php echo formatCurrency($accBalance, $primaryTotal['currency']); ?></span>
             </div>
             <?php endforeach; ?>
         </div>

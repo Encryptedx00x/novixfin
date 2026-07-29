@@ -7,7 +7,7 @@
 
    Layout em grid (264px | 1fr). Recolhido = data-side="rail" (72px) no
    #nvx-shell, alternado por shell.js e persistido em localStorage. No mobile
-   (<1020px) a sidebar some e vira a faixa horizontal #nvx-mnav. */
+   (<1020px) a sidebar vira DRAWER, aberta pelo hambúrguer da topbar. */
 
 /* Fundo/cor da página seguem o tema ativo (tokens em html[data-theme=<slug>]).
    Repõe o papel do antigo theme-compat.css, agora via token e não por nome de
@@ -40,8 +40,11 @@ html, body { background: var(--bg); color: var(--ink); }
     overflow-y: auto;
     overflow-x: hidden;
 }
-.nvx-sbrand { display: flex; align-items: center; gap: 11px; padding: 0 8px; text-decoration: none; }
+.nvx-sbrand-row { display: flex; align-items: center; gap: 8px; }
+.nvx-sbrand { display: flex; align-items: center; gap: 11px; padding: 0 8px; text-decoration: none; min-width: 0; flex: 1; }
 .nvx-sbrand:hover { text-decoration: none; }
+/* X de fechar o drawer: só no mobile (ver bloco MOBILE) */
+.nvx-drawer-x { display: none; }
 .nvx-smark {
     width: 34px; height: 34px; flex: none; display: grid; place-items: center;
     background: var(--grad); clip-path: var(--cut); border-radius: var(--r);
@@ -120,6 +123,15 @@ html, body { background: var(--bg); color: var(--ink); }
     padding: 16px 32px;
 }
 .nvx-top-inner { max-width: 1600px; margin: 0 auto; display: flex; align-items: center; gap: 20px; }
+/* Hambúrguer: abre o drawer. Oculto no desktop (a sidebar está sempre visível). */
+.nvx-burger {
+    display: none;
+    width: 44px; height: 44px; flex: none;
+    place-items: center; border-radius: var(--r-chip);
+    background: none; border: none; color: var(--ink); cursor: pointer;
+    margin-left: -8px;
+}
+.nvx-burger svg { width: 22px; height: 22px; }
 .nvx-eyebrow { font-family: var(--f-m); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
 .nvx-pagetitle { margin: 2px 0 0; font-family: var(--f-d); font-weight: var(--w-d); letter-spacing: var(--ls-d); font-size: 26px; color: var(--ink); }
 .nvx-top-actions { margin-left: auto; display: flex; align-items: center; gap: 12px; }
@@ -137,16 +149,13 @@ html, body { background: var(--bg); color: var(--ink); }
 .nvx-content { width: 100%; max-width: none; }
 .nvx-content-pad { padding: 24px 32px 40px; }
 
-/* ============ NAV MOBILE (faixa horizontal) ============ */
-#nvx-mnav { display: none; gap: 8px; overflow-x: auto; padding: 12px 20px; border-bottom: 1px solid var(--line-soft); background: var(--surface); }
-.nvx-mnav-item {
-    flex: none; display: inline-flex; align-items: center; gap: 7px;
-    padding: 8px 14px; border-radius: 999px; font-size: 13px; font-weight: 600;
-    background: transparent; color: var(--muted); border: 1px solid var(--line-soft);
-    text-decoration: none;
+/* ============ OVERLAY DO DRAWER (mobile) ============ */
+#nvx-drawer-ov {
+    display: none;
+    position: fixed; inset: 0; z-index: 89;
+    background: color-mix(in srgb, var(--ink) 52%, transparent);
+    -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px);
 }
-.nvx-mnav-item[aria-current="page"] { background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent-text); border-color: transparent; }
-.nvx-mnav-item svg { width: 15px; height: 15px; flex: none; }
 
 /* ============ RECOLHIDO (rail, só desktop) ============ */
 @media (min-width: 1021px) {
@@ -160,16 +169,84 @@ html, body { background: var(--bg); color: var(--ink); }
     #nvx-shell[data-side="rail"] .nvx-group { text-align: center; padding: 0 0 6px; font-size: 0; }
 }
 
-/* ============ MOBILE ============ */
+/* ============ MOBILE: sidebar vira DRAWER ============
+   Padrão único do mockup mobile: hambúrguer na topbar, gaveta deslizando da
+   esquerda, overlay tema-aware, fecha ao tocar fora / Esc / X. A própria
+   #nvx-side é a gaveta (mesma navegação, sem markup duplicado). */
 @media (max-width: 1020px) {
     #nvx-shell { grid-template-columns: 1fr; }
-    #nvx-side { display: none; }
     #nvx-sidetog { display: none; }
-    #nvx-mnav { display: flex; }
-    #nvx-top { padding: 14px 18px; }
-    .nvx-content-pad { padding: 18px 16px 32px; }
+    #nvx-top { padding: 10px 14px; }
+    .nvx-content-pad { padding: 16px 14px 96px; }
     .nvx-top-actions .nvx-iconbtn--wide { display: none; }
+
+    .nvx-burger { display: grid; }
+
+    #nvx-side {
+        position: fixed;
+        left: 0; top: 0;
+        width: min(300px, 86vw);
+        height: 100vh; height: 100dvh;
+        z-index: 90;
+        transform: translateX(-100%);
+        transition: transform .24s cubic-bezier(.16, 1, .3, 1);
+        box-shadow: 0 0 60px -10px rgba(0, 0, 0, .5);
+        padding: 14px 12px 16px;
+        gap: 14px;
+    }
+    #nvx-shell[data-drawer="open"] #nvx-side { transform: none; }
+    #nvx-shell[data-drawer="open"] #nvx-drawer-ov { display: block; }
+
+    /* alvos de toque >= 44px na gaveta */
+    .nvx-navitem { min-height: 46px; }
+    .nvx-sfoot { min-height: 46px; }
+
+    .nvx-drawer-x {
+        display: grid;
+        width: 44px; height: 44px; flex: none; place-items: center;
+        border-radius: var(--r-chip); background: none; border: none;
+        color: var(--muted); cursor: pointer;
+    }
+    .nvx-drawer-x svg { width: 20px; height: 20px; }
 }
+
+@media (max-width: 1020px) and (prefers-reduced-motion: reduce) {
+    #nvx-side { transition: none; }
+}
+
+/* ============ MOBILE ESTRITO (<=768px, breakpoint do mockup) ============ */
+@media (max-width: 768px) {
+    #nvx-top { padding: 8px 12px; }
+    .nvx-top-inner { gap: 10px; }
+    .nvx-pagetitle { font-size: 19px; }
+    .nvx-eyebrow { font-size: 10px; }
+    .nvx-content-pad { padding: 14px 12px 96px; }
+
+    /* EMPILHAMENTO GLOBAL: qualquer grade multi-coluna do conteúdo das telas
+       vira 1 coluna no mobile (mockup: "cards/grids empilham"). Cobre tanto as
+       grades declaradas em estilo inline nas telas (contas, carteiras, metas,
+       moeda, import/export, perfil) quanto as utilitárias fixas do Tailwind.
+       !important porque as inline vencem qualquer seletor. Exceções: o kanban
+       (carrossel horizontal) e o extrato, que têm regra própria. */
+    .nvx-content [style*="grid-template-columns"]:not(.dashboard-kanban-board),
+    .nvx-content .grid-cols-2,
+    .nvx-content .grid-cols-3,
+    .nvx-content .grid-cols-4 {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* alvos de toque >= 44px nos controles do conteúdo */
+    .nvx-content button,
+    .nvx-content a.nvx-btn,
+    .nvx-content input[type="submit"] { min-height: 44px; }
+    .nvx-content input:not([type="checkbox"]):not([type="radio"]),
+    .nvx-content select,
+    .nvx-content textarea { min-height: 44px; font-size: 16px; } /* 16px evita zoom no iOS */
+}
+
+/* Trava a rolagem do fundo com a gaveta aberta (o hambúrguer só existe no
+   mobile, então esta classe nunca é aplicada no desktop). */
+body.nvx-drawer-open { overflow: hidden; }
 
 @media (prefers-reduced-motion: reduce) {
     #nvx-shell *, .nvx-togbtn svg { transition: none !important; }

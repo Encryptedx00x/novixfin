@@ -279,6 +279,57 @@
     .hist-txrow { grid-template-columns: minmax(120px,1fr) 110px 84px; row-gap: 8px; }
     .hist-modal-grid, .hist-modal-grid--3 { grid-template-columns: 1fr; }
 }
+
+/* ============ MOBILE (<=768px): TABELA VIRA CARTÃO ============
+   Padrão do mockup mobile: "nenhuma tabela rola de lado" — cada linha da
+   planilha vira um cartão, com o rótulo da coluna à esquerda (data-label nos
+   <td>, marcados no history.php) e o valor à direita. Desktop intacto. */
+@media (max-width: 768px) {
+    .hist-sums { grid-template-columns: 1fr; }
+
+    .hist-sheet-wrap { overflow-x: visible; border: none; background: none; border-radius: 0; }
+    .hist-sheet { display: block; min-width: 0; font-size: 14px; }
+    .hist-sheet thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .hist-sheet tbody { display: flex; flex-direction: column; gap: 10px; }
+
+    .hist-sheet tbody tr {
+        display: block;
+        background: var(--surface);
+        border: var(--card-b);
+        border-radius: var(--r);
+        clip-path: var(--cut);
+        padding: 4px 2px;
+    }
+    .hist-sheet tbody tr:hover { background: var(--surface); }
+
+    .hist-sheet td {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 9px 13px;
+        border-bottom: 1px solid var(--line-soft);
+        white-space: normal;
+        text-align: right;
+    }
+    .hist-sheet tbody tr td:last-child { border-bottom: none; }
+    .hist-sheet td::before {
+        content: attr(data-label);
+        flex: none;
+        font-family: var(--f-m);
+        font-size: 10px;
+        letter-spacing: .14em;
+        text-transform: uppercase;
+        color: var(--muted);
+        text-align: left;
+    }
+    /* Valor em destaque, como no cartão do mockup */
+    .hist-sheet td[data-label="Valor"] { font-family: var(--f-num); font-size: 16px; font-weight: 700; }
+    .hist-sheet .hist-num, .hist-sheet-center { text-align: right; }
+    /* Ações com alvo de toque confortável */
+    .hist-sheet td[data-label="Ações"] .hist-iconbtn { width: 44px; height: 44px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .hist-screen *, .hist-modal * { animation-duration: .001ms !important; transition: none !important; }
 }

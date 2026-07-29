@@ -209,3 +209,13 @@ input::placeholder{ color:var(--muted); opacity:.65; }
 @media (prefers-reduced-motion: reduce){
   #lg-shell *{ animation:none !important; transition:none !important; }
 }
+
+/* ============ MOBILE (<=768px) ============
+   O #lg-shell já empilha em 900px; aqui só o conforto de toque e o respiro
+   lateral do mockup mobile. Desktop intacto. */
+@media (max-width:768px){
+  #lg-formcol{ padding:32px 18px 56px !important; }
+  #lg-brand{ min-height:260px !important; padding:26px 18px !important; }
+  #lg-shell input, #lg-shell select{ min-height:46px; font-size:16px; } /* 16px evita zoom no iOS */
+  #lg-shell button, #lg-shell a[href]{ min-height:44px; }
+}

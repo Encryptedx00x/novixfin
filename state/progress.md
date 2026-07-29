@@ -5,6 +5,37 @@
   (recompute) ENTREGUE, precisa rodar no SERVIDOR (backup + dry-run + --apply). Parado p/ revisão.
 - Reskin **100%**; modais completos; agora saldo consistente com as transações.
 
+## RESPONSIVIDADE MOBILE — todas as telas (2026-07-28)
+- **Report**: /reports/checkpoint_responsivo_mobile.md
+- **Fonte**: Claude Design MCP, "Mobile NovixFin.dc.html" (mockup mobile aprovado). Padrões
+  extraídos: drawer, bottom sheet, "nenhuma tabela rola de lado" (linha→cartão), kanban em
+  carrossel 300px com snap, FAB pílula 56px, alvos 44px, breakpoint 768px.
+- **DADOS**: nenhum valor do mockup foi hardcoded — é só reflow de layout; cada tela segue lendo
+  o mesmo data-prep/handlers do desktop.
+- **Shell (global, todas as telas)**: a `#nvx-side` VIRA DRAWER abaixo de 1020px (position:fixed,
+  translateX, 300px/86vw), aberta pelo novo hambúrguer `#nvx-drawer-toggle` na topbar; overlay
+  `#nvx-drawer-ov` tema-aware (color-mix ink 52%); fecha por tocar fora, Esc, X e ao navegar;
+  trava a rolagem do fundo. **A faixa horizontal `#nvx-mnav` foi REMOVIDA** (markup + CSS) — o
+  drawer é o padrão único do mockup. shell.js ganhou `wireDrawer()`.
+- **Empilhamento global** (shell.css, <=768px): grades multi-coluna do conteúdo viram 1 coluna
+  (cobre as grades inline das telas e as utilitárias fixas do Tailwind, com !important porque
+  inline vence seletor); alvos de toque >=44px; inputs 16px (evita zoom no iOS). Exceção: o
+  kanban (carrossel).
+- **Modais → BOTTOM SHEET** (modal.css, <=768px, era 560px): largura total, sobem de baixo,
+  puxador (::before), cabeçalho sticky, rodapé de ações sticky, scroll interno, safe-area. Os
+  seletores repetem `--wide`/`--tx` para vencer as larguras específicas (0,2,1).
+- **Tabelas → CARTÃO** (padrão do mockup, sem scroll lateral): Histórico (`.hist-sheet`) e
+  Cartões (faturas). Cada `<td>` recebeu `data-label` (só atributo, nenhum dado tocado) e o CSS
+  transforma linha em cartão com rótulo à esquerda e valor à direita. Carteiras: a "tabela" de
+  contas (grid de divs) virou cartão via `.wal-thead`/`.wal-trow` + data-label.
+- **Dashboard**: KPIs empilham em 768; kanban vira carrossel com scroll-snap (coluna
+  min(300px,82vw), snap center); FAB pílula 56px com safe-area.
+- **Entrada/Landing** (fora do shell): entrada já empilhava em 900px, ganhou conforto de toque;
+  landing (index.php) ganhou bloco <=768px que empilha as grades inline das `<section>` e reduz
+  o respiro lateral.
+- **Validação**: 16 CSS com chaves balanceadas; 5 JS `node --check` OK; PHP/tr/td balanceados em
+  header/history/credit-cards/wallets. `php -l` e o passe visual PENDENTES no servidor.
+
 ## Kanban de categorias — reskin + diagnóstico de dados (2026-07-27)
 - **Report**: /reports/checkpoint_kanban_categorias.md
 - **PARTE 1 (visual)**: os cabeçalhos das colunas já eram tokenizados; os CARDS (render por

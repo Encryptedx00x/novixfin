@@ -162,19 +162,30 @@ html .dash-screen .rounded-2xl { border-radius: calc(var(--r) + 6px); }
     .dash-screen .dashboard-kanban-card:hover { transform: translateY(-2px); }
 }
 
-/* ---- kanban: overflow-x + largura mínima por coluna no mobile (item 3) ---- */
+/* ---- kanban: carrossel com snap no mobile ----
+   Mockup mobile: "as 4 colunas viram carrossel com snap: uma coluna por vez a
+   300px". Abaixo de 900px vira faixa rolável; em <=768px a coluna assume os
+   300px do mockup (limitada a 82vw para caber em telas estreitas). */
 @media (max-width: 900px) {
     .dash-screen .dashboard-kanban-board {
         display: flex !important;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
-        scroll-snap-type: x proximity;
+        scroll-snap-type: x mandatory;
         gap: 12px;
+        /* sangra até a borda da tela para o snap parecer nativo */
+        padding-bottom: 6px;
     }
     .dash-screen .dashboard-kanban-board > * {
         min-width: 240px;
         flex: 0 0 auto;
-        scroll-snap-align: start;
+        scroll-snap-align: center;
+    }
+}
+@media (max-width: 768px) {
+    .dash-screen .dashboard-kanban-board > * {
+        width: min(300px, 82vw);
+        min-width: min(300px, 82vw);
     }
 }
 
@@ -190,7 +201,8 @@ html .dash-screen .rounded-2xl { border-radius: calc(var(--r) + 6px); }
     gap: 16px;
 }
 @media (max-width: 1040px) { .dash-screen .dash-stats { grid-template-columns: 1fr 1fr; } }
-@media (max-width: 560px)  { .dash-screen .dash-stats { grid-template-columns: 1fr; } }
+/* Mobile do mockup: KPIs empilham em 1 coluna a partir de 768px. */
+@media (max-width: 768px)  { .dash-screen .dash-stats { grid-template-columns: 1fr; } }
 
 /* Visão geral: previsão (1.9fr) + metas (1fr) */
 .dash-screen .dash-dgrid {
@@ -253,9 +265,16 @@ html .dash-screen .rounded-2xl { border-radius: calc(var(--r) + 6px); }
 }
 .dash-fab svg { width: 20px; height: 20px; flex: none; }
 .dash-fab .dash-fab-label { white-space: nowrap; }
-@media (max-width: 560px) {
-    .dash-fab { padding: 16px; border-radius: 50%; clip-path: none; }
-    .dash-fab .dash-fab-label { display: none; }
+/* FAB do mockup mobile: pílula "Lançar" 56px, canto inferior direito, acima do
+   conteúdo (o .nvx-content-pad reserva 96px de respiro no rodapé). */
+@media (max-width: 768px) {
+    .dash-fab {
+        right: 16px;
+        bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+        height: 56px;
+        padding: 0 20px;
+        font-size: 15px;
+    }
 }
 @media (prefers-reduced-motion: reduce) {
     .dash-fab { transition: none; }

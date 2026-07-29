@@ -129,3 +129,52 @@ dialog.cards-modal {
 }
 dialog.cards-modal.cards-modal--sm { max-width: 28rem; }
 dialog.cards-modal::backdrop { background: color-mix(in srgb, var(--ink) 45%, transparent); }
+
+/* ============ MOBILE (<=768px) ============
+   Padrão do mockup: nenhuma tabela rola de lado — cada linha da fatura vira um
+   cartão (rótulo via data-label nos <td>, marcados no credit-cards.php).
+   Grids de resumo empilham. Desktop inalterado acima de 768px. */
+@media (max-width: 768px) {
+    .cards-screen .grid { grid-template-columns: 1fr !important; }
+    .cards-screen .overflow-x-auto { overflow-x: visible; }
+
+    .cards-screen table { display: block; min-width: 0; }
+    .cards-screen thead {
+        position: absolute; width: 1px; height: 1px;
+        overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+    }
+    .cards-screen tbody { display: flex; flex-direction: column; gap: 10px; }
+    .cards-screen tbody tr {
+        display: block;
+        background: var(--surface);
+        border: 1px solid var(--line-soft);
+        border-radius: var(--r);
+        clip-path: var(--cut);
+        padding: 4px 2px;
+    }
+    .cards-screen tbody td {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 9px 13px;
+        border-bottom: 1px solid var(--line-soft);
+        text-align: right;
+        white-space: normal;
+    }
+    .cards-screen tbody tr td:last-child { border-bottom: none; }
+    .cards-screen tbody td::before {
+        content: attr(data-label);
+        flex: none;
+        font-family: var(--f-m);
+        font-size: 10px;
+        letter-spacing: .14em;
+        text-transform: uppercase;
+        color: var(--muted);
+        text-align: left;
+    }
+    .cards-screen tbody td[data-label="Total"] { font-family: var(--f-num); font-size: 15px; font-weight: 700; }
+
+    /* alvos de toque e botões de largura total */
+    .cards-screen button[type="submit"] { min-height: 44px; }
+}
