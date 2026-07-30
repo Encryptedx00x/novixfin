@@ -249,5 +249,15 @@ input::placeholder{ color:var(--muted); opacity:.65; }
   /* alvos de toque (>=44px) e 16px para não dar zoom no iOS */
   .lg-input{ min-height:50px; font-size:16px; padding:13px 14px; }
   .lg-btn{ min-height:54px; }
+}
+
+/* Chanfro do botão de entrar/criar conta: o `--cut` do ametista recua 14px em UM
+   canto só; num botão full-width de 54px o talho fica desproporcional. Mesmo
+   tratamento dado aos CTAs da landing: 10px em dois cantos opostos (simétrico).
+   Só no ametista — os outros 14 temas têm `--cut:none` e não devem ganhar corte. */
+@media (max-width:768px){
+  html[data-theme="ametista"] .lg-btn{
+    clip-path:polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px)) !important;
+  }
   #lg-shell button, #lg-shell a[href]{ min-height:44px; }
 }

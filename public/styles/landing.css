@@ -299,16 +299,38 @@
     [data-screen-label] [style*="font-size: 32px"] { font-size: clamp(22px, 6.2vw, 27px) !important; }
     [data-screen-label] [style*="font-size: 30px"] { font-size: clamp(21px, 6vw, 26px) !important; }
 
-    /* ---- CTAs: corte --cut assimétrico vira canto simétrico ----
-       var(--cut) recorta SÓ o canto superior direito (14px). Num botão de
-       largura total isso lê como defeito. No mobile o corte sai e fica o
-       border-radius do tema (simétrico); o respiro lateral também encolhe. */
+    /* ---- CTAs: chanfro pequeno e SIMÉTRICO ----
+       O `--cut` do tema ametista é `polygon(0 0, calc(100% - 14px) 0, 100% 14px,
+       100% 100%, 0 100%)`: recuo FIXO de 14px em UM canto só (superior direito).
+       Calibrado para botão de desktop, num CTA full-width e alto do mobile o
+       talho fica desproporcional e assimétrico.
+       Aqui o corte não é removido (perderia o traço do tema): passa a um chanfro
+       de 10px em DOIS cantos opostos (simetria de rotação), e a altura cai para
+       ~52px, que é o alvo de toque confortável sem amplificar o corte.
+       ESCOPO: este arquivo é carregado só por public/index.php, então os botões
+       do app (dashboard/modais, que usam o mesmo token em tokens.css) NÃO são
+       afetados. */
+    /* (a) altura/respiro/centralização: vale para os 15 temas */
     [data-screen-label] a[style*="clip-path: var(--cut)"],
-    [data-screen-label] button[style*="clip-path: var(--cut)"] {
-      clip-path: none !important;
+    [data-screen-label] button[style*="clip-path: var(--cut)"],
+    html[data-theme="ametista"] button[data-present-btn] {
       padding-left: 20px !important;
       padding-right: 20px !important;
+      padding-top: 14px !important;
+      padding-bottom: 14px !important;
       min-height: 52px;
+      display: inline-flex !important;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* (b) o chanfro reduzido só onde EXISTE corte: ametista é o único tema com
+       `--cut` diferente de `none`. Aplicar o polígono nos outros 14 temas
+       adicionaria um corte que o tema não pede — por isso o escopo por tema. */
+    html[data-theme="ametista"] [data-screen-label] a[style*="clip-path: var(--cut)"],
+    html[data-theme="ametista"] [data-screen-label] button[style*="clip-path: var(--cut)"],
+    html[data-theme="ametista"] button[data-present-btn] {
+      clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px)) !important;
     }
 
     /* diagonal do bloco final: 46px é íngreme demais num bloco estreito */

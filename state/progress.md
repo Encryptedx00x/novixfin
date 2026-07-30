@@ -5,6 +5,31 @@
   (recompute) ENTREGUE, precisa rodar no SERVIDOR (backup + dry-run + --apply). Parado p/ revisão.
 - Reskin **100%**; modais completos; agora saldo consistente com as transações.
 
+## CORREÇÃO — chanfro (--cut) dos CTAs no mobile (2026-07-30)
+- **Report**: /reports/checkpoint_cut_ctas_mobile.md
+- **Causa confirmada**: `--cut` (landing.css:13 / entrada.css:12, tema **ametista**) é
+  `polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%)` — recuo **fixo de 14px** e
+  **assimétrico** (corta só o canto superior direito). Calibrado para botão de desktop; num CTA
+  full-width e alto do mobile o talho fica desproporcional. Os outros 14 temas têm `--cut:none`.
+- **2º defeito (o que realmente sobrou)**: `landing.css:120` faz
+  `html[data-theme="ametista"] [data-present-btn]{ clip-path:var(--cut) !important }` — o botão
+  "Apresentar" recebe o corte por **regra CSS, não inline**. A correção anterior mirava
+  `[style*="clip-path: var(--cut)"]`, então esse botão **nunca foi coberto**. Agora é alcançado
+  por `html[data-theme="ametista"] button[data-present-btn]` (especificidade 0,2,2 > 0,2,1).
+- **Correção**: (a) altura/respiro/centralização para os CTAs nos 15 temas — padding vertical
+  14px, `min-height:52px`, inline-flex centrado (antes ficavam altos demais, amplificando o
+  corte); (b) **chanfro reduzido só no ametista**: 10px em DOIS cantos opostos
+  (simetria de rotação) em vez de 14px em um canto. Corrigi também um erro meu da fatia
+  anterior, que usava `clip-path:none` — removia o traço do tema em vez de reduzi-lo.
+- **ESCOPO verificado**: `--cut` é token compartilhado (tokens.css) e usado por botões do app
+  (`.nvx-mbtn`, `.dash-fab`). A correção vive em **landing.css** (carregado só por index.php) e
+  **entrada.css** (só login/register), ambas dentro de `@media (max-width:768px)` → **nenhum
+  botão do app é afetado** e o desktop segue idêntico.
+- **Estendido a login/registro**: `.lg-btn` tinha o mesmo defeito (14px assimétrico em botão
+  full-width de 54px); recebeu o mesmo chanfro, também só no ametista.
+- **Validação**: landing.css 170/170 e entrada.css 141/141 chaves, blocos na profundidade 1.
+  Nenhum PHP alterado. `php -l` e passe visual pendentes.
+
 ## CORREÇÃO — seção "cta final" mobile + varredura anti-recorrência (2026-07-29)
 - **Report**: /reports/checkpoint_landing_cta_final.md
 - **Causa do escape (mesma classe do hero)**: a seção do CTA de fechamento é
