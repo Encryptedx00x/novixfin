@@ -5,6 +5,30 @@
   (recompute) ENTREGUE, precisa rodar no SERVIDOR (backup + dry-run + --apply). Parado p/ revisão.
 - Reskin **100%**; modais completos; agora saldo consistente com as transações.
 
+## CORREÇÃO — Histórico omitia transações (IDs 137/145) (2026-07-30)
+- **Report**: /reports/checkpoint_historico_transacoes_omitidas.md
+- **Causa-raiz**: `TransactionRepository::listByUser()` usava
+  `INNER JOIN categories c ON t.category_id = c.id AND c.user_id = :user_id_cat` — o join
+  filtrava por DONO DA CATEGORIA, então sumia com o lançamento quando a categoria era
+  **global** (`categories.user_id IS NULL`, que o AGENTS.md manda suportar), quando
+  `category_id` era NULL ou quando a categoria havia sido removida.
+- **Por que só o Histórico**: Dashboard (totais via monthlyHistory/consulta de pendentes),
+  "Resumo por conta" (SQL próprio) e `export.php` (SELECT sem JOIN) não fazem esse join —
+  por isso mostravam 4.850,18 e a exportação trazia os IDs 137/145.
+- **Correção**: `LEFT JOIN categories` (categoria entra só para exibição) +
+  `COALESCE(c.name,'Sem categoria')`. O escopo de segurança segue em `t.user_id`.
+- **NEW `includes/history_summary.php`**: agrupamento por dia, totais e pendentes por conta
+  como funções puras sobre o MESMO `$transactions` da listagem (contrato explícito).
+  history.php passou a usá-las no lugar dos dois loops inline.
+- **NEW `tests/history_listing.php`**: cenário 27/07 (4.903,00 / 4.850,18), resumo por conta
+  (Itaú 1.704,23; Caixa 854,24), >10 no mesmo dia, descrições iguais/vazias, effective_date
+  em outro mês e nula, efetivadas+pendentes no mesmo dia, negativos, centavos, sem conta,
+  vazio, e **guarda de regressão do SQL**.
+- **Divergência remanescente documentada (NÃO alterada)**: `listByUser` também filtra
+  `(t.account_id IS NULL OR a.is_active = 1)` — lançamentos de contas INATIVAS não aparecem no
+  Histórico, mas entram nos totais do Dashboard e no export. Não explica os IDs 137/145
+  (contas 28 e 30 estão ativas) e mudar isso alteraria a semântica das duas telas.
+
 ## CORREÇÃO FINANCEIRA — dupla contagem na "Previsão de saldo" (2026-07-30)
 - **Report**: /reports/checkpoint_previsao_dupla_contagem.md
 - **Local**: `public/dashboard.php` (bloco "Previsão de saldo", antes nas linhas 953-961).

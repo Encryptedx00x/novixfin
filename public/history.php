@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../includes/bootstrap.php';
 require_once __DIR__ . '/../includes/csrf.php';
+require_once __DIR__ . '/../includes/history_summary.php';
 requireAuth();
 
 use DateTimeImmutable;
@@ -159,32 +160,14 @@ foreach ($accountsData as $account) {
 // Apresentação: agrupa por dia e calcula subtotais. Somente leitura sobre as
 // transações já carregadas — nenhuma consulta ou regra de saldo nova.
 // ---------------------------------------------------------------------------
-$groupedTransactions = [];
-foreach ($transactions as $transaction) {
-    $dayKey = date('Y-m-d', strtotime($transaction['transaction_date']));
-    if (!isset($groupedTransactions[$dayKey])) {
-        $groupedTransactions[$dayKey] = ['rows' => [], 'subtotal' => 0.0];
-    }
-    $groupedTransactions[$dayKey]['rows'][] = $transaction;
-    $signedAmount = (float) $transaction['amount'] * ($transaction['type'] === 'income' ? 1 : -1);
-    $groupedTransactions[$dayKey]['subtotal'] += $signedAmount;
-}
+// Agrupamento e totais saem do MESMO $transactions da listagem — ver o
+// contrato em includes/history_summary.php.
+$groupedTransactions = novix_history_group_by_day($transactions);
 
-// Totais do período já filtrado, para os cards de resumo.
-$periodEffectiveBalance = 0.0;
-$periodToReceive = 0.0;
-$periodToPay = 0.0;
-foreach ($transactions as $transaction) {
-    $amount = (float) $transaction['amount'];
-    $isIncome = $transaction['type'] === 'income';
-    if ($transaction['is_effective'] ?? true) {
-        $periodEffectiveBalance += $isIncome ? $amount : -$amount;
-    } elseif ($isIncome) {
-        $periodToReceive += $amount;
-    } else {
-        $periodToPay += $amount;
-    }
-}
+$periodTotals = novix_history_totals($transactions);
+$periodEffectiveBalance = $periodTotals['effective_balance'];
+$periodToReceive = $periodTotals['to_receive'];
+$periodToPay = $periodTotals['to_pay'];
 
 $weekdayNames = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
 $hasActiveFilters = isset($_GET['from']) || isset($_GET['to']) || isset($_GET['account_id'])

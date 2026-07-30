@@ -52,26 +52,25 @@ final class TransactionRepository
             // Ignora erro
         }
         
-        // Verifica se user_id existe na tabela categories
-        $hasUserIdColumn = false;
-        try {
-            $checkColumn = $this->connection->query("SHOW COLUMNS FROM categories LIKE 'user_id'");
-            $hasUserIdColumn = $checkColumn->rowCount() > 0;
-        } catch (\PDOException $e) {
-            // Ignora erro
-        }
-        
-        if ($hasUserIdColumn) {
-            $categoryJoin = 'INNER JOIN categories c ON t.category_id = c.id AND c.user_id = :user_id_cat';
-            $params = ['user_id' => $userId, 'user_id_cat' => $userId];
-        } else {
-            $categoryJoin = 'INNER JOIN categories c ON t.category_id = c.id';
-            $params = ['user_id' => $userId];
-        }
-        
+        // A categoria entra APENAS para exibição (nome/tipo), NUNCA como filtro.
+        //
+        // Antes era `INNER JOIN categories c ON t.category_id = c.id
+        //            AND c.user_id = :user_id_cat`, o que SUMIA com a transação
+        // sempre que a categoria não fosse do próprio usuário:
+        //   - categorias GLOBAIS (`categories.user_id IS NULL`), que o AGENTS.md
+        //     manda suportar explicitamente;
+        //   - `t.category_id` NULL;
+        //   - categoria removida (referência órfã).
+        // O Histórico ficava sem esses lançamentos enquanto Dashboard (totais),
+        // "Resumo por conta" e export.php — que não fazem esse join — os
+        // mostravam. LEFT JOIN mantém a linha; o escopo de segurança continua
+        // sendo `t.user_id`, que já garante a posse do lançamento.
+        $categoryJoin = 'LEFT JOIN categories c ON t.category_id = c.id';
+        $params = ['user_id' => $userId];
+
         $query = 'SELECT t.id, t.type, t.amount, t.description, t.transaction_date, t.category_id, t.currency,
             t.is_effective, t.is_recurring, t.account_id' . $effectiveDateField . $recurrenceFields . $installmentFields . ',
-            c.name as category_name, c.type as category_type,
+            COALESCE(c.name, \'Sem categoria\') as category_name, c.type as category_type,
             a.name as account_name, a.icon as account_icon
             FROM transactions t
             ' . $categoryJoin . '
