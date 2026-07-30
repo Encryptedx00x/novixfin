@@ -5,6 +5,31 @@
   (recompute) ENTREGUE, precisa rodar no SERVIDOR (backup + dry-run + --apply). Parado p/ revisão.
 - Reskin **100%**; modais completos; agora saldo consistente com as transações.
 
+## CORREÇÃO FINANCEIRA — dupla contagem na "Previsão de saldo" (2026-07-30)
+- **Report**: /reports/checkpoint_previsao_dupla_contagem.md
+- **Local**: `public/dashboard.php` (bloco "Previsão de saldo", antes nas linhas 953-961).
+- **Dupla contagem CONFIRMADA**, mas o mecanismo NÃO era o da hipótese: `$projNet` não era o
+  "líquido do mês" por design — era a **média móvel dos últimos 3 meses**
+  (`$avgIncomeF - $avgExpenseF` sobre `$extendedHistoryData`). Como (a) o filtro padrão
+  `is_effective` é **null** (todas as transações) e (b) `monthlyHistory` inclui o **mês
+  corrente**, essa média carregava a parte JÁ EFETIVADA do mês — a mesma que já está em
+  `$consolidatedBalance` (Σ accounts.balance, que por contrato só tem efetivados).
+  Com **1 mês de histórico a média degenera no líquido do mês inteiro** (249,72), e
+  `196,90 + 249,72 = 446,62` — exatamente o valor reportado na UI.
+- **Correção (Abordagem A, mínima)**: `$projNet` passa a ser o líquido **somente dos
+  pendentes** do mês corrente (SQL com `is_effective = 0`, mês de `transaction_date`, moeda
+  principal, contas ativas). `$previstoSaldo = saldo realizado + líquido pendente`.
+  A média móvel foi **mantida** onde é legítima: o cálculo do nível de confiança (`$devF`).
+- **NEW `includes/forecast.php`**: helpers puros e testáveis (`novix_sum_transactions`,
+  `novix_pending_net`, `novix_pending_net_totals`, `novix_forecast_balance`).
+- **NEW `tests/forecast_balance.php`**: 9 blocos cobrindo os cenários pedidos (só efetivados,
+  só pendentes, mistura, receitas/despesas, saldo negativo, dinheiro em espécie agregado,
+  ausência de pendências, **prevenção de dupla contagem** — reproduz 446,62 e afirma que a
+  previsão não pode ser esse valor — e o caminho de totais agregados do SQL).
+- **Valores verificados** (simulação da aritmética): realizado 196,90 · pendente 52,82 ·
+  totais 5.167,80/4.918,08 · previsão **249,72** · bug 446,62. Critérios de aceite batem.
+- **Pendente**: `php -l` e `php tests/forecast_balance.php` no servidor (PHP indisponível aqui).
+
 ## CORREÇÃO — chanfro (--cut) dos CTAs no mobile (2026-07-30)
 - **Report**: /reports/checkpoint_cut_ctas_mobile.md
 - **Causa confirmada**: `--cut` (landing.css:13 / entrada.css:12, tema **ametista**) é

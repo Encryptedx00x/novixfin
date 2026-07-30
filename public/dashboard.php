@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../includes/errors.php';
 require_once __DIR__ . '/../includes/bootstrap.php';
 require_once __DIR__ . '/../includes/csrf.php';
+require_once __DIR__ . '/../includes/forecast.php';
 requireAuth();
 
 use Novix\Database\Connection;
@@ -950,15 +951,47 @@ try {
     $activeGoals = $goalsStmt->fetchAll();
 }
 
-// Previsão de saldo (reaproveita a média móvel usada pelo forecast).
+// Média móvel dos últimos 3 meses — usada APENAS para o nível de confiança
+// (o quanto o gasto do mês foge da média histórica).
 $fSlice = !empty($extendedHistoryData)
     ? array_slice($extendedHistoryData, -min(3, count($extendedHistoryData)))
     : [];
 $fN = max(1, count($fSlice));
 $avgExpenseF = $fSlice ? array_sum(array_column($fSlice, 'expense')) / $fN : 0.0;
 $avgIncomeF = $fSlice ? array_sum(array_column($fSlice, 'income')) / $fN : 0.0;
-$projNet = $avgIncomeF - $avgExpenseF;
-$previstoSaldo = $consolidatedBalance + $projNet;
+
+// PREVISÃO DE SALDO = saldo realizado + líquido do que AINDA falta efetivar.
+//
+// Correção de dupla contagem: antes, $projNet era a média móvel acima
+// ($avgIncomeF - $avgExpenseF). Como $extendedHistoryData inclui o mês corrente
+// com TODOS os lançamentos (o filtro padrão is_effective é null), essa média
+// carregava também a parte JÁ EFETIVADA do mês — que já está dentro de
+// $consolidatedBalance (Σ accounts.balance). Somar os dois contava os
+// efetivados duas vezes (com 1 mês de histórico a média degenera no líquido do
+// mês inteiro). Agora $projNet contém SOMENTE os pendentes. Ver
+// includes/forecast.php e tests/forecast_balance.php.
+$projNet = 0.0;
+try {
+    $projStmt = $pdo->prepare('
+        SELECT COALESCE(SUM(CASE WHEN t.type = "income"  THEN t.amount ELSE 0 END), 0) AS inc,
+               COALESCE(SUM(CASE WHEN t.type = "expense" THEN t.amount ELSE 0 END), 0) AS exp
+          FROM transactions t
+          LEFT JOIN accounts a ON a.id = t.account_id
+         WHERE t.user_id = :user_id
+           AND t.is_effective = 0
+           AND (t.account_id IS NULL OR a.is_active = 1)
+           AND (t.currency = :pc OR t.currency IS NULL)
+           AND DATE_FORMAT(t.transaction_date, "%Y-%m") = DATE_FORMAT(CURDATE(), "%Y-%m")');
+    $projStmt->execute(['user_id' => $userId, 'pc' => $primaryCurrency]);
+    $projRow = $projStmt->fetch(PDO::FETCH_ASSOC) ?: [];
+    $projNet = novix_pending_net_totals(
+        (float) ($projRow['inc'] ?? 0),
+        (float) ($projRow['exp'] ?? 0)
+    );
+} catch (Throwable $e) {
+    $projNet = 0.0;
+}
+$previstoSaldo = novix_forecast_balance($consolidatedBalance, $projNet);
 $devF = abs($avgExpenseF - $monthExpense);
 if ($avgExpenseF > 0 && $devF < $avgExpenseF * 0.2) {
     $confNivel = 'Alta'; $confPct = 85; $confColor = 'var(--pos)';
