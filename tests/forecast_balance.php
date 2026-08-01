@@ -142,6 +142,18 @@ echo "\n== 9. Totais agregados (caminho SQL do dashboard) ==\n";
 eq('novix_pending_net_totals', novix_pending_net_totals(4903.00, 4850.18), 52.82);
 eq('previsão via totais do SQL', novix_forecast_balance(196.90, novix_pending_net_totals(4903.00, 4850.18)), 249.72);
 
+echo "\n== 10. Regra determinística (caso real do usuário) ==\n";
+// Saldo final previsto = saldo efetivado + pendentes a receber − pendentes a pagar,
+// considerando SOMENTE o que já está registrado no banco.
+$saldoHoje = 2887.26; $aReceber = 1103.00; $aPagar = 3550.76;
+eq('líquido pendente', novix_pending_net_totals($aReceber, $aPagar), -2447.76);
+eq('SALDO FINAL PREVISTO', novix_forecast_balance($saldoHoje, novix_pending_net_totals($aReceber, $aPagar)), 439.50);
+// Efetivar uma pendente não muda o saldo final: sai do "a receber" e entra no saldo.
+eq('efetivar receita mantém o final',
+   novix_forecast_balance($saldoHoje + 500.00, novix_pending_net_totals($aReceber - 500.00, $aPagar)), 439.50);
+eq('efetivar despesa mantém o final',
+   novix_forecast_balance($saldoHoje - 200.00, novix_pending_net_totals($aReceber, $aPagar - 200.00)), 439.50);
+
 echo "\n";
 if ($failures > 0) {
     printf("FALHOU: %d de %d verificações.\n", $failures, $checks);

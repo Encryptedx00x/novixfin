@@ -953,12 +953,6 @@ try {
 
 // Média móvel dos últimos 3 meses — usada APENAS para o nível de confiança
 // (o quanto o gasto do mês foge da média histórica).
-$fSlice = !empty($extendedHistoryData)
-    ? array_slice($extendedHistoryData, -min(3, count($extendedHistoryData)))
-    : [];
-$fN = max(1, count($fSlice));
-$avgExpenseF = $fSlice ? array_sum(array_column($fSlice, 'expense')) / $fN : 0.0;
-$avgIncomeF = $fSlice ? array_sum(array_column($fSlice, 'income')) / $fN : 0.0;
 
 // PREVISÃO DE SALDO = saldo realizado + líquido do que AINDA falta efetivar.
 //
@@ -970,36 +964,29 @@ $avgIncomeF = $fSlice ? array_sum(array_column($fSlice, 'income')) / $fN : 0.0;
 // efetivados duas vezes (com 1 mês de histórico a média degenera no líquido do
 // mês inteiro). Agora $projNet contém SOMENTE os pendentes. Ver
 // includes/forecast.php e tests/forecast_balance.php.
-$projNet = 0.0;
+// Regra: SOMENTE o que já está registrado no banco como pendente. Inclui
+// parcelas já lançadas (ex.: a 1/6 que existe) e pendentes de meses futuros;
+// NÃO projeta parcelas/recorrências que ainda não viraram transação.
+$pendingIncomeTotal = 0.0;
+$pendingExpenseTotal = 0.0;
 try {
     $projStmt = $pdo->prepare('
-        SELECT COALESCE(SUM(CASE WHEN t.type = "income"  THEN t.amount ELSE 0 END), 0) AS inc,
-               COALESCE(SUM(CASE WHEN t.type = "expense" THEN t.amount ELSE 0 END), 0) AS exp
-          FROM transactions t
-          LEFT JOIN accounts a ON a.id = t.account_id
-         WHERE t.user_id = :user_id
-           AND t.is_effective = 0
-           AND (t.account_id IS NULL OR a.is_active = 1)
-           AND (t.currency = :pc OR t.currency IS NULL)
-           AND DATE_FORMAT(t.transaction_date, "%Y-%m") = DATE_FORMAT(CURDATE(), "%Y-%m")');
+        SELECT COALESCE(SUM(CASE WHEN type = "income"  THEN amount ELSE 0 END), 0) AS inc,
+               COALESCE(SUM(CASE WHEN type = "expense" THEN amount ELSE 0 END), 0) AS exp
+          FROM transactions
+         WHERE user_id = :user_id
+           AND is_effective = 0
+           AND (currency = :pc OR currency IS NULL)');
     $projStmt->execute(['user_id' => $userId, 'pc' => $primaryCurrency]);
     $projRow = $projStmt->fetch(PDO::FETCH_ASSOC) ?: [];
-    $projNet = novix_pending_net_totals(
-        (float) ($projRow['inc'] ?? 0),
-        (float) ($projRow['exp'] ?? 0)
-    );
+    $pendingIncomeTotal = (float) ($projRow['inc'] ?? 0);
+    $pendingExpenseTotal = (float) ($projRow['exp'] ?? 0);
 } catch (Throwable $e) {
-    $projNet = 0.0;
+    $pendingIncomeTotal = 0.0;
+    $pendingExpenseTotal = 0.0;
 }
+$projNet = novix_pending_net_totals($pendingIncomeTotal, $pendingExpenseTotal);
 $previstoSaldo = novix_forecast_balance($consolidatedBalance, $projNet);
-$devF = abs($avgExpenseF - $monthExpense);
-if ($avgExpenseF > 0 && $devF < $avgExpenseF * 0.2) {
-    $confNivel = 'Alta'; $confPct = 85; $confColor = 'var(--pos)';
-} elseif ($avgExpenseF > 0 && $devF < $avgExpenseF * 0.4) {
-    $confNivel = 'Média'; $confPct = 65; $confColor = 'var(--gold)';
-} else {
-    $confNivel = 'Baixa'; $confPct = 45; $confColor = 'var(--neg)';
-}
 
 $monthLabelPt = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho',
     'Agosto','Setembro','Outubro','Novembro','Dezembro'][(int) date('n') - 1];
@@ -1113,33 +1100,32 @@ $hasDashData = !empty($accounts);
         <div class="dash-dgrid">
             <!-- Previsão de saldo (gráfico real via forecast-chart.js, lendo tokens) -->
             <div style="background:var(--surface); border:var(--card-b); box-shadow:var(--card-sh); border-radius:var(--r); padding:22px 22px 16px; min-width:0;">
-                <div style="display:flex; align-items:flex-start; gap:16px; flex-wrap:wrap;">
-                    <div>
-                        <div style="font-size:12.5px; font-weight:600; color:var(--muted);">Previsão de saldo &middot; <?php echo $monthLabelShort; ?></div>
-                        <div style="display:flex; align-items:baseline; gap:10px; margin-top:5px; flex-wrap:wrap;">
-                            <span style="font-family:var(--f-num); font-size:26px; font-weight:700; font-variant-numeric:tabular-nums; color:var(--ink);" data-balance><?php echo formatCurrency($previstoSaldo, $primaryCurrency); ?></span>
-                            <span style="padding:3px 9px; border-radius:999px; font-size:11.5px; font-weight:700; background:color-mix(in srgb, <?php echo $projNet >= 0 ? 'var(--pos)' : 'var(--neg)'; ?> 11%, transparent); color:<?php echo $projNet >= 0 ? 'var(--pos)' : 'var(--neg)'; ?>;"><?php echo ($projNet >= 0 ? '+ ' : '&minus; '); ?><span data-balance><?php echo formatCurrency(abs($projNet), $primaryCurrency); ?></span> projetado</span>
-                        </div>
+                <div style="font-size:12.5px; font-weight:600; color:var(--muted);">Saldo final previsto</div>
+                <div style="font-family:var(--f-num); font-size:30px; font-weight:700; font-variant-numeric:tabular-nums; color:var(--ink); margin-top:4px;" data-balance><?php echo formatCurrency($previstoSaldo, $primaryCurrency); ?></div>
+
+                <!-- Decomposição: é ela que explica o número acima. -->
+                <div style="display:flex; flex-direction:column; gap:7px; margin-top:14px; padding-top:14px; border-top:1px solid var(--line-soft);">
+                    <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px;">
+                        <span style="font-size:12.5px; color:var(--muted);">Saldo hoje</span>
+                        <span style="font-family:var(--f-num); font-size:13.5px; font-weight:600; font-variant-numeric:tabular-nums; color:var(--ink);" data-balance><?php echo formatCurrency($consolidatedBalance, $primaryCurrency); ?></span>
                     </div>
-                    <span style="margin-left:auto; display:inline-flex; align-items:center; gap:14px; font-family:var(--f-m); font-size:11px; color:var(--muted);"><span style="display:inline-flex; align-items:center; gap:6px;"><span style="width:10px; height:10px; background:color-mix(in srgb, var(--accent) 26%, transparent); border-radius:2px;"></span>realizado</span><span style="display:inline-flex; align-items:center; gap:6px;"><span style="width:14px; height:0; border-top:2px dashed var(--accent);"></span>projeção</span></span>
+                    <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px;">
+                        <span style="font-size:12.5px; color:var(--muted);">+ a receber</span>
+                        <span style="font-family:var(--f-num); font-size:13.5px; font-weight:600; font-variant-numeric:tabular-nums; color:var(--pos);" data-balance><?php echo formatCurrency($pendingIncomeTotal, $primaryCurrency); ?></span>
+                    </div>
+                    <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px;">
+                        <span style="font-size:12.5px; color:var(--muted);">&minus; a pagar</span>
+                        <span style="font-family:var(--f-num); font-size:13.5px; font-weight:600; font-variant-numeric:tabular-nums; color:var(--neg);" data-balance><?php echo formatCurrency($pendingExpenseTotal, $primaryCurrency); ?></span>
+                    </div>
+                    <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px; padding-top:7px; border-top:1px solid var(--line-soft);">
+                        <span style="font-size:12.5px; font-weight:700; color:var(--ink);">Saldo final</span>
+                        <span style="font-family:var(--f-num); font-size:15px; font-weight:700; font-variant-numeric:tabular-nums; color:var(--ink);" data-balance><?php echo formatCurrency($previstoSaldo, $primaryCurrency); ?></span>
+                    </div>
                 </div>
                 <div style="height:230px; position:relative; margin-top:20px;">
                     <canvas id="chartForecast"></canvas>
                 </div>
-                <div style="font-size:12px; color:var(--muted); margin-top:12px;">Projeção baseada na média móvel dos últimos 3 meses, nos pendentes e nas recorrências.</div>
-                <div style="display:flex; align-items:center; gap:16px; margin-top:14px; padding-top:14px; border-top:1px solid var(--line-soft); flex-wrap:wrap;">
-                    <div style="flex:none;">
-                        <div style="font-size:12px; font-weight:600; color:var(--muted);">Confiança da previsão</div>
-                        <div style="display:flex; align-items:baseline; gap:8px; margin-top:3px;">
-                            <span style="font-family:var(--f-num); font-size:20px; font-weight:700; font-variant-numeric:tabular-nums; color:var(--ink);"><?php echo $confPct; ?>%</span>
-                            <span style="padding:2px 9px; border-radius:999px; font-size:11px; font-weight:700; background:color-mix(in srgb, <?php echo $confColor; ?> 12%, transparent); color:<?php echo $confColor; ?>;"><?php echo $confNivel; ?></span>
-                        </div>
-                    </div>
-                    <div style="flex:1; min-width:200px;">
-                        <div style="height:8px; border-radius:999px; background:var(--line-soft); overflow:hidden;"><span style="display:block; height:100%; width:<?php echo $confPct; ?>%; background:var(--grad); border-radius:999px; transition:width .4s ease;"></span></div>
-                        <div style="font-size:11.5px; color:var(--muted); margin-top:6px; line-height:1.5;">Sobe quando suas despesas mensais são regulares; desce quando variam muito de um mês pro outro.</div>
-                    </div>
-                </div>
+                <div style="font-size:12px; color:var(--muted); margin-top:12px;">Conta simples: o que você tem hoje mais o que já lançou como pendente. Não projeta gastos futuros nem parcelas que ainda não foram lançadas.</div>
             </div>
 
             <!-- Metas em andamento -->

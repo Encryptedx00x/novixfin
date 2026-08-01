@@ -5,6 +5,30 @@
   (recompute) ENTREGUE, precisa rodar no SERVIDOR (backup + dry-run + --apply). Parado p/ revisão.
 - Reskin **100%**; modais completos; agora saldo consistente com as transações.
 
+## PREVISÃO DETERMINÍSTICA + ajustes CSS mobile (2026-07-31)
+- **PARTE A (CSS mobile)**: (1) CTAs da landing (hero e "cta final") passam a `width:auto` e
+  `min-height:30px` (era 52px — a altura amplificava o corte `--cut`); (2) CTAs com
+  `clip-path: var(--cut)` e o botão "Apresentar" também caem para `min-height:30px`;
+  (3) `.lg-switch-go` (login/registro) ganhou `display:flex; align-items:center` para alinhar
+  o "Criar conta"/"Entrar". Tudo dentro de `@media (max-width:768px)` (entrada.css l.175 é
+  global mas só afeta o link do rodapé do form) — desktop preservado.
+- **PARTE B (Previsão de saldo)**: substituída a média móvel por conta DETERMINÍSTICA:
+  `saldo final = saldo efetivado + pendentes a receber − pendentes a pagar`, considerando
+  SOMENTE o que já está registrado no banco (inclui parcelas já lançadas; NÃO projeta
+  recorrências futuras). Removido o filtro de mês da fatia anterior — pendentes de meses
+  futuros já lançados entram.
+  - UI: número-herói "Saldo final previsto" + **decomposição em 3 linhas** (Saldo hoje ·
+    + a receber em `--pos` · − a pagar em `--neg`) + total; valores em `--f-num`.
+  - **Removido o bloco "85% de confiança"** e a média móvel que o alimentava (virou código
+    morto: `$fSlice/$avgIncomeF/$avgExpenseF/$devF/$confPct/$confNivel/$confColor`).
+  - Texto novo e honesto: "o que você tem hoje mais o que já lançou como pendente. Não projeta
+    gastos futuros nem parcelas que ainda não foram lançadas."
+  - O gráfico `#chartForecast` foi mantido (não dependia da média removida).
+- **Validação do número**: 2.887,26 + 1.103,00 − 3.550,76 = **R$ 439,50** ✓. Teste 10 em
+  `tests/forecast_balance.php` cobre o caso e a invariante "efetivar uma pendente não muda o
+  saldo final".
+- **Pendente**: `php -l` e `php tests/forecast_balance.php` no servidor.
+
 ## CORREÇÃO — Histórico omitia transações (IDs 137/145) (2026-07-30)
 - **Report**: /reports/checkpoint_historico_transacoes_omitidas.md
 - **Causa-raiz**: `TransactionRepository::listByUser()` usava

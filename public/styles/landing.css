@@ -251,8 +251,8 @@
     header[data-screen-label="hero"] [style*="flex-wrap: wrap"] > button,
     section[data-screen-label="cta final"] [style*="flex-wrap: wrap"] > a,
     section[data-screen-label="cta final"] [style*="flex-wrap: wrap"] > button {
-      width: 100%;
-      min-height: 52px;
+      width: auto;
+      min-height: 30px;
       justify-content: center;
       text-align: center;
     }
@@ -318,7 +318,7 @@
       padding-right: 20px !important;
       padding-top: 14px !important;
       padding-bottom: 14px !important;
-      min-height: 52px;
+      min-height: 30px;
       display: inline-flex !important;
       align-items: center;
       justify-content: center;
