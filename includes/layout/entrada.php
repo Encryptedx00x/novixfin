@@ -51,7 +51,7 @@ function novix_entrada_head(): void
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/public/styles/entrada.css">
+    <link rel="stylesheet" href="/public/styles/entrada.css?v=<?php echo (int) @filemtime(__DIR__ . '/../../public/styles/entrada.css'); ?>">
     <?php
 }
 

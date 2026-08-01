@@ -172,9 +172,11 @@ input::placeholder{ color:var(--muted); opacity:.65; }
 
 .lg-switch{ display:flex; align-items:center; gap:10px; padding-top:16px; border-top:1px solid var(--line-soft); font-size:13.5px; }
 .lg-switch .lg-switch-q{ color:var(--muted); }
+.lg-switch .lg-switch-go{ font-weight:700; }
 /* display:flex + align-items:center alinham o rótulo verticalmente com o texto
-   ao lado (antes o link ficava com a linha de base deslocada). */
-.lg-switch .lg-switch-go{ font-weight:700; display:flex; align-items:center; }
+   ao lado (antes o link ficava com a linha de base deslocada). Seletor no
+   próprio elemento (a.lg-switch-go) para não depender do pai .lg-switch. */
+a.lg-switch-go{ display:flex; align-items:center; }
 .lg-switch .lg-back{ margin-left:auto; display:inline-flex; align-items:center; gap:5px; color:var(--muted); font-weight:600; }
 .lg-theme-note{ font-family:var(--f-m); font-size:10.5px; color:var(--muted); letter-spacing:.05em; margin-top:20px; }
 
