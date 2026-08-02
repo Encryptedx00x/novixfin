@@ -5,6 +5,52 @@
   (recompute) ENTREGUE, precisa rodar no SERVIDOR (backup + dry-run + --apply). Parado p/ revisão.
 - Reskin **100%**; modais completos; agora saldo consistente com as transações.
 
+## MODO PLANILHA — BLOCO 1 PARCIAL (backend + estilo). FRONT PENDENTE (2026-08-01)
+**Estado: backend e CSS prontos e commitados; o FRONT (sheet.js + aba no dashboard) NÃO foi
+escrito. Nada da planilha está ligado ainda — o dashboard segue exatamente como estava.**
+
+### Pronto (commitado)
+- `migrations/20240101000008_sheets_v3.php` — `sheets` (id, user_id FK CASCADE, name, content
+  LONGTEXT, timestamps) e `sheet_versions` (id, sheet_id FK CASCADE, label, content,
+  created_at). Idempotente (CREATE TABLE IF NOT EXISTS). Assinatura conferida contra o runner:
+  `return function (PDO $pdo, callable $log)`. **AINDA NÃO RODADA** — rodar com backup.
+- `actions/sheets/_bootstrap.php` — base comum: JSON, `requireAuth`, CSRF, `sheets_get_or_create`
+  (cria doc vazio na 1ª vez), `sheets_sanitize_content` (valida array de abas, aceita só refs A1
+  `^[A-Z]{1,3}[0-9]{1,5}$`, teto 4 MB e 30 abas, guarda o DIGITADO — valor ou fórmula).
+- `actions/sheets/load.php` (doc + até 50 versões), `save.php` (AUTOSAVE: sobrescreve content,
+  NÃO gera histórico), `snapshot.php` (HISTÓRICO: transação atômica, poda em 50),
+  `restore.php` (restaura versão; posse garantida por INNER JOIN com sheets.user_id).
+  Todos com escopo `user_id` em toda query e prepared statements.
+- `public/styles/sheet.css` — grade tokenizada fiel ao mockup v2 (`.pc/.ph/.pt/.ptool`, estados
+  normal/selecionada/edição/fórmula, `--f-num`, negativos `--neg`, cabeçalhos sticky) + bloco
+  **mobile <=768px**: grade rola nos DOIS eixos dentro do container (não vaza), barra de fórmula
+  sticky no topo da área, alvos 44px, input 16px (evita zoom iOS), abas com scroll horizontal.
+
+### FALTA (próxima sessão — começar por aqui)
+1. **`public/scripts/sheet.js`** — não existe. Foi redigido mas o heredoc do shell quebrou por
+   aspas; **usar a ferramenta Write, não heredoc**. Deve conter: HyperFormula criada UMA vez
+   (`buildFromSheets`) + `setCellContents` por célula; render da grade (12 col x 40 lin);
+   seleção/edição inline; barra de fórmula; 3 mecanismos SEPARADOS — autosave (debounce 800ms),
+   snapshot (Ctrl+S/botão, no máx. 1 a cada 5 min) e undo/redo (pilha em memória, Ctrl+Z/Y);
+   abas (criar/trocar); `scrollIntoView({block:'nearest'})` ao editar (teclado virtual).
+2. **Aba "Planilha" no `dashboard.php`** — botão `.dash-tab data-tab="planilha"` ao lado de
+   Kanban, painel `.dash-tabpanel data-panel="planilha"` com a marcação da grade (ids esperados
+   pelo JS: `sheetGrid`, `sheetFx`, `sheetRef`, `sheetTabs`, `sheetStatus`, `sheetHistMenu`,
+   `sheetUndo`, `sheetRedo`, `sheetSnapshot`, `sheetHistBtn`, `sheetAddTab`), `$pageStyles[] =
+   'styles/sheet.css'`, `$pageScripts[] = 'scripts/sheet.js'` e o `<script>` da HyperFormula:
+   `https://cdn.jsdelivr.net/npm/hyperformula@3/dist/hyperformula.full.min.js`.
+3. Blocos 2-5 do briefing (abas completas com renomear/excluir, histórico na UI, edição em
+   bloco/copiar-colar/fill handle) — o CSS e os handlers já suportam.
+
+### PONTO A DECIDIR (licença)
+No rascunho do JS usei `licenseKey: 'gpl-v3'` no HyperFormula. Essa chave só vale se o projeto
+for GPL. Para uso comercial fechado o correto é `'internal-use-in-handsontable'` ou chave paga.
+**Confirmar antes de comercializar.**
+
+### A RODAR NO SERVIDOR
+`mariadb-dump` (backup) → `php scripts/migrate.php up` → `php -l` nos 5 PHP novos.
+Como nada referencia os handlers ainda, rodar a migração é seguro e não muda nenhuma tela.
+
 ## PREVISÃO DETERMINÍSTICA + ajustes CSS mobile (2026-07-31)
 - **PARTE A (CSS mobile)**: (1) CTAs da landing (hero e "cta final") passam a `width:auto` e
   `min-height:30px` (era 52px — a altura amplificava o corte `--cut`); (2) CTAs com
