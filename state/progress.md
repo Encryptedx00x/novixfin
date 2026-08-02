@@ -5,6 +5,28 @@
   (recompute) ENTREGUE, precisa rodar no SERVIDOR (backup + dry-run + --apply). Parado p/ revisão.
 - Reskin **100%**; modais completos; agora saldo consistente com as transações.
 
+## MODO PLANILHA — BLOCO 1 COMPLETO (front ligado) (2026-08-01)
+**O que fechou o bloco 1 (esta sessão):**
+- `public/scripts/sheet.js` (NOVO, `node --check` passou) — HyperFormula construída com
+  `buildFromSheets` (uma engine por carga; `setCellContents` por célula na edição, com rebuild
+  como fallback); grade 12 col x 40 lin; seleção por clique/setas/Tab; edição inline (Enter/F2/
+  digitação direta, Esc cancela) com `scrollIntoView({block:'nearest'})` para o teclado virtual;
+  barra de fórmula ligada nos dois sentidos; números em pt-BR, negativos em `.neg`, erros da
+  engine em `.err`, célula com fórmula marcada com `.fx`. **3 mecanismos separados**: autosave
+  (debounce 800ms + `sendBeacon` no `beforeunload` se houver save pendente), snapshot (Ctrl+S /
+  botão, no máx. 1 a cada 5 min) e undo/redo (pilha em memória, teto 100, Ctrl+Z / Ctrl+Y).
+  Atalhos globais só disparam com o foco dentro de `.sheet-screen`. Abas: criar/trocar, com
+  dedupe de nome (a engine exige nomes únicos para fórmulas entre abas) e teto de 30.
+- `public/dashboard.php` — aba `Planilha` ao lado de Kanban, painel `data-panel="planilha"`
+  com todos os ids do contrato, `styles/sheet.css` em `$pageStyles`, `scripts/sheet.js` em
+  `$pageScripts` e a HyperFormula por CDN **sem `defer`** (precisa existir antes do
+  DOMContentLoaded do sheet.js).
+- **Licença decidida**: `licenseKey: 'internal-use-in-handsontable'` (projeto comercial de
+  código fechado). `gpl-v3` foi descartada. Pendência de licença ENCERRADA.
+
+**Falta validar** (sem PHP local): `php -l public/dashboard.php` e a migração no servidor —
+sem a migração rodada, a aba Planilha carrega e falha no `load.php` (a tabela não existe).
+
 ## MODO PLANILHA — BLOCO 1 PARCIAL (backend + estilo). FRONT PENDENTE (2026-08-01)
 **Estado: backend e CSS prontos e commitados; o FRONT (sheet.js + aba no dashboard) NÃO foi
 escrito. Nada da planilha está ligado ainda — o dashboard segue exatamente como estava.**

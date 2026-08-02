@@ -866,7 +866,7 @@ foreach ($dashboardAccounts as $account) {
 }
 
 $title = 'Dashboard | NovixFin';
-$pageStyles = ['styles/dashboard.css'];
+$pageStyles = ['styles/dashboard.css', 'styles/sheet.css'];
 
 include __DIR__ . '/../includes/layout/header.php';
 
@@ -1092,6 +1092,7 @@ $hasDashData = !empty($accounts);
     <div style="display:flex; align-items:center; gap:2px; border-bottom:1px solid var(--line-soft);">
         <button type="button" class="dash-tab" data-tab="visao" aria-pressed="true" style="padding:12px 18px; font-size:14px; font-weight:700; color:var(--accent); border-bottom:2px solid var(--accent); margin-bottom:-1px; transition:color .16s ease;">Visão geral</button>
         <button type="button" class="dash-tab" data-tab="kanban" aria-pressed="false" style="padding:12px 18px; font-size:14px; font-weight:700; color:var(--muted); border-bottom:2px solid transparent; margin-bottom:-1px; transition:color .16s ease;">Kanban de categorias</button>
+        <button type="button" class="dash-tab" data-tab="planilha" aria-pressed="false" style="padding:12px 18px; font-size:14px; font-weight:700; color:var(--muted); border-bottom:2px solid transparent; margin-bottom:-1px; transition:color .16s ease;">Planilha</button>
         <a href="/public/history.php" style="margin-left:auto; font-size:13px; font-weight:700; color:var(--accent); padding:12px 4px; text-decoration:none;">Ver histórico completo &rarr;</a>
     </div>
 
@@ -1371,6 +1372,46 @@ $hasDashData = !empty($accounts);
                     <div style="display:flex; flex-direction:column; gap:10px; min-height:180px;" data-column="leisure" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- PAINEL: Planilha (Modo Planilha — grade com fórmulas, autosave e histórico).
+         Os ids abaixo são o contrato consumido por scripts/sheet.js. -->
+    <div class="dash-tabpanel sheet-screen" data-panel="planilha" hidden>
+        <div class="sheet-bar">
+            <button type="button" class="ptool" id="sheetUndo" title="Desfazer (Ctrl+Z)" aria-label="Desfazer" disabled>
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"></path><path d="M3 13a9 9 0 1 0 3-7.7L3 8"></path></svg>
+            </button>
+            <button type="button" class="ptool" id="sheetRedo" title="Refazer (Ctrl+Y)" aria-label="Refazer" disabled>
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7v6h-6"></path><path d="M21 13a9 9 0 1 1-3-7.7L21 8"></path></svg>
+            </button>
+            <button type="button" class="ptool" id="sheetSnapshot" title="Salvar um marco no histórico (Ctrl+S)" aria-label="Salvar marco">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><path d="M17 21v-8H7v8M7 3v5h8"></path></svg>
+            </button>
+            <div class="sheet-hist">
+                <button type="button" class="ptool" id="sheetHistBtn" title="Histórico de versões" aria-label="Histórico de versões">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3.5 2"></path></svg>
+                </button>
+                <div class="sheet-hist-menu" id="sheetHistMenu" hidden></div>
+            </div>
+            <span class="sheet-status" id="sheetStatus">Carregando…</span>
+        </div>
+
+        <div class="sheet-fx">
+            <span class="sheet-ref" id="sheetRef">A1</span>
+            <span class="sheet-fxi" aria-hidden="true">fx</span>
+            <input type="text" class="sheet-fxin" id="sheetFx" autocomplete="off" spellcheck="false" aria-label="Barra de fórmula" placeholder="Digite um valor ou uma fórmula (=A1+B1)">
+        </div>
+
+        <div class="sheet-scroll">
+            <div class="sheet-grid" id="sheetGrid" role="grid" aria-label="Grade da planilha"></div>
+        </div>
+
+        <div class="sheet-tabs">
+            <button type="button" class="pt-add" id="sheetAddTab" title="Nova aba" aria-label="Nova aba">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+            </button>
+            <div class="sheet-tabs-scroll" id="sheetTabs"></div>
         </div>
     </div>
 
@@ -1692,10 +1733,14 @@ $hasDashData = !empty($accounts);
             </form>
 </dialog>
 
+<!-- Motor de cálculo do Modo Planilha. Sem defer, para já estar disponível
+     quando scripts/sheet.js roda no DOMContentLoaded. -->
+<script src="https://cdn.jsdelivr.net/npm/hyperformula@3/dist/hyperformula.full.min.js"></script>
+
 <?php
 // chart-tokens.js primeiro: expõe window.NVXCharts (paleta dos tokens) que
 // forecast-chart.js e dashboard.js consomem para colorir os gráficos por tema.
-$pageScripts = ['scripts/chart-tokens.js', 'scripts/forecast-chart.js', 'scripts/dashboard.js', 'scripts/kanban.js', 'scripts/tx-modal.js'];
+$pageScripts = ['scripts/chart-tokens.js', 'scripts/forecast-chart.js', 'scripts/dashboard.js', 'scripts/kanban.js', 'scripts/tx-modal.js', 'scripts/sheet.js'];
 
 // Garante que os dados estão no formato correto para JSON
 $categoriesJson = json_encode($categoriesTotals ?: [], JSON_THROW_ON_ERROR);
