@@ -1101,27 +1101,37 @@ $hasDashData = !empty($accounts);
         <div class="dash-dgrid">
             <!-- Previsão de saldo (gráfico real via forecast-chart.js, lendo tokens) -->
             <div style="background:var(--surface); border:var(--card-b); box-shadow:var(--card-sh); border-radius:var(--r); padding:22px 22px 16px; min-width:0;">
-                <div style="font-size:12.5px; font-weight:600; color:var(--muted);">Saldo final previsto</div>
-                <div style="font-family:var(--f-num); font-size:30px; font-weight:700; font-variant-numeric:tabular-nums; color:var(--ink); margin-top:4px;" data-balance><?php echo formatCurrency($previstoSaldo, $primaryCurrency); ?></div>
+                <div style="display:flex; align-items:baseline; gap:8px;">
+                    <span style="font-size:12.5px; font-weight:600; color:var(--muted);">Saldo final previsto</span>
+                    <span id="forecastSimTag" class="dash-sim-tag" hidden>simulação</span>
+                </div>
+                <div id="forecastHero" style="font-family:var(--f-num); font-size:30px; font-weight:700; font-variant-numeric:tabular-nums; color:var(--ink); margin-top:4px;" data-balance><?php echo formatCurrency($previstoSaldo, $primaryCurrency); ?></div>
 
                 <!-- Decomposição: é ela que explica o número acima. -->
-                <div style="display:flex; flex-direction:column; gap:7px; margin-top:14px; padding-top:14px; border-top:1px solid var(--line-soft);">
+                <div id="forecastBreakdown" style="display:flex; flex-direction:column; gap:7px; margin-top:14px; padding-top:14px; border-top:1px solid var(--line-soft);">
                     <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px;">
                         <span style="font-size:12.5px; color:var(--muted);">Saldo hoje</span>
-                        <span style="font-family:var(--f-num); font-size:13.5px; font-weight:600; font-variant-numeric:tabular-nums; color:var(--ink);" data-balance><?php echo formatCurrency($consolidatedBalance, $primaryCurrency); ?></span>
+                        <span id="forecastToday" style="font-family:var(--f-num); font-size:13.5px; font-weight:600; font-variant-numeric:tabular-nums; color:var(--ink);" data-balance><?php echo formatCurrency($consolidatedBalance, $primaryCurrency); ?></span>
                     </div>
                     <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px;">
                         <span style="font-size:12.5px; color:var(--muted);">+ a receber</span>
-                        <span style="font-family:var(--f-num); font-size:13.5px; font-weight:600; font-variant-numeric:tabular-nums; color:var(--pos);" data-balance><?php echo formatCurrency($pendingIncomeTotal, $primaryCurrency); ?></span>
+                        <span id="forecastIncoming" style="font-family:var(--f-num); font-size:13.5px; font-weight:600; font-variant-numeric:tabular-nums; color:var(--pos);" data-balance><?php echo formatCurrency($pendingIncomeTotal, $primaryCurrency); ?></span>
                     </div>
                     <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px;">
                         <span style="font-size:12.5px; color:var(--muted);">&minus; a pagar</span>
-                        <span style="font-family:var(--f-num); font-size:13.5px; font-weight:600; font-variant-numeric:tabular-nums; color:var(--neg);" data-balance><?php echo formatCurrency($pendingExpenseTotal, $primaryCurrency); ?></span>
+                        <span id="forecastOutgoing" style="font-family:var(--f-num); font-size:13.5px; font-weight:600; font-variant-numeric:tabular-nums; color:var(--neg);" data-balance><?php echo formatCurrency($pendingExpenseTotal, $primaryCurrency); ?></span>
                     </div>
                     <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px; padding-top:7px; border-top:1px solid var(--line-soft);">
                         <span style="font-size:12.5px; font-weight:700; color:var(--ink);">Saldo final</span>
-                        <span style="font-family:var(--f-num); font-size:15px; font-weight:700; font-variant-numeric:tabular-nums; color:var(--ink);" data-balance><?php echo formatCurrency($previstoSaldo, $primaryCurrency); ?></span>
+                        <span id="forecastFinal" style="font-family:var(--f-num); font-size:15px; font-weight:700; font-variant-numeric:tabular-nums; color:var(--ink);" data-balance><?php echo formatCurrency($previstoSaldo, $primaryCurrency); ?></span>
                     </div>
+                </div>
+
+                <!-- Aviso de simulação: só aparece com ≥1 transação oculta. -->
+                <div id="forecastSimNotice" class="dash-sim-notice" hidden>
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v5"></path><path d="M12 16.5v.01"></path></svg>
+                    <span>Simulação &middot; <strong id="forecastSimCount">0 ocultas</strong> &middot; valor não é o saldo real</span>
+                    <button type="button" id="forecastSimReset" class="dash-sim-reset">Restaurar</button>
                 </div>
                 <div style="height:230px; position:relative; margin-top:20px;">
                     <canvas id="chartForecast"></canvas>
@@ -1162,17 +1172,55 @@ $hasDashData = !empty($accounts);
         if (!isset($recentTransactions)) {
             $recentTransactions = $transactionRepository->listByUser($userId ?? 0, null, null, $filterIsEffective, $filterIsRecurring);
         }
-        $recentTransactionsSlice = array_slice($recentTransactions, 0, 8);
-        // Agrupa por dia mantendo a ordem (já vem por data desc).
+
+        // "Carregar mais": as linhas são renderizadas TODAS no servidor (até o
+        // teto abaixo) e reveladas em lotes pelo cliente. Escolha deliberada —
+        // $recentTransactions já está inteiro em memória (o mesmo array
+        // alimenta o JSON do modal de edição), então paginar por requisição
+        // custaria um endpoint novo sem economizar consulta alguma. O teto
+        // existe só para não montar um DOM gigante em conta antiga; acima dele
+        // o caminho continua sendo o histórico completo.
+        $recentBatchSize = 8;
+        $recentRenderCap = 200;
+        $recentTransactionsRendered = array_slice($recentTransactions, 0, $recentRenderCap);
+        $recentTotalCount = count($recentTransactions);
+        $recentRenderedCount = count($recentTransactionsRendered);
+        // Mantido pelo nome antigo: o bloco do rodapé usa este array para o
+        // JSON do modal de edição, que precisa cobrir TODA linha renderizada
+        // (senão editar uma linha revelada depois não acharia os dados).
+        $recentTransactionsSlice = $recentTransactionsRendered;
+
+        // Elegibilidade da SIMULAÇÃO (olhinho). Só pode entrar na simulação a
+        // transação que realmente compõe a previsão:
+        //   - pendente: entra em $pendingIncomeTotal/$pendingExpenseTotal, cuja
+        //     consulta filtra `currency = primária OR NULL`;
+        //   - efetivada: só está dentro de $consolidatedBalance se a conta dela
+        //     for uma conta não-crédito (cartão é passivo e fica fora da soma).
+        // O que não se encaixa mantém o olho desabilitado, para a simulação
+        // nunca mexer num número que a transação não formou.
+        $nonCreditAccountIds = [];
+        foreach ($accounts as $accForSim) {
+            if (($accForSim['type'] ?? '') !== 'credit') {
+                $nonCreditAccountIds[(int) $accForSim['id']] = true;
+            }
+        }
+
+        // Agrupa por dia mantendo a ordem (já vem por data desc). $seq é o
+        // índice corrido da transação — o cliente revela tudo com seq < limite,
+        // e o cabeçalho do dia herda o seq da sua primeira linha para aparecer
+        // junto com ela.
         $groupedRecent = [];
-        foreach ($recentTransactionsSlice as $tx) {
+        $seq = 0;
+        foreach ($recentTransactionsRendered as $tx) {
             $dayKey = date('Y-m-d', strtotime($tx['transaction_date']));
             if (!isset($groupedRecent[$dayKey])) {
-                $groupedRecent[$dayKey] = ['rows' => [], 'subtotal' => 0.0];
+                $groupedRecent[$dayKey] = ['rows' => [], 'subtotal' => 0.0, 'seq' => $seq];
             }
             $signed = ($tx['type'] === 'income' ? 1 : -1) * (float) $tx['amount'];
+            $tx['_seq'] = $seq;
             $groupedRecent[$dayKey]['rows'][] = $tx;
             $groupedRecent[$dayKey]['subtotal'] += $signed;
+            $seq++;
         }
         $weekdayShort = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
         ?>
@@ -1188,7 +1236,7 @@ $hasDashData = !empty($accounts);
                     $dayTs = strtotime($dayKey);
                     $subColor = $group['subtotal'] >= 0 ? 'var(--pos)' : 'var(--neg)';
                 ?>
-                <div style="display:flex; align-items:baseline; gap:9px; padding:12px 22px; background:color-mix(in srgb, var(--ink) 2.5%, var(--surface)); border-bottom:1px solid var(--line-soft);">
+                <div class="dash-recent-item" data-recent-seq="<?php echo (int) $group['seq']; ?>"<?php echo $group['seq'] >= $recentBatchSize ? ' hidden' : ''; ?> style="display:flex; align-items:baseline; gap:9px; padding:12px 22px; background:color-mix(in srgb, var(--ink) 2.5%, var(--surface)); border-bottom:1px solid var(--line-soft);">
                     <span style="font-size:12.5px; font-weight:700; color:var(--ink);"><?php echo sanitize($weekdayShort[(int) date('w', $dayTs)]); ?>, <?php echo date('d/m', $dayTs); ?></span>
                     <span style="margin-left:auto; font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted);">subtotal</span>
                     <span style="font-family:var(--f-num); font-size:12.5px; font-weight:700; font-variant-numeric:tabular-nums; color:<?php echo $subColor; ?>;" data-balance><?php echo formatCurrency($group['subtotal'], $primaryCurrency); ?></span>
@@ -1201,8 +1249,16 @@ $hasDashData = !empty($accounts);
                     $accent = $isIncome ? 'var(--pos)' : 'var(--neg)';
                     $desc = ($tx['description'] ?? '') !== '' ? $tx['description'] : $catName;
                     $canEffectivate = !$isEffective && (int) ($tx['account_id'] ?? 0) > 0;
+                    $txCurrency = (string) ($tx['currency'] ?? 'BRL');
+                    $simCurrencyOk = ($tx['currency'] ?? null) === null || $txCurrency === $primaryCurrency;
+                    $simEligible = $isEffective
+                        ? ($simCurrencyOk && isset($nonCreditAccountIds[(int) ($tx['account_id'] ?? 0)]))
+                        : $simCurrencyOk;
+                    $simTitle = $simEligible
+                        ? 'Ocultar da previsão de saldo (simulação — nada é salvo)'
+                        : 'Esta transação não entra na previsão de saldo, então não pode ser simulada.';
                 ?>
-                <div style="display:flex; align-items:center; gap:14px; padding:13px 22px; border-bottom:1px solid var(--line-soft); flex-wrap:wrap;">
+                <div class="dash-recent-item dash-recent-row" data-recent-seq="<?php echo (int) $tx['_seq']; ?>"<?php echo $tx['_seq'] >= $recentBatchSize ? ' hidden' : ''; ?> data-sim-id="<?php echo (int) $tx['id']; ?>" data-sim-kind="<?php echo $isEffective ? 'effective' : 'pending'; ?>" data-sim-type="<?php echo sanitize($tx['type']); ?>" data-sim-amount="<?php echo (float) $tx['amount']; ?>" data-sim-eligible="<?php echo $simEligible ? '1' : '0'; ?>" style="display:flex; align-items:center; gap:14px; padding:13px 22px; border-bottom:1px solid var(--line-soft); flex-wrap:wrap;">
                     <span style="display:flex; align-items:center; gap:13px; min-width:0; flex:1 1 220px;">
                         <span style="width:30px; height:30px; flex:none; display:grid; place-items:center; transform:rotate(45deg); border-radius:6px; background:color-mix(in srgb, <?php echo $accent; ?> 16%, transparent);"><span style="transform:rotate(-45deg); font-size:11.5px; font-weight:800; color:<?php echo $accent; ?>;"><?php echo sanitize($initial); ?></span></span>
                         <span style="min-width:0;">
@@ -1222,6 +1278,13 @@ $hasDashData = !empty($accounts);
                     </span>
                     <span style="margin-left:auto; text-align:right; font-family:var(--f-num); font-size:14.5px; font-weight:700; font-variant-numeric:tabular-nums; color:<?php echo $accent; ?>;" data-balance><?php echo $isIncome ? '+' : '-'; ?> <?php echo formatCurrency((float) $tx['amount'], $tx['currency'] ?? 'BRL'); ?></span>
                     <span style="flex:0 0 auto; display:flex; align-items:center; gap:8px;">
+                        <!-- Olhinho de SIMULAÇÃO: tira a transação só do cálculo da
+                             previsão de saldo, em memória. Não salva nada, não some
+                             com a linha e não toca no saldo real. -->
+                        <button type="button" class="dash-sim-eye" data-sim-eye aria-pressed="false" <?php echo $simEligible ? '' : 'disabled '; ?>title="<?php echo sanitize($simTitle); ?>" aria-label="<?php echo sanitize($simTitle); ?>">
+                            <svg class="dash-sim-eye-on" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            <svg class="dash-sim-eye-off" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" hidden><path d="M9.9 5.2A9.9 9.9 0 0 1 12 5c6.4 0 10 7 10 7a17.6 17.6 0 0 1-3.2 4.1M6.3 6.5A17.4 17.4 0 0 0 2 12s3.6 7 10 7a9.7 9.7 0 0 0 4.2-.9"></path><path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"></path><path d="M3 3l18 18"></path></svg>
+                        </button>
                         <?php if ($canEffectivate) : ?>
                         <form method="POST" action="/actions/transactions/update.php" style="display:inline;">
                             <input type="hidden" name="_token" value="<?php echo csrfToken(); ?>">
@@ -1256,8 +1319,19 @@ $hasDashData = !empty($accounts);
                 </div>
                 <?php endforeach; ?>
                 <?php endforeach; ?>
-                <div style="display:flex; align-items:center; gap:10px; padding:12px 22px;">
-                    <span style="font-size:12.5px; color:var(--muted);">Pendentes podem ser efetivadas direto na linha.</span>
+                <?php if ($recentRenderedCount > $recentBatchSize) : ?>
+                <div style="display:flex; justify-content:center; padding:14px 22px 4px;">
+                    <button type="button" id="dashRecentMore" class="dash-recent-more"
+                        data-batch="<?php echo (int) $recentBatchSize; ?>"
+                        data-total="<?php echo (int) $recentRenderedCount; ?>"
+                        data-shown="<?php echo (int) $recentBatchSize; ?>">Carregar mais<span id="dashRecentMoreCount" style="opacity:.7; font-weight:600;"> (<?php echo (int) ($recentRenderedCount - $recentBatchSize); ?> restantes)</span></button>
+                </div>
+                <?php endif; ?>
+                <div style="display:flex; align-items:center; gap:10px; padding:12px 22px; flex-wrap:wrap;">
+                    <span style="font-size:12.5px; color:var(--muted);">Pendentes podem ser efetivadas direto na linha. O olho tira a linha só da previsão &mdash; é simulação, nada é salvo.</span>
+                    <?php if ($recentTotalCount > $recentRenderedCount) : ?>
+                    <span style="font-size:12px; color:var(--muted); opacity:.8;">Mostrando as <?php echo (int) $recentRenderedCount; ?> mais recentes de <?php echo (int) $recentTotalCount; ?>.</span>
+                    <?php endif; ?>
                     <a href="/public/history.php" style="margin-left:auto; font-size:13px; font-weight:700; color:var(--accent); text-decoration:none;">Ver histórico completo &rarr;</a>
                 </div>
             <?php endif; ?>
@@ -1740,7 +1814,7 @@ $hasDashData = !empty($accounts);
 <?php
 // chart-tokens.js primeiro: expõe window.NVXCharts (paleta dos tokens) que
 // forecast-chart.js e dashboard.js consomem para colorir os gráficos por tema.
-$pageScripts = ['scripts/chart-tokens.js', 'scripts/forecast-chart.js', 'scripts/dashboard.js', 'scripts/kanban.js', 'scripts/tx-modal.js', 'scripts/sheet.js'];
+$pageScripts = ['scripts/chart-tokens.js', 'scripts/forecast-chart.js', 'scripts/dashboard.js', 'scripts/kanban.js', 'scripts/tx-modal.js', 'scripts/sheet.js', 'scripts/forecast-sim.js'];
 
 // Garante que os dados estão no formato correto para JSON
 $categoriesJson = json_encode($categoriesTotals ?: [], JSON_THROW_ON_ERROR);
@@ -1770,6 +1844,15 @@ $categoryOptionsJson = json_encode(array_map(static function (array $category): 
     const forecastPrevExpense = <?php echo (isset($forecastPrevExpense) ? $forecastPrevExpense : 0); ?>;
     const forecastWeeklyExpense = <?php echo (isset($forecastWeeklyExpense) ? $forecastWeeklyExpense : 0); ?>;
     const periodType = '<?php echo $periodType; ?>';
+    // Base REAL da previsão determinística (saldo hoje + a receber − a pagar).
+    // O olhinho de simulação parte sempre destes números e nunca os altera:
+    // "Restaurar" é simplesmente reescrever a base.
+    window.NOVIX_FORECAST_BASE = {
+        today: <?php echo json_encode((float) $consolidatedBalance); ?>,
+        incoming: <?php echo json_encode((float) $pendingIncomeTotal); ?>,
+        outgoing: <?php echo json_encode((float) $pendingExpenseTotal); ?>,
+        currency: <?php echo json_encode((string) $primaryCurrency); ?>
+    };
     const initialBalance = <?php echo $initialBalance; ?>;
     const expensesByAccountData = <?php echo $expensesByAccountJson; ?>;
     const incomesByAccountData = <?php echo $incomesByAccountJson; ?>;
@@ -1778,7 +1861,13 @@ $categoryOptionsJson = json_encode(array_map(static function (array $category): 
         if (!isset($recentTransactions)) {
             $recentTransactions = $transactionRepository->listByUser($userId ?? 0, null, null, $filterIsEffective, $filterIsRecurring);
         }
-        $recentTransactionsSlice = array_slice($recentTransactions, 0, 8);
+        // Precisa cobrir TODA linha renderizada na lista (inclusive as que só
+        // aparecem depois do "Carregar mais"), senão o modal de edição não
+        // encontraria os dados de uma linha revelada. $recentTransactionsSlice
+        // já vem definido pelo bloco da lista quando há dados no dashboard.
+        if (!isset($recentTransactionsSlice)) {
+            $recentTransactionsSlice = array_slice($recentTransactions, 0, 200);
+        }
         echo json_encode(array_map(static function (array $transaction): array {
         return [
             'id' => (int) $transaction['id'],

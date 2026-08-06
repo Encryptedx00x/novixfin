@@ -5,6 +5,33 @@
   (recompute) ENTREGUE, precisa rodar no SERVIDOR (backup + dry-run + --apply). Parado p/ revisão.
 - Reskin **100%**; modais completos; agora saldo consistente com as transações.
 
+## MOVIMENTAÇÕES RECENTES — simulação da previsão + "Carregar mais" (2026-08-06)
+- **Report**: /reports/checkpoint_forecast_sim_load_more.md
+- **Status**: entregue, parado para revisão. **Sem migração, sem escrita, sem endpoint novo.**
+- **(A) Olhinho de simulação** (`public/scripts/forecast-sim.js`, NOVO): tira a transação só do
+  CÁLCULO da previsão, em memória. Pendente sai de "a receber"/"a pagar"; efetivada tem o efeito
+  ESTORNADO do "saldo hoje" (receita +500 oculta ⇒ saldo hoje −500). Aviso "Simulação · N ocultas"
+  com "Restaurar", selo `simulação` e números em `--gold` para não confundir com o saldo real.
+  A linha continua na lista (opacidade menor + valor riscado).
+  - **Olho DESABILITADO** quando a transação não compõe a previsão: moeda ≠ primária (a consulta
+    dos pendentes filtra `currency = primária OR NULL`) ou efetivada em conta de **crédito**
+    (cartão é passivo, fica fora de `$consolidatedBalance`).
+- **(B) Carregar mais**: renderiza tudo no servidor (teto de **200** linhas) e revela em lotes de
+  8 no cliente — decisão documentada: `$recentTransactions` já vem inteiro em memória, então
+  paginar por requisição não economizaria consulta. Acima de 200 o rodapé informa o corte e o
+  caminho segue sendo o histórico completo. Link "Ver histórico completo →" do topo intacto.
+- **Bug colateral corrigido**: `dashboardTransactionsData` (modal de edição) tinha um
+  `array_slice(...,0,8)` INDEPENDENTE do da lista — editar uma linha revelada pelo "Carregar mais"
+  não acharia os dados. Agora os dois compartilham o mesmo array renderizado.
+- **Armadilha registrada**: as linhas têm `display:flex` INLINE, que venceria o atributo `hidden`.
+  Depende de `.dash-recent-item[hidden] { display:none !important; }` em dashboard.css.
+- **Validação local**: `node --check public/scripts/forecast-sim.js` → passou;
+  `python -m pytest tests/probe_forecast_sim.py` → **11 passed** (contrato de ids, ausência de
+  chamada de rede no script, e os 4 casos de aritmética). `probe_batch2_features.py` → 10 passed,
+  3 failed **PRÉ-EXISTENTES** (asseguram `includes/forecast.php` e `includes/layout/header.php`,
+  não tocados aqui).
+- **Falta rodar no servidor**: `php -l public/dashboard.php` e `php tests/smoke.php`.
+
 ## MODO PLANILHA — BLOCO 1 COMPLETO (front ligado) (2026-08-01)
 **O que fechou o bloco 1 (esta sessão):**
 - `public/scripts/sheet.js` (NOVO, `node --check` passou) — HyperFormula construída com

@@ -279,3 +279,92 @@ html .dash-screen .rounded-2xl { border-radius: calc(var(--r) + 6px); }
 @media (prefers-reduced-motion: reduce) {
     .dash-fab { transition: none; }
 }
+
+/* =====================================================================
+   Simulação da previsão (olhinho) + "Carregar mais" nas movimentações.
+   Tudo tokenizado: funciona nos 15 temas, claro e escuro, sem cor fixa.
+   ===================================================================== */
+
+/* Olho por linha. Estado normal discreto; ativo (linha fora da previsão)
+   ganha a cor de acento para ficar óbvio que algo está simulado. */
+.dash-sim-eye {
+    width: 30px; height: 30px; flex: none;
+    display: grid; place-items: center;
+    border: none; background: none; cursor: pointer;
+    color: var(--muted);
+    border-radius: var(--r-chip); clip-path: var(--cut);
+    transition: color .16s ease, background-color .16s ease;
+}
+.dash-sim-eye:hover:not([disabled]) {
+    color: var(--ink);
+    background: color-mix(in srgb, var(--ink) 7%, transparent);
+}
+.dash-sim-eye[aria-pressed="true"] {
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+.dash-sim-eye[disabled] { opacity: .3; cursor: default; }
+
+/* A linha CONTINUA visível — só sinaliza que saiu da previsão. */
+.dash-recent-row.is-sim-hidden { opacity: .62; }
+.dash-recent-row.is-sim-hidden [data-balance] { text-decoration: line-through; }
+
+/* Rótulo "simulação" ao lado do título da previsão. */
+.dash-sim-tag {
+    font-family: var(--f-m); font-size: 10.5px; font-weight: 700;
+    letter-spacing: .06em; text-transform: uppercase;
+    padding: 2px 7px; color: var(--gold);
+    background: color-mix(in srgb, var(--gold) 14%, transparent);
+    border-radius: var(--r-chip); clip-path: var(--cut);
+}
+/* Números simulados em --gold: distinguem-se do saldo real sem gritar. */
+#forecastHero.is-simulated,
+#forecastBreakdown.is-simulated #forecastFinal,
+#forecastBreakdown.is-simulated #forecastToday { color: var(--gold); }
+
+.dash-sim-notice {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    margin-top: 12px; padding: 9px 12px;
+    font-size: 12px; color: var(--ink);
+    background: color-mix(in srgb, var(--gold) 10%, transparent);
+    border: 1px solid color-mix(in srgb, var(--gold) 34%, transparent);
+    border-radius: var(--r-chip); clip-path: var(--cut);
+}
+.dash-sim-notice svg { color: var(--gold); }
+.dash-sim-reset {
+    margin-left: auto; padding: 4px 10px;
+    font-size: 12px; font-weight: 700; cursor: pointer;
+    color: var(--accent); background: none;
+    border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+    border-radius: var(--r-chip); clip-path: var(--cut);
+}
+.dash-sim-reset:hover { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+
+.dash-recent-more {
+    padding: 9px 20px;
+    font-size: 13px; font-weight: 700; cursor: pointer;
+    color: var(--accent); background: var(--surface);
+    border: 1px solid color-mix(in srgb, var(--accent) 38%, transparent);
+    border-radius: var(--r-btn); clip-path: var(--cut);
+    transition: background-color .16s ease, color .16s ease;
+}
+.dash-recent-more:hover:not([disabled]) { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.dash-recent-more[disabled] {
+    color: var(--muted); cursor: default;
+    border-color: var(--line-soft); background: none;
+}
+
+@media (max-width: 768px) {
+    .dash-sim-eye { width: 44px; height: 44px; }
+    .dash-recent-more { width: 100%; min-height: 44px; }
+    .dash-sim-reset { margin-left: 0; min-height: 32px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .dash-sim-eye, .dash-recent-more { transition: none; }
+}
+
+/* [hidden] precisa vencer o display:flex declarado acima (e o inline das
+   linhas da lista). Sem isto, esconder por atributo não teria efeito. */
+.dash-recent-item[hidden],
+.dash-sim-notice[hidden],
+.dash-sim-tag[hidden] { display: none !important; }
