@@ -15,7 +15,9 @@
     <script src="/public/scripts/balance-visibility.js" defer></script>
     <?php if (isset($pageScripts) && is_array($pageScripts)) : ?>
         <?php foreach ($pageScripts as $script) : ?>
-            <script src="/public/<?php echo sanitize($script); ?>" defer></script>
+            <?php // ?v=filemtime pelo mesmo motivo do CSS: JS novo precisa chegar
+                  // ao navegador sem depender de o usuário limpar o cache. ?>
+            <script src="/public/<?php echo sanitize($script); ?>?v=<?php echo (int) @filemtime(__DIR__ . '/../../public/' . $script); ?>" defer></script>
         <?php endforeach; ?>
     <?php endif; ?>
 </body>

@@ -363,8 +363,15 @@ html .dash-screen .rounded-2xl { border-radius: calc(var(--r) + 6px); }
     .dash-sim-eye, .dash-recent-more { transition: none; }
 }
 
-/* [hidden] precisa vencer o display:flex declarado acima (e o inline das
-   linhas da lista). Sem isto, esconder por atributo não teria efeito. */
+/* [hidden] precisa vencer o display:flex declarado acima — regra de autor
+   normal ganha do [hidden] do user-agent, então sem o !important o aviso de
+   simulação nunca sumiria.
+   As LINHAS da lista não usam mais este caminho. Esconder linha por atributo
+   funcionava só ENQUANTO esta regra chegasse ao navegador: sem ela, o `hidden`
+   perdia para o `display:flex` inline da linha e todas apareciam de uma vez —
+   foi o que aconteceu com o CSS servido do cache. Agora a linha traz
+   display:none/flex no próprio style inline e o "Carregar mais" alterna esse
+   display, sem depender de CSS nenhum. */
 .dash-recent-item[hidden],
 .dash-sim-notice[hidden],
 .dash-sim-tag[hidden] { display: none !important; }

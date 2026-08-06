@@ -58,7 +58,10 @@ $userTheme = novix_valid_theme($userTheme);
     <link href="<?php echo htmlspecialchars(novix_theme_fonts_url($userTheme), ENT_QUOTES, 'UTF-8'); ?>" rel="stylesheet">
     <?php if (isset($pageStyles) && is_array($pageStyles)) : ?>
         <?php foreach ($pageStyles as $pageStyle) : ?>
-            <link rel="stylesheet" href="/public/<?php echo sanitize($pageStyle); ?>">
+            <?php // ?v=filemtime: mesma correção já aplicada em entrada.css (b6fc882).
+                  // Sem versionamento o navegador seguia servindo o CSS antigo e
+                  // regras novas simplesmente não chegavam à tela. ?>
+            <link rel="stylesheet" href="/public/<?php echo sanitize($pageStyle); ?>?v=<?php echo (int) @filemtime(__DIR__ . '/../../public/' . $pageStyle); ?>">
         <?php endforeach; ?>
     <?php endif; ?>
     <?php

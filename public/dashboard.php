@@ -1236,7 +1236,8 @@ $hasDashData = !empty($accounts);
                     $dayTs = strtotime($dayKey);
                     $subColor = $group['subtotal'] >= 0 ? 'var(--pos)' : 'var(--neg)';
                 ?>
-                <div class="dash-recent-item" data-recent-seq="<?php echo (int) $group['seq']; ?>"<?php echo $group['seq'] >= $recentBatchSize ? ' hidden' : ''; ?> style="display:flex; align-items:baseline; gap:9px; padding:12px 22px; background:color-mix(in srgb, var(--ink) 2.5%, var(--surface)); border-bottom:1px solid var(--line-soft);">
+                <?php $groupHiddenAtStart = $group['seq'] >= $recentBatchSize; ?>
+                <div class="dash-recent-item" data-recent-seq="<?php echo (int) $group['seq']; ?>" data-recent-hidden="<?php echo $groupHiddenAtStart ? '1' : '0'; ?>" style="display:<?php echo $groupHiddenAtStart ? 'none' : 'flex'; ?>; align-items:baseline; gap:9px; padding:12px 22px; background:color-mix(in srgb, var(--ink) 2.5%, var(--surface)); border-bottom:1px solid var(--line-soft);">
                     <span style="font-size:12.5px; font-weight:700; color:var(--ink);"><?php echo sanitize($weekdayShort[(int) date('w', $dayTs)]); ?>, <?php echo date('d/m', $dayTs); ?></span>
                     <span style="margin-left:auto; font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted);">subtotal</span>
                     <span style="font-family:var(--f-num); font-size:12.5px; font-weight:700; font-variant-numeric:tabular-nums; color:<?php echo $subColor; ?>;" data-balance><?php echo formatCurrency($group['subtotal'], $primaryCurrency); ?></span>
@@ -1258,7 +1259,8 @@ $hasDashData = !empty($accounts);
                         ? 'Ocultar da previsão de saldo (simulação — nada é salvo)'
                         : 'Esta transação não entra na previsão de saldo, então não pode ser simulada.';
                 ?>
-                <div class="dash-recent-item dash-recent-row" data-recent-seq="<?php echo (int) $tx['_seq']; ?>"<?php echo $tx['_seq'] >= $recentBatchSize ? ' hidden' : ''; ?> data-sim-id="<?php echo (int) $tx['id']; ?>" data-sim-kind="<?php echo $isEffective ? 'effective' : 'pending'; ?>" data-sim-type="<?php echo sanitize($tx['type']); ?>" data-sim-amount="<?php echo (float) $tx['amount']; ?>" data-sim-eligible="<?php echo $simEligible ? '1' : '0'; ?>" style="display:flex; align-items:center; gap:14px; padding:13px 22px; border-bottom:1px solid var(--line-soft); flex-wrap:wrap;">
+                <?php $rowHiddenAtStart = $tx['_seq'] >= $recentBatchSize; ?>
+                <div class="dash-recent-item dash-recent-row" data-recent-seq="<?php echo (int) $tx['_seq']; ?>" data-recent-hidden="<?php echo $rowHiddenAtStart ? '1' : '0'; ?>" data-sim-id="<?php echo (int) $tx['id']; ?>" data-sim-kind="<?php echo $isEffective ? 'effective' : 'pending'; ?>" data-sim-type="<?php echo sanitize($tx['type']); ?>" data-sim-amount="<?php echo (float) $tx['amount']; ?>" data-sim-eligible="<?php echo $simEligible ? '1' : '0'; ?>" style="display:<?php echo $rowHiddenAtStart ? 'none' : 'flex'; ?>; align-items:center; gap:14px; padding:13px 22px; border-bottom:1px solid var(--line-soft); flex-wrap:wrap;">
                     <span style="display:flex; align-items:center; gap:13px; min-width:0; flex:1 1 220px;">
                         <span style="width:30px; height:30px; flex:none; display:grid; place-items:center; transform:rotate(45deg); border-radius:6px; background:color-mix(in srgb, <?php echo $accent; ?> 16%, transparent);"><span style="transform:rotate(-45deg); font-size:11.5px; font-weight:800; color:<?php echo $accent; ?>;"><?php echo sanitize($initial); ?></span></span>
                         <span style="min-width:0;">
@@ -1283,7 +1285,10 @@ $hasDashData = !empty($accounts);
                              com a linha e não toca no saldo real. -->
                         <button type="button" class="dash-sim-eye" data-sim-eye aria-pressed="false" <?php echo $simEligible ? '' : 'disabled '; ?>title="<?php echo sanitize($simTitle); ?>" aria-label="<?php echo sanitize($simTitle); ?>">
                             <svg class="dash-sim-eye-on" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                            <svg class="dash-sim-eye-off" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" hidden><path d="M9.9 5.2A9.9 9.9 0 0 1 12 5c6.4 0 10 7 10 7a17.6 17.6 0 0 1-3.2 4.1M6.3 6.5A17.4 17.4 0 0 0 2 12s3.6 7 10 7a9.7 9.7 0 0 0 4.2-.9"></path><path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"></path><path d="M3 3l18 18"></path></svg>
+                            <!-- display inline (não o atributo `hidden`): SVGElement não
+                                 implementa a propriedade IDL `hidden`, então alterná-la
+                                 pelo JS não faria nada. Ver forecast-sim.js. -->
+                            <svg class="dash-sim-eye-off" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M9.9 5.2A9.9 9.9 0 0 1 12 5c6.4 0 10 7 10 7a17.6 17.6 0 0 1-3.2 4.1M6.3 6.5A17.4 17.4 0 0 0 2 12s3.6 7 10 7a9.7 9.7 0 0 0 4.2-.9"></path><path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"></path><path d="M3 3l18 18"></path></svg>
                         </button>
                         <?php if ($canEffectivate) : ?>
                         <form method="POST" action="/actions/transactions/update.php" style="display:inline;">
@@ -1322,9 +1327,7 @@ $hasDashData = !empty($accounts);
                 <?php if ($recentRenderedCount > $recentBatchSize) : ?>
                 <div style="display:flex; justify-content:center; padding:14px 22px 4px;">
                     <button type="button" id="dashRecentMore" class="dash-recent-more"
-                        data-batch="<?php echo (int) $recentBatchSize; ?>"
-                        data-total="<?php echo (int) $recentRenderedCount; ?>"
-                        data-shown="<?php echo (int) $recentBatchSize; ?>">Carregar mais<span id="dashRecentMoreCount" style="opacity:.7; font-weight:600;"> (<?php echo (int) ($recentRenderedCount - $recentBatchSize); ?> restantes)</span></button>
+                        data-batch="<?php echo (int) $recentBatchSize; ?>">Carregar mais<span id="dashRecentMoreCount" style="opacity:.7; font-weight:600;"> (<?php echo (int) ($recentRenderedCount - $recentBatchSize); ?> restantes)</span></button>
                 </div>
                 <?php endif; ?>
                 <div style="display:flex; align-items:center; gap:10px; padding:12px 22px; flex-wrap:wrap;">

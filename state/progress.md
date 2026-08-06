@@ -5,6 +5,31 @@
   (recompute) ENTREGUE, precisa rodar no SERVIDOR (backup + dry-run + --apply). Parado p/ revisão.
 - Reskin **100%**; modais completos; agora saldo consistente com as transações.
 
+## FIX — "Carregar mais" não revelava + olho não trocava de ícone (2026-08-06)
+- **Report**: /reports/checkpoint_fix_load_more_e_olho.md — corrige a fatia `190c255`.
+- **Bug B (causa exata)**: `applyRowState()` fazia `svgEl.hidden = true`. **`SVGElement` NÃO
+  implementa a propriedade IDL `hidden`** (ela é do `HTMLElement`) — a atribuição criava só uma
+  propriedade solta no objeto JS, sem mexer no DOM. Por isso o recálculo funcionava e o ícone
+  ficava parado. Agora alterna por `style.display`, e o ícone cortado nasce com
+  `style="display:none;"` em vez do atributo `hidden`.
+- **Bug A (causa)**: as linhas têm `display:flex` INLINE. O atributo `hidden` só as escondia por
+  causa de `.dash-recent-item[hidden]{display:none!important}` — a regra estava certa (autor
+  `!important` vence inline), mas **não chegava ao navegador**: `$pageStyles`/`$pageScripts`
+  carregavam SEM versionamento e o CSS antigo continuava em cache. Sem a regra, as 13 linhas
+  apareciam de saída e o botão só decrementava um contador vindo do servidor.
+  **Terceira ocorrência do mesmo problema de cache no repo** (landing, entrada.css/b6fc882, agora).
+- **Correções**: (1) linha e cabeçalho de dia nascem com `display:none|flex` no style INLINE e o
+  botão alterna esse display — zero dependência de CSS; (2) `data-recent-hidden="1|0"` marca o
+  estado e a contagem sai do DOM (`stillHiddenRows()`), inclusive na carga inicial; (3) ícone por
+  `style.display`; (4) **`?v=filemtime` em `$pageStyles` e `$pageScripts`** (header/footer), o
+  mesmo padrão do entrada.css.
+- **Preservado**: recálculo da previsão e estorno-por-tipo NÃO foram tocados (os 4 testes de
+  aritmética seguem passando). Efetivar pendente e os 3 forms, intactos. Continua sem banco.
+- **Validação**: `node --check` passou; `pytest tests/probe_forecast_sim.py` → **16 passed**
+  (5 novos de regressão, incluindo uma asserção de que `.hidden = isHidden` não volta ao arquivo).
+- **Falta no servidor**: `php -l` em `public/dashboard.php`, `includes/layout/header.php`,
+  `includes/layout/footer.php` + `php tests/smoke.php`.
+
 ## MOVIMENTAÇÕES RECENTES — simulação da previsão + "Carregar mais" (2026-08-06)
 - **Report**: /reports/checkpoint_forecast_sim_load_more.md
 - **Status**: entregue, parado para revisão. **Sem migração, sem escrita, sem endpoint novo.**

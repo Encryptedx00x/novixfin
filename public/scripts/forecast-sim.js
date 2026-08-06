@@ -94,8 +94,12 @@
         btn.setAttribute('aria-pressed', isHidden ? 'true' : 'false');
         var on = btn.querySelector('.dash-sim-eye-on');
         var off = btn.querySelector('.dash-sim-eye-off');
-        if (on) { on.hidden = isHidden; }
-        if (off) { off.hidden = !isHidden; }
+        // Troca por `style.display`, NÃO pela propriedade `.hidden`: estes são
+        // SVGElement, que não implementa a IDL `hidden` do HTMLElement — atribuir
+        // `.hidden` criava só uma propriedade solta no objeto e o ícone nunca
+        // mudava (era exatamente este o bug do olho que não alternava).
+        if (on) { on.style.display = isHidden ? 'none' : ''; }
+        if (off) { off.style.display = isHidden ? '' : 'none'; }
         btn.title = isHidden
             ? 'Voltar para a previsão (simulação — nada foi salvo)'
             : 'Ocultar da previsão de saldo (simulação — nada é salvo)';
@@ -128,32 +132,54 @@
     }
 
     // -------------------------------------------------- carregar mais
+    /** Linhas de transação AINDA ocultas — a única fonte da contagem. */
+    function stillHiddenRows() {
+        return document.querySelectorAll('.dash-recent-row[data-recent-hidden="1"]');
+    }
+
     function wireLoadMore() {
         var btn = document.getElementById('dashRecentMore');
         if (!btn) { return; }
         var batch = parseInt(btn.getAttribute('data-batch'), 10) || 8;
-        var total = parseInt(btn.getAttribute('data-total'), 10) || 0;
-        var shown = parseInt(btn.getAttribute('data-shown'), 10) || batch;
 
-        btn.addEventListener('click', function () {
-            shown = Math.min(total, shown + batch);
-            // As linhas já existem no DOM (com todos os data-sim-*), então o
-            // olhinho funciona nas reveladas sem religar nada — o clique é
-            // capturado por delegação no container.
-            document.querySelectorAll('.dash-recent-item').forEach(function (node) {
-                var seq = parseInt(node.getAttribute('data-recent-seq'), 10);
-                if (seq < shown) { node.hidden = false; }
-            });
-
-            var remaining = total - shown;
+        function syncButton() {
+            var remaining = stillHiddenRows().length;
             var label = document.getElementById('dashRecentMoreCount');
             if (remaining <= 0) {
+                // Some de vez: não há mais nada para revelar nesta tela.
                 btn.disabled = true;
                 btn.textContent = 'Nada mais a carregar';
-            } else if (label) {
-                label.textContent = ' (' + remaining + ' restantes)';
+                return false;
             }
+            if (label) { label.textContent = ' (' + remaining + ' restantes)'; }
+            return true;
+        }
+
+        btn.addEventListener('click', function () {
+            // Revela pelo DISPLAY inline, não pelo atributo `hidden`: a linha
+            // traz `display:flex` no próprio style, então esconder por atributo
+            // só funcionava enquanto a regra CSS com !important chegasse ao
+            // navegador — servida do cache, ela não chegava e nada era ocultado.
+            // Revelar por seq garante que o cabeçalho do dia venha junto com a
+            // primeira linha daquele dia.
+            var hiddenRows = stillHiddenRows();
+            var limit = Math.min(batch, hiddenRows.length);
+            if (limit === 0) { syncButton(); return; }
+
+            var lastSeq = parseInt(hiddenRows[limit - 1].getAttribute('data-recent-seq'), 10);
+            document.querySelectorAll('.dash-recent-item[data-recent-hidden="1"]').forEach(function (node) {
+                var seq = parseInt(node.getAttribute('data-recent-seq'), 10);
+                if (isNaN(seq) || seq > lastSeq) { return; }
+                node.style.display = 'flex';
+                node.setAttribute('data-recent-hidden', '0');
+            });
+
+            syncButton();
         });
+
+        // A contagem inicial também sai do DOM: se o servidor e o DOM
+        // discordarem, quem manda é o que existe na página.
+        syncButton();
     }
 
     document.addEventListener('DOMContentLoaded', function () {
