@@ -5,6 +5,33 @@
   (recompute) ENTREGUE, precisa rodar no SERVIDOR (backup + dry-run + --apply). Parado p/ revisão.
 - Reskin **100%**; modais completos; agora saldo consistente com as transações.
 
+## FILA OVERNIGHT (TASKS.md) — PAROU NA TASK 0.1 (2026-08-08)
+- **Report**: /reports/overnight_2026-08-08.md
+- **Nenhuma task concluída. Nenhuma mudança de lógica financeira. Nenhum deploy.**
+- **Causa da parada — ambiente, não bug:**
+  1. **Não existe PHP nesta máquina.** `which php php8 php8.1 php8.3` → vazio; PowerShell
+     `Get-Command php` → "php NOT on PATH"; nenhum XAMPP/Laragon/WAMP/`C:\php`. Isso torna
+     INEXECUTÁVEIS os aceites de TODAS as tasks (`php tests/run.php`, `php -l`).
+  2. **Não existe banco de teste isolado.** O `.env` aponta para o MariaDB remoto de
+     PRODUÇÃO (e sem acesso deste IP — visto em `probe_currency_save.py`: erro 1045). A
+     Task 0.1 exige banco isolado; as regras proíbem teste escrever no banco real.
+- **Decisão**: apliquei a regra "PARE NO PRIMEIRO ERRO, não contorne". Avançar significaria
+  escrever B2/B5 (ciclo de fatura + semântica de pagamento multi-origem) — que alteram saldo,
+  pagamento e reversão — sem rodar um único teste. A própria fila proíbe.
+- **Escrito, porém NÃO VALIDADO** (commitado assim de propósito, para não se perder):
+  - `tests/run.php` — runner sem Composer/PHPUnit; descobre `tests/*_test.php` + os
+    standalone existentes; roda cada teste em PROCESSO SEPARADO; agrega exit codes; sai ≠0 se
+    qualquer um falhar; aceita `--only=`.
+  - `tests/helpers.php` — asserções + factories. **`t_money` compara em CENTAVOS INTEIROS**
+    (exato ao centavo, sem tolerância de float). **Guard anti-produção**: banco de teste é
+    opt-in por `TEST_DB_*`; SKIP se ausente; RECUSA (exit 1) se `TEST_DB_DATABASE` for igual
+    ao banco do app ou não contiver "test"; `test_with_rollback()` sempre reverte.
+    Factories conferidas contra o schema real — inclusive `users.password` (não `password_hash`).
+- **Para retomar**: instalar PHP 8.1+ e um MySQL/MariaDB local, rodar
+  `DB_DATABASE=novixfin_test php scripts/migrate.php up`, exportar `TEST_DB_*`, então
+  `php -l tests/run.php tests/helpers.php` e `php tests/run.php` (precisa sair 0) + o canário.
+- **B6 pulada** conforme instrução: aguarda design/mockup + revisão humana. Não foi inventada.
+
 ## FIX — "Carregar mais" não revelava + olho não trocava de ícone (2026-08-06)
 - **Report**: /reports/checkpoint_fix_load_more_e_olho.md — corrige a fatia `190c255`.
 - **Bug B (causa exata)**: `applyRowState()` fazia `svgEl.hidden = true`. **`SVGElement` NÃO
