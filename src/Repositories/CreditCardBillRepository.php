@@ -17,6 +17,59 @@ final class CreditCardBillRepository
     }
 
     /**
+     * FATURA DE DESTINO de uma compra, pelo DIA DE FECHAMENTO do cartão.
+     *
+     * Regra (Task B2): compra até o dia do fechamento pertence ao ciclo que
+     * fecha naquele mês; a partir do dia seguinte, vai para a fatura do mês
+     * seguinte — inclusive virando o ano.
+     *
+     *   Cartão fecha dia 5:  03/jan → 2026-01 · 20/jan → 2026-02 · 28/dez → 2027-01
+     *
+     * Antes desta função o destino era `$date->format('Y-m')` (o mês do
+     * calendário), então toda compra feita depois do fechamento caía numa
+     * fatura JÁ FECHADA. Ver tests/bill_cycle_test.php.
+     *
+     * O teto de 28 acompanha o mesmo teto que `findOrCreateBill()` usa ao
+     * gravar `closing_date` — se divergissem, a fatura poderia ter data de
+     * fechamento anterior à compra que ela contém. (Limitação pré-existente:
+     * cartão que fecha dia 29–31 é tratado como dia 28.)
+     *
+     * Sem `closing_day` cadastrado não há ciclo a aplicar: mantém o
+     * comportamento antigo (mês do calendário).
+     */
+    public static function billingMonthFor(DateTimeImmutable $date, ?int $closingDay): string
+    {
+        if ($closingDay === null || $closingDay <= 0) {
+            return $date->format('Y-m');
+        }
+
+        $effectiveClosingDay = min($closingDay, 28);
+
+        if ((int) $date->format('j') <= $effectiveClosingDay) {
+            return $date->format('Y-m');
+        }
+
+        // `first day of this month` antes do `+1 month` evita o overflow do PHP
+        // (31/jan + 1 mês = 03/mar). Mesma precaução do RecurringService.
+        return $date->modify('first day of this month')->modify('+1 month')->format('Y-m');
+    }
+
+    /** Mesma regra, lendo o `closing_day` do cartão. */
+    public function billingMonthForAccount(int $accountId, int $userId, DateTimeImmutable $date): string
+    {
+        $stmt = $this->connection->prepare(
+            'SELECT closing_day FROM accounts WHERE id = :account_id AND user_id = :user_id AND type = "credit"'
+        );
+        $stmt->execute(['account_id' => $accountId, 'user_id' => $userId]);
+        $closingDay = $stmt->fetchColumn();
+
+        return self::billingMonthFor(
+            $date,
+            ($closingDay === false || $closingDay === null) ? null : (int) $closingDay
+        );
+    }
+
+    /**
      * Busca ou cria uma fatura para o mês específico
      */
     public function findOrCreateBill(int $accountId, int $userId, string $billingMonth): array
