@@ -55,9 +55,13 @@ switch ($command) {
     case 'status':
         printStatus($pdo, $migrationsDir);
         break;
+    case 'down':
+        // Reverte UMA migração: a última aplicada, ou a informada por id.
+        rollbackLast($pdo, $migrationsDir, $argv[2] ?? null);
+        break;
     default:
         fwrite(STDERR, "Unknown command: {$command}\n");
-        fwrite(STDERR, "Usage: php scripts/migrate.php [up|status]\n");
+        fwrite(STDERR, "Usage: php scripts/migrate.php [up|status|down [<id>]]\n");
         exit(2);
 }
 
@@ -123,10 +127,16 @@ function runPending(PDO $pdo, string $dir): void
                 executeSqlFile($pdo, $path);
             } elseif ($ext === 'php') {
                 $runner = require $path;
-                if (!is_callable($runner)) {
-                    throw new RuntimeException("PHP migration {$name} did not return a callable.");
+                // Contrato antigo: a migração devolve UM callable (só up).
+                // Contrato novo (reversível): devolve ['up' => fn, 'down' => fn].
+                // Os dois seguem valendo — nenhuma migração existente muda.
+                if (is_array($runner) && isset($runner['up']) && is_callable($runner['up'])) {
+                    $runner['up']($pdo, 'logLine');
+                } elseif (is_callable($runner)) {
+                    $runner($pdo, 'logLine');
+                } else {
+                    throw new RuntimeException("PHP migration {$name} did not return a callable nor ['up'=>..].");
                 }
-                $runner($pdo, 'logLine');
             }
             $stmt = $pdo->prepare('INSERT INTO migrations (id, checksum) VALUES (:id, :checksum)');
             $stmt->execute([':id' => $name, ':checksum' => $checksum]);
@@ -139,6 +149,58 @@ function runPending(PDO $pdo, string $dir): void
         }
     }
     logLine("Done. {$count} migration(s) applied.");
+}
+
+/**
+ * Reverte UMA migração: a última aplicada, ou a informada por id.
+ *
+ * Só migrações PHP que declaram `down` são reversíveis — as .sql não têm como
+ * ser desfeitas automaticamente e são recusadas com mensagem explícita, em vez
+ * de fingir sucesso. Reverter apaga a linha em `migrations`, então o próximo
+ * `up` reaplica.
+ */
+function rollbackLast(PDO $pdo, string $dir, ?string $onlyId = null): void
+{
+    $stmt = $pdo->query('SELECT id FROM migrations ORDER BY applied_at DESC, id DESC');
+    $applied = $stmt ? $stmt->fetchAll(PDO::FETCH_COLUMN) : [];
+
+    if (!$applied) {
+        logLine('Nothing to roll back.');
+        return;
+    }
+
+    $target = $onlyId ?? $applied[0];
+    if (!in_array($target, $applied, true)) {
+        fwrite(STDERR, "Migration {$target} is not applied.\n");
+        exit(1);
+    }
+
+    $path = $dir . DIRECTORY_SEPARATOR . $target;
+    if (!is_file($path)) {
+        fwrite(STDERR, "Migration file missing: {$target}\n");
+        exit(1);
+    }
+
+    if (pathinfo($target, PATHINFO_EXTENSION) !== 'php') {
+        fwrite(STDERR, "Migration {$target} is .sql and has no down step. Roll back by hand.\n");
+        exit(1);
+    }
+
+    $runner = require $path;
+    if (!is_array($runner) || !isset($runner['down']) || !is_callable($runner['down'])) {
+        fwrite(STDERR, "Migration {$target} does not declare a down step.\n");
+        exit(1);
+    }
+
+    logHeader("Rolling back {$target}");
+    try {
+        $runner['down']($pdo, 'logLine');
+        $pdo->prepare('DELETE FROM migrations WHERE id = :id')->execute([':id' => $target]);
+        logLine('  ✓ rolled back');
+    } catch (Throwable $e) {
+        logLine('  ✗ FAILED: ' . $e->getMessage());
+        exit(1);
+    }
 }
 
 function printStatus(PDO $pdo, string $dir): void
