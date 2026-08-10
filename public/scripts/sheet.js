@@ -667,6 +667,9 @@
             if (!scope || !scope.contains(document.activeElement)) { return; }
             var k = ev.key.toLowerCase();
             if (k === 's') { ev.preventDefault(); snapshot(); }
+            // Ctrl+Shift+Z é o "refazer" do resto do mundo (e o único no
+            // macOS, onde Ctrl+Y não é convenção) — aceita os dois.
+            else if (k === 'z' && ev.shiftKey) { ev.preventDefault(); redo(); }
             else if (k === 'z') { ev.preventDefault(); undo(); }
             else if (k === 'y') { ev.preventDefault(); redo(); }
         });
