@@ -8,7 +8,7 @@ $sheet = sheets_get_or_create($pdo, $userId);
 
 $vstmt = $pdo->prepare('SELECT v.id, v.label, v.created_at FROM sheet_versions v
     INNER JOIN sheets s ON s.id = v.sheet_id AND s.user_id = :u
-    WHERE v.sheet_id = :sid ORDER BY v.created_at DESC LIMIT 50');
+    WHERE v.sheet_id = :sid ORDER BY v.created_at DESC, v.id DESC LIMIT 50');
 $vstmt->execute(['u' => $userId, 'sid' => (int) $sheet['id']]);
 
 sheets_json([

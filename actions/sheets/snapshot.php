@@ -25,7 +25,10 @@ try {
         ->execute(['s' => $sheetId, 'l' => $label, 'c' => $content]);
 
     // Poda: mantém os 50 mais recentes deste sheet.
-    $old = $pdo->prepare('SELECT id FROM sheet_versions WHERE sheet_id = :s ORDER BY created_at DESC LIMIT 500 OFFSET 50');
+    // `created_at` é TIMESTAMP (1 segundo): marcos criados no mesmo segundo
+    // EMPATAM, e sem desempate fica indefinido quem a poda mantém. `id` é
+    // AUTO_INCREMENT, então desempata por ordem real de criação.
+    $old = $pdo->prepare('SELECT id FROM sheet_versions WHERE sheet_id = :s ORDER BY created_at DESC, id DESC LIMIT 500 OFFSET 50');
     $old->execute(['s' => $sheetId]);
     $ids = $old->fetchAll(PDO::FETCH_COLUMN);
     if ($ids) {
@@ -40,6 +43,6 @@ try {
     sheets_json(['ok' => false, 'error' => 'Falha ao criar a versão.'], 500);
 }
 
-$vstmt = $pdo->prepare('SELECT id, label, created_at FROM sheet_versions WHERE sheet_id = :s ORDER BY created_at DESC LIMIT 50');
+$vstmt = $pdo->prepare('SELECT id, label, created_at FROM sheet_versions WHERE sheet_id = :s ORDER BY created_at DESC, id DESC LIMIT 50');
 $vstmt->execute(['s' => $sheetId]);
 sheets_json(['ok' => true, 'versions' => $vstmt->fetchAll(PDO::FETCH_ASSOC), 'saved_at' => date('H:i')]);
