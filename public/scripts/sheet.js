@@ -22,6 +22,9 @@
     var hf = null;
     var state = { id: 0, tabs: [], active: 0, versions: [] };
     var sel = { r: 0, c: 0 };
+    // Ponta oposta da seleção em bloco. Igual a `sel` quando é uma célula só.
+    var selEnd = { r: 0, c: 0 };
+    var dragging = null; // 'select' | 'fill' enquanto o mouse está pressionado
     var undoStack = [];
     var redoStack = [];
     var saveTimer = null;
@@ -41,6 +44,57 @@
     }
 
     function refOf(r, c) { return colName(c) + (r + 1); }
+
+    /** Índice de coluna a partir das letras ("A"→0, "AA"→26). */
+    function colIndex(letters) {
+        var n = 0;
+        for (var i = 0; i < letters.length; i += 1) {
+            n = n * 26 + (letters.charCodeAt(i) - 64);
+        }
+        return n - 1;
+    }
+
+    /** Retângulo normalizado da seleção atual. */
+    function normRange() {
+        return {
+            r1: Math.min(sel.r, selEnd.r),
+            r2: Math.max(sel.r, selEnd.r),
+            c1: Math.min(sel.c, selEnd.c),
+            c2: Math.max(sel.c, selEnd.c)
+        };
+    }
+
+    function isMultiSelection() {
+        var g = normRange();
+        return g.r1 !== g.r2 || g.c1 !== g.c2;
+    }
+
+    /**
+     * Desloca as referências relativas de uma fórmula em (dr, dc) — o que o
+     * Excel/Sheets fazem ao copiar ou arrastar. `$` trava a parte absoluta.
+     * Limitação conhecida: opera no texto todo, então uma referência escrita
+     * DENTRO de uma string literal também seria deslocada.
+     */
+    function shiftFormula(formula, dr, dc) {
+        if (dr === 0 && dc === 0) { return formula; }
+        return formula.replace(
+            /(\$?)([A-Z]{1,3})(\$?)(\d{1,5})/g,
+            function (match, absCol, letters, absRow, digits) {
+                var c = colIndex(letters);
+                var r = parseInt(digits, 10) - 1;
+                if (absCol !== '$') { c += dc; }
+                if (absRow !== '$') { r += dr; }
+                if (r < 0 || c < 0) { return '#REF!'; }
+                return absCol + colName(c) + absRow + (r + 1);
+            }
+        );
+    }
+
+    /** Move a fórmula/valor de origem para o destino, ajustando referências. */
+    function translated(raw, dr, dc) {
+        if (typeof raw !== 'string' || raw.charAt(0) !== '=') { return raw; }
+        return shiftFormula(raw, dr, dc);
+    }
 
     function activeTab() { return state.tabs[state.active] || null; }
 
@@ -161,6 +215,8 @@
     function renderGrid() {
         if (!el.grid) { return; }
         var frag = document.createDocumentFragment();
+        var g = normRange();
+        var multi = isMultiSelection();
         el.grid.style.gridTemplateColumns = '46px repeat(' + COLS + ', minmax(96px, 1fr))';
 
         var corner = document.createElement('div');
@@ -169,14 +225,14 @@
 
         for (var c = 0; c < COLS; c += 1) {
             var ch = document.createElement('div');
-            ch.className = 'ph' + (c === sel.c ? ' on' : '');
+            ch.className = 'ph' + (c >= g.c1 && c <= g.c2 ? ' on' : '');
             ch.textContent = colName(c);
             frag.appendChild(ch);
         }
 
         for (var r = 0; r < ROWS; r += 1) {
             var rh = document.createElement('div');
-            rh.className = 'ph rh' + (r === sel.r ? ' on' : '');
+            rh.className = 'ph rh' + (r >= g.r1 && r <= g.r2 ? ' on' : '');
             rh.textContent = String(r + 1);
             frag.appendChild(rh);
 
@@ -188,11 +244,23 @@
                 if (d.neg) { cls += ' neg'; }
                 if (d.err) { cls += ' err'; }
                 if (rawAt(r, c2).charAt(0) === '=') { cls += ' fx'; }
-                if (r === sel.r && c2 === sel.c) { cls += ' sel'; }
+                var inBlock = r >= g.r1 && r <= g.r2 && c2 >= g.c1 && c2 <= g.c2;
+                if (inBlock && multi) { cls += ' blk'; }
+                if (r === sel.r && c2 === sel.c) { cls += ' sel' + (multi ? ' anchor' : ''); }
                 cell.className = cls;
                 cell.dataset.r = String(r);
                 cell.dataset.c = String(c2);
                 cell.textContent = d.text;
+
+                // Alça de preenchimento: no canto inferior-direito da seleção.
+                if (r === g.r2 && c2 === g.c2) {
+                    var handle = document.createElement('span');
+                    handle.className = 'sheet-fill';
+                    handle.setAttribute('data-fill-handle', '');
+                    handle.title = 'Arraste para preencher (ajusta as referências)';
+                    cell.appendChild(handle);
+                }
+
                 frag.appendChild(cell);
             }
         }
@@ -200,6 +268,135 @@
         el.grid.innerHTML = '';
         el.grid.appendChild(frag);
         syncFormulaBar();
+    }
+
+    // ------------------------------------------------- copiar / colar / fill
+
+    /** Bloco selecionado como TSV, com o que foi DIGITADO (fórmula inclusa). */
+    function selectionAsTsv() {
+        var g = normRange();
+        var rows = [];
+        for (var r = g.r1; r <= g.r2; r += 1) {
+            var line = [];
+            for (var c = g.c1; c <= g.c2; c += 1) {
+                line.push(rawAt(r, c));
+            }
+            rows.push(line.join('\t'));
+        }
+        return rows.join('\n');
+    }
+
+    function copySelection() {
+        var tsv = selectionAsTsv();
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(tsv).then(function () {
+                status(isMultiSelection() ? 'Bloco copiado' : 'Célula copiada', false);
+            }, function () {
+                status('Não foi possível copiar', false);
+            });
+        }
+        return tsv;
+    }
+
+    /**
+     * Cola TSV a partir da célula selecionada. Serve para bloco copiado daqui
+     * e para TSV colado de fora (Excel/Sheets/planilha do Google).
+     * `origin` != null significa cópia interna: as fórmulas são deslocadas.
+     */
+    function pasteTsv(text, origin) {
+        if (typeof text !== 'string' || text === '') { return; }
+        var lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+        if (lines.length && lines[lines.length - 1] === '') { lines.pop(); }
+        if (!lines.length) { return; }
+
+        pushUndo();
+
+        var baseR = Math.min(sel.r, selEnd.r);
+        var baseC = Math.min(sel.c, selEnd.c);
+        var tab = activeTab();
+        if (!tab) { return; }
+
+        for (var i = 0; i < lines.length; i += 1) {
+            var cols = lines[i].split('\t');
+            for (var j = 0; j < cols.length; j += 1) {
+                var r = baseR + i;
+                var c = baseC + j;
+                if (r >= ROWS || c >= COLS) { continue; }
+                var value = cols[j];
+                if (origin) {
+                    value = translated(value, r - (origin.r + i), c - (origin.c + j));
+                }
+                var ref = refOf(r, c);
+                if (value === '') { delete tab.cells[ref]; } else { tab.cells[ref] = value; }
+            }
+        }
+
+        // Muitas células de uma vez: reconstruir a engine é mais barato e mais
+        // seguro do que N chamadas de setCellContents.
+        rebuildEngine();
+        selEnd = {
+            r: Math.min(ROWS - 1, baseR + lines.length - 1),
+            c: Math.min(COLS - 1, baseC + lines[0].split('\t').length - 1)
+        };
+        sel = { r: baseR, c: baseC };
+        renderGrid();
+        scheduleSave();
+        status('Bloco colado', false);
+    }
+
+    /** Delete/Backspace apaga o bloco inteiro, não só a célula-âncora. */
+    function clearSelection() {
+        if (!isMultiSelection()) {
+            setCell(sel.r, sel.c, '');
+            return;
+        }
+        var g = normRange();
+        var tab = activeTab();
+        if (!tab) { return; }
+        pushUndo();
+        for (var r = g.r1; r <= g.r2; r += 1) {
+            for (var c = g.c1; c <= g.c2; c += 1) {
+                delete tab.cells[refOf(r, c)];
+            }
+        }
+        rebuildEngine();
+        renderGrid();
+        scheduleSave();
+    }
+
+    /** Preenche o retângulo arrastado a partir do bloco de origem. */
+    function fillTo(target) {
+        var src = normRange();
+        var r2 = Math.max(src.r2, target.r);
+        var c2 = Math.max(src.c2, target.c);
+        if (r2 === src.r2 && c2 === src.c2) { return; }
+
+        pushUndo();
+        var tab = activeTab();
+        var srcRows = src.r2 - src.r1 + 1;
+        var srcCols = src.c2 - src.c1 + 1;
+
+        for (var r = src.r1; r <= r2; r += 1) {
+            for (var c = src.c1; c <= c2; c += 1) {
+                var inSource = r <= src.r2 && c <= src.c2;
+                if (inSource) { continue; }
+                // Célula-modelo correspondente dentro do bloco de origem.
+                var mr = src.r1 + ((r - src.r1) % srcRows);
+                var mc = src.c1 + ((c - src.c1) % srcCols);
+                var model = tab.cells[refOf(mr, mc)] || '';
+                var ref = refOf(r, c);
+                if (model === '') {
+                    delete tab.cells[ref];
+                } else {
+                    tab.cells[ref] = translated(model, r - mr, c - mc);
+                }
+            }
+        }
+
+        rebuildEngine();
+        selEnd = { r: r2, c: c2 };
+        renderGrid();
+        scheduleSave();
     }
 
     function syncFormulaBar() {
@@ -471,9 +668,17 @@
     function move(dr, dc) {
         sel.r = Math.min(ROWS - 1, Math.max(0, sel.r + dr));
         sel.c = Math.min(COLS - 1, Math.max(0, sel.c + dc));
+        selEnd = { r: sel.r, c: sel.c }; // mover sem Shift desfaz o bloco
         renderGrid();
         var cell = el.grid.querySelector('.pc.sel');
         if (cell) { cell.scrollIntoView({ block: 'nearest', inline: 'nearest' }); }
+    }
+
+    /** Estende a seleção (Shift+setas): a âncora fica parada. */
+    function extend(dr, dc) {
+        selEnd.r = Math.min(ROWS - 1, Math.max(0, selEnd.r + dr));
+        selEnd.c = Math.min(COLS - 1, Math.max(0, selEnd.c + dc));
+        renderGrid();
     }
 
     // ------------------------------------------------------- persistência
@@ -579,11 +784,54 @@
         el.grid.setAttribute('tabindex', '0');
 
         el.grid.addEventListener('mousedown', function (ev) {
+            // Alça de preenchimento tem prioridade sobre a seleção.
+            if (ev.target.hasAttribute && ev.target.hasAttribute('data-fill-handle')) {
+                ev.preventDefault();
+                dragging = 'fill';
+                return;
+            }
             var cell = ev.target.closest ? ev.target.closest('.pc') : null;
             if (!cell || !el.grid.contains(cell)) { return; }
             if (editing) { closeEditor(true); }
-            sel = { r: parseInt(cell.dataset.r, 10), c: parseInt(cell.dataset.c, 10) };
+
+            var r = parseInt(cell.dataset.r, 10);
+            var c = parseInt(cell.dataset.c, 10);
+
+            if (ev.shiftKey) {
+                selEnd = { r: r, c: c };       // Shift+clique estende
+            } else {
+                sel = { r: r, c: c };
+                selEnd = { r: r, c: c };
+                dragging = 'select';           // arrastar seleciona o bloco
+            }
             renderGrid();
+        });
+
+        // Arrastar: estende a seleção ou a alça de preenchimento.
+        el.grid.addEventListener('mouseover', function (ev) {
+            if (!dragging) { return; }
+            var cell = ev.target.closest ? ev.target.closest('.pc') : null;
+            if (!cell) { return; }
+            var r = parseInt(cell.dataset.r, 10);
+            var c = parseInt(cell.dataset.c, 10);
+            if (dragging === 'select') {
+                selEnd = { r: r, c: c };
+                renderGrid();
+            } else if (dragging === 'fill') {
+                el.grid.setAttribute('data-fill-target', r + ':' + c);
+            }
+        });
+
+        document.addEventListener('mouseup', function () {
+            if (dragging === 'fill') {
+                var target = el.grid.getAttribute('data-fill-target');
+                if (target) {
+                    var parts = target.split(':');
+                    fillTo({ r: parseInt(parts[0], 10), c: parseInt(parts[1], 10) });
+                    el.grid.removeAttribute('data-fill-target');
+                }
+            }
+            dragging = null;
         });
 
         el.grid.addEventListener('dblclick', function (ev) {
@@ -592,16 +840,18 @@
 
         el.grid.addEventListener('keydown', function (ev) {
             if (editing) { return; }
+            // Shift+setas estende o bloco em vez de mover a seleção.
+            var step = ev.shiftKey ? extend : move;
             switch (ev.key) {
-                case 'ArrowUp': ev.preventDefault(); move(-1, 0); return;
-                case 'ArrowDown': ev.preventDefault(); move(1, 0); return;
-                case 'ArrowLeft': ev.preventDefault(); move(0, -1); return;
-                case 'ArrowRight': ev.preventDefault(); move(0, 1); return;
+                case 'ArrowUp': ev.preventDefault(); step(-1, 0); return;
+                case 'ArrowDown': ev.preventDefault(); step(1, 0); return;
+                case 'ArrowLeft': ev.preventDefault(); step(0, -1); return;
+                case 'ArrowRight': ev.preventDefault(); step(0, 1); return;
                 case 'Tab': ev.preventDefault(); move(0, ev.shiftKey ? -1 : 1); return;
                 case 'Enter': ev.preventDefault(); openEditor(); return;
                 case 'F2': ev.preventDefault(); openEditor(); return;
                 case 'Delete':
-                case 'Backspace': ev.preventDefault(); setCell(sel.r, sel.c, ''); return;
+                case 'Backspace': ev.preventDefault(); clearSelection(); return;
                 default: break;
             }
             if (ev.ctrlKey || ev.metaKey || ev.altKey) { return; }
@@ -659,6 +909,33 @@
                 scheduleSave();
             });
         }
+
+        // ---- área de transferência ----
+        // Usa os eventos copy/paste (e não só Ctrl+C/V) para que o TSV colado
+        // de fora — Excel, Google Sheets — chegue pelo clipboardData.
+        var lastCopyOrigin = null;
+
+        document.addEventListener('copy', function (ev) {
+            var scope = document.querySelector('.sheet-screen');
+            if (!scope || !scope.contains(document.activeElement)) { return; }
+            if (editing) { return; }
+            ev.preventDefault();
+            var g = normRange();
+            lastCopyOrigin = { r: g.r1, c: g.c1 };
+            var tsv = selectionAsTsv();
+            if (ev.clipboardData) { ev.clipboardData.setData('text/plain', tsv); }
+            status(isMultiSelection() ? 'Bloco copiado' : 'Célula copiada', false);
+        });
+
+        document.addEventListener('paste', function (ev) {
+            var scope = document.querySelector('.sheet-screen');
+            if (!scope || !scope.contains(document.activeElement)) { return; }
+            if (editing) { return; }
+            ev.preventDefault();
+            var text = ev.clipboardData ? ev.clipboardData.getData('text/plain') : '';
+            // Cópia interna desloca as referências; TSV de fora entra literal.
+            pasteTsv(text, lastCopyOrigin);
+        });
 
         // Atalhos globais só valem quando o foco está dentro da planilha.
         document.addEventListener('keydown', function (ev) {
