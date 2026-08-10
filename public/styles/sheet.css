@@ -60,6 +60,15 @@
 .pt:hover { color:var(--ink); }
 .pt.on { color:var(--accent-text); font-weight:700; background:color-mix(in srgb, var(--accent) 10%, var(--surface));
   border-color:color-mix(in srgb, var(--accent) 38%, transparent); box-shadow:inset 0 -2px 0 var(--accent); }
+/* Renomear aba in loco: mesma caixa da aba, para o texto não "pular". */
+.pt-rename { height:32px; padding:0 11px; flex:none; width:130px; font-size:12.5px; font-weight:600;
+  color:var(--ink); background:var(--surface); border:1px solid var(--accent); border-bottom:none;
+  border-radius:var(--r-chip); clip-path:var(--cut); outline:none; }
+/* Fecha a aba ativa. Só aparece quando há mais de uma. */
+.pt-x { display:inline-grid; place-items:center; width:16px; height:16px; flex:none; margin-left:1px;
+  font-size:14px; line-height:1; color:var(--muted); border-radius:var(--r-chip); cursor:pointer; }
+.pt-x:hover { color:var(--neg); background:color-mix(in srgb, var(--neg) 16%, transparent); }
+
 .pt-add { width:32px; height:32px; flex:none; display:grid; place-items:center; margin-right:8px; color:var(--muted);
   border:1px solid var(--line-soft); border-bottom:none; border-radius:var(--r-chip); clip-path:var(--cut);
   background:var(--surface); cursor:pointer; }
@@ -82,6 +91,8 @@
   .sheet-bar { gap:8px; }
   .ptool, .pt-add { width:44px; height:44px; }
   .pt { height:38px; padding:0 14px; }
+  .pt-rename { height:38px; font-size:16px; }
+  .pt-x { width:24px; height:24px; font-size:17px; }
   .sheet-ref { min-width:58px; height:38px; }
   .sheet-fxin { height:38px; font-size:16px; } /* 16px evita zoom no iOS */
   .sheet-hist-menu { width:min(302px, 86vw); }

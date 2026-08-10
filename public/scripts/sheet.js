@@ -207,6 +207,83 @@
         if (el.fx) { el.fx.value = rawAt(sel.r, sel.c); }
     }
 
+    function switchTab(i) {
+        if (i === state.active) { return; }
+        closeEditor(false);
+        state.active = i;
+        sel = { r: 0, c: 0 };
+        renderTabs();
+        renderGrid();
+    }
+
+    /**
+     * Renomear in loco. O nome da aba é o identificador da sheet na engine, e
+     * fórmulas entre abas ('Página 2'!A1) dependem dele — então renomear
+     * reconstrói a engine, e um nome duplicado é recusado (viraria ambiguidade).
+     */
+    function startRename(index, button) {
+        var input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'pt-rename';
+        input.value = state.tabs[index].name;
+        input.setAttribute('aria-label', 'Renomear aba');
+        button.replaceWith(input);
+        input.focus();
+        input.select();
+
+        var done = false;
+        function commit(save) {
+            if (done) { return; }
+            done = true;
+            var name = input.value.trim().slice(0, 60);
+            var current = state.tabs[index].name;
+
+            if (!save || name === '' || name === current) {
+                renderTabs();
+                return;
+            }
+            var clash = state.tabs.some(function (t, j) { return j !== index && t.name === name; });
+            if (clash) {
+                status('Já existe uma aba com esse nome', false);
+                renderTabs();
+                return;
+            }
+            pushUndo();
+            state.tabs[index].name = name;
+            rebuildEngine(); // a engine indexa sheets por nome
+            renderTabs();
+            renderGrid();
+            scheduleSave();
+        }
+
+        input.addEventListener('keydown', function (ev) {
+            if (ev.key === 'Enter') { ev.preventDefault(); commit(true); }
+            else if (ev.key === 'Escape') { ev.preventDefault(); commit(false); }
+            ev.stopPropagation();
+        });
+        input.addEventListener('blur', function () { commit(true); });
+    }
+
+    function deleteTab(index) {
+        if (state.tabs.length <= 1) {
+            status('A planilha precisa de pelo menos uma aba', false);
+            return;
+        }
+        var name = state.tabs[index].name;
+        if (!window.confirm('Excluir a aba "' + name + '" e tudo que está nela?\n\nNão dá para desfazer depois de salvar.')) {
+            return;
+        }
+        pushUndo();
+        state.tabs.splice(index, 1);
+        if (state.active >= state.tabs.length) { state.active = state.tabs.length - 1; }
+        else if (index < state.active) { state.active -= 1; }
+        sel = { r: 0, c: 0 };
+        rebuildEngine();
+        renderTabs();
+        renderGrid();
+        scheduleSave();
+    }
+
     function renderTabs() {
         if (!el.tabs) { return; }
         el.tabs.innerHTML = '';
@@ -214,15 +291,33 @@
             var b = document.createElement('button');
             b.type = 'button';
             b.className = 'pt' + (i === state.active ? ' on' : '');
-            b.textContent = tab.name;
-            b.addEventListener('click', function () {
-                if (i === state.active) { return; }
-                closeEditor(false);
-                state.active = i;
-                sel = { r: 0, c: 0 };
-                renderTabs();
-                renderGrid();
+            b.title = 'Clique para abrir · duplo clique para renomear';
+
+            var label = document.createElement('span');
+            label.textContent = tab.name;
+            b.appendChild(label);
+
+            // O × só aparece na aba ativa, e só se houver mais de uma.
+            if (i === state.active && state.tabs.length > 1) {
+                var close = document.createElement('span');
+                close.className = 'pt-x';
+                close.textContent = '×';
+                close.setAttribute('role', 'button');
+                close.setAttribute('aria-label', 'Excluir aba ' + tab.name);
+                close.addEventListener('click', function (ev) {
+                    ev.stopPropagation();
+                    deleteTab(i);
+                });
+                b.appendChild(close);
+            }
+
+            b.addEventListener('click', function () { switchTab(i); });
+            b.addEventListener('dblclick', function (ev) {
+                ev.preventDefault();
+                if (i !== state.active) { switchTab(i); }
+                startRename(i, b);
             });
+
             el.tabs.appendChild(b);
         });
     }
