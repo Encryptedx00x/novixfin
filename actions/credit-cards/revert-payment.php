@@ -77,94 +77,98 @@ $stmt->execute([
     'status' => $newStatus,
 ]);
 
-// v3 Batch E: revert the auto-generated payment transactions too.
+// ---------------------------------------------------------------------------
+// Task B5: a reversão é por `bill_payments`, não mais por prefixo de descrição.
 //
-// `actions/credit-cards/pay-bill.php` creates three kinds of helper
-// transactions at payment time:
-//   1. Per-debit-account expense tx -> description `Pagamento de fatura - <cardName>[%]`, bill_id NULL.
-//   2. Bill-as-expense tx           -> description `Fatura do cartão - <cardName>`,        bill_id == $billId.
-//   3. Limit-as-income tx            -> description `Limite de crédito - <cardName>`,        bill_id NULL, type 'income'.
+// O caminho antigo redescobria as transações auxiliares casando
+// `description LIKE 'Pagamento de fatura - <nome do cartão>%'` + a data de
+// pagamento. Bastava RENOMEAR o cartão entre pagar e reverter para o casamento
+// falhar: as transações ficavam órfãs e o saldo não voltava. Agora cada origem
+// gravou seu `transaction_id`, então a reversão é exata.
 //
-// We identify them by description-prefix match + matching the payment date
-// (paid_at) + the bill id where applicable. We then call TransactionRepository::delete
-// for each so that account balances and bill totals are reverted cleanly
-// (delete() already accounts for is_effective balance changes & bill links).
-//
-// Robustness:
-//   - Legacy bills (paid_at NULL): cannot reliably date-match the helper tx —
-//     we skip auto-reversion and flash a manual-cleanup hint (old behaviour).
-//   - The handler also defends itself against accidental user-created tx
-//     with the same description by ALSO restricting to the paid_at date.
+// Pagamentos anteriores a esta mudança não têm linha em `bill_payments`; para
+// eles mantemos o casamento por descrição como FALLBACK, para não deixar
+// fatura antiga irreversível.
+// ---------------------------------------------------------------------------
 
 $revertedCount = 0;
+$transactionRepository = new TransactionRepository($pdo);
+// Definido aqui porque as mensagens no fim do arquivo também o consultam.
 $paidAt = $bill['paid_at'] ?? null;
 
-if (!empty($paidAt)) {
-    // Nome do cartão para construir a busca por descrição.
-    $stmt = $pdo->prepare('SELECT name FROM accounts WHERE id = :account_id AND user_id = :user_id');
-    $stmt->execute(['account_id' => (int) $bill['account_id'], 'user_id' => $userId]);
-    $cardRow = $stmt->fetch(PDO::FETCH_ASSOC);
-    $cardName = $cardRow ? (string) $cardRow['name'] : '';
+$sourcesStmt = $pdo->prepare(
+    'SELECT id, transaction_id FROM bill_payments WHERE bill_id = :bill_id AND user_id = :user_id'
+);
+$sourcesStmt->execute(['bill_id' => $billId, 'user_id' => $userId]);
+$paymentSources = $sourcesStmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Escape underscores/wildcards in LIKE-safe card name.
-    $cardNameLike = $cardName !== ''
-        ? addcslashes($cardName, '%_\\')
-        : '';
-
-    $transactionRepository = new TransactionRepository($pdo);
-
-    // Helper to find and revert matching transactions.
-    $findAndRevert = static function (string $likeDesc, string $type, bool $requiresBillLink) use (
-        $pdo, $userId, $billId, $paidAt, $cardNameLike, $transactionRepository, &$revertedCount
-    ): void {
-        if ($cardNameLike === '') {
-            return;
+if ($paymentSources) {
+    foreach ($paymentSources as $source) {
+        // Origem 'external' não tem transação para reverter.
+        if (empty($source['transaction_id'])) {
+            continue;
         }
-        $pattern = $likeDesc . $cardNameLike . '%';
-
-        $sql = 'SELECT id FROM transactions WHERE user_id = :user_id AND type = :type AND description LIKE :pattern AND DATE(transaction_date) = DATE(:paid_at)';
-        if ($requiresBillLink) {
-            $sql .= ' AND bill_id = :bill_id';
-        } else {
-            $sql .= ' AND bill_id IS NULL';
+        try {
+            $transactionRepository->delete((int) $source['transaction_id'], $userId);
+            $revertedCount++;
+        } catch (Throwable $e) {
+            error_log('Revert payment: falha ao remover transação ' . $source['transaction_id'] . ': ' . $e->getMessage());
         }
-
-        $stmt = $pdo->prepare($sql);
-        $params = [
-            ':user_id' => $userId,
-            ':type' => $type,
-            ':pattern' => $pattern,
-            ':paid_at' => $paidAt,
-        ];
-        if ($requiresBillLink) {
-            $params[':bill_id'] = $billId;
-        }
-        $stmt->execute($params);
-        foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $txId) {
-            try {
-                $transactionRepository->delete((int) $txId, $userId);
-                $revertedCount++;
-            } catch (Throwable $e) {
-                error_log('Revert payment: failed to delete auto-tx ' . $txId . ': ' . $e->getMessage());
-            }
-        }
-    };
-
-    // 1) bill-as-expense (linked to the bill via bill_id)
-    $findAndRevert('Fatura do cartão - ', 'expense', true);
-    // 2) per-debit-account expense (bill_id NULL)
-    $findAndRevert('Pagamento de fatura - ', 'expense', false);
-    // 3) limit-as-income (bill_id NULL, type income)
-    $findAndRevert('Limite de crédito - ', 'income', false);
-
-    // Refresh the bill total after the bill-linked auto-expense was deleted
-    // (delete() already calls updateBillTotal for the bill_id link, but
-    // additional refresh keeps the totals in sync after all reverts).
-    try {
-        $billRepository->updateBillTotal($billId);
-    } catch (Throwable $e) {
-        error_log('Revert payment: failed to refresh bill total: ' . $e->getMessage());
     }
+
+    $pdo->prepare('DELETE FROM bill_payments WHERE bill_id = :bill_id AND user_id = :user_id')
+        ->execute(['bill_id' => $billId, 'user_id' => $userId]);
+} else {
+    // ---- FALLBACK: pagamentos gravados antes da Task B5 ----
+    if (!empty($paidAt)) {
+        $stmt = $pdo->prepare('SELECT name FROM accounts WHERE id = :account_id AND user_id = :user_id');
+        $stmt->execute(['account_id' => (int) $bill['account_id'], 'user_id' => $userId]);
+        $cardRow = $stmt->fetch(PDO::FETCH_ASSOC);
+        $cardNameLike = $cardRow ? addcslashes((string) $cardRow['name'], '%_\\') : '';
+
+        if ($cardNameLike !== '') {
+            $findAndRevert = static function (string $likeDesc, string $type, bool $requiresBillLink) use (
+                $pdo, $userId, $billId, $paidAt, $cardNameLike, $transactionRepository, &$revertedCount
+            ): void {
+                $sql = 'SELECT id FROM transactions
+                         WHERE user_id = :user_id AND type = :type
+                           AND description LIKE :pattern
+                           AND DATE(transaction_date) = DATE(:paid_at)'
+                    . ($requiresBillLink ? ' AND bill_id = :bill_id' : ' AND bill_id IS NULL');
+
+                $stmt = $pdo->prepare($sql);
+                $params = [
+                    ':user_id' => $userId,
+                    ':type' => $type,
+                    ':pattern' => $likeDesc . $cardNameLike . '%',
+                    ':paid_at' => $paidAt,
+                ];
+                if ($requiresBillLink) {
+                    $params[':bill_id'] = $billId;
+                }
+                $stmt->execute($params);
+                foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $txId) {
+                    try {
+                        $transactionRepository->delete((int) $txId, $userId);
+                        $revertedCount++;
+                    } catch (Throwable $e) {
+                        error_log('Revert payment (legado): falha ao remover ' . $txId . ': ' . $e->getMessage());
+                    }
+                }
+            };
+
+            $findAndRevert('Fatura do cartão - ', 'expense', true);
+            $findAndRevert('Pagamento de fatura - ', 'expense', false);
+            $findAndRevert('Limite de crédito - ', 'income', false);
+        }
+    }
+}
+
+// Recalcula o total da fatura depois das remoções.
+try {
+    $billRepository->updateBillTotal($billId);
+} catch (Throwable $e) {
+    error_log('Revert payment: falha ao recalcular o total da fatura: ' . $e->getMessage());
 }
 
 if ($revertedCount > 0) {
