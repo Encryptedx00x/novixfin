@@ -8,7 +8,11 @@
 - PARE NO PRIMEIRO ERRO: se uma task falhar qualquer critério, NÃO contorne, NÃO avance.
   Deixe o repo no último estado bom (a task falha fica não-commitada ou revertida), escreva
   no progress.md o que falhou e por quê, e ENCERRE a fila.
-- NUNCA faça deploy. Proibido tar/scp/rsync/ssh para produção. Só commit local.
+  ## DEPLOY (política atualizada — ambiente de teste, dados fictícios)
+- Durante a fila: NÃO deploye por task. Commite cada task no repo (pontos de recuperação).
+- Somente na Task C1 (regressão final), APÓS `php tests/run.php` passar inteiro: faça UM
+  deploy do estado final para o servidor de teste. Se a suíte falhar, NÃO deploye.
+- Se qualquer task PAROU a fila por erro antes da C1, NÃO deploye — deixe no repo para revisão.
 - PHP 8.1+, PDO, CSRF, sem build step. Invariantes intocados (saldo, atomicidade, pay/revert,
   recorrência) salvo onde a task manda mudar — e aí com teste cobrindo.
 - Migração: sempre idempotente e REVERSÍVEL (com down/rollback). Nunca destrutiva sem dump.
@@ -137,6 +141,36 @@
 ---
 
 ## RESUMO DE EXECUÇÃO (o agente preenche ao terminar)
+
+### Execução 2026-08-09 — a fila RODOU INTEIRA até a C1
+- **Última task concluída: C1** (relatório). 12 tasks concluídas, B6 pulada por instrução.
+- **A fila NÃO parou por erro.** Suíte final: **13 arquivos, 0 falhas, exit 0**.
+- **Ambiente**: o bloqueio de 2026-08-08 (sem PHP) foi resolvido com **Docker** —
+  `php:8.3-cli` + `pdo_mysql` (8.3.33) e `mariadb:11.8` (11.8.8), com o `.env` do repo
+  **neutralizado dentro do container** (o `includes/env.php` sobrepõe o ambiente real,
+  então sem isso a suíte alcançaria PRODUÇÃO).
+- **Decisão sua na 0.1**: alvo **PHP 7.4 aposentado** (contradizia o "PHP 8.1+" destas
+  próprias REGRAS GLOBAIS e o AGENTS.md; produção é 8.3.32). O scan agora só exige
+  `catch` com variável.
+- **Hashes**: 0.1 `269e2dc` · 0.2 `9bcd1ae` · A1 `c5c88ff` · A2 `27935f2` · A3 `0ad69ee` ·
+  A4 `0e41d67` · A5 `a131716` · B1 `ae9e523` · B2 `07cc651` · B3 `e77285e` · B4 `f22b1d9` ·
+  B5 `fbf7af3` · B7 `0d4a01e`.
+- **DEPLOY NÃO FEITO**, e não por cautela genérica: **não existe alvo de deploy no repo**
+  (sem `git remote`, sem script/pipeline, sem ssh config). O único host documentado é a
+  **VPS de produção**, e o alvo pedido é o **servidor de teste**. Preciso do host/credencial
+  ou de um script de deploy para fechar a C1.
+- **⚠️ Achado grave NÃO corrigido**: `public/dashboard.php:691` usa `COALESCE(title, name)`
+  em `goals`; o baseline v3 só cria `title` → **o dashboard fatala em instalação nova**.
+  Produção escapa por ainda ter a coluna legada. **Afeta o deploy.**
+- **Aguardando humano**: B6 (design), revisão visual de A2/A3/A5/B7 nos 15 temas, decisão
+  sobre `register_limit_as_income` (ficou órfão), e versionar seu `docker-compose.test.yml`.
+- Relatório completo: `reports/overnight_2026-08-09.md`.
+
+---
+
+<details>
+<summary>Execução anterior (2026-08-08) — parou na Task 0.1 por falta de PHP</summary>
+
 - **Última task concluída: NENHUMA.** A fila parou na primeira task (0.1).
 - **Fila parou? SIM — na Task 0.1**, por impossibilidade de ambiente, não por bug:
   1. **Não há PHP nesta máquina** (`which php` vazio; PowerShell: "php NOT on PATH";
@@ -160,3 +194,4 @@
     que precede a B5 e afeta faturas já pagas.
 - **Suíte de testes: não executada** (sem PHP). 0 passa / 0 falha.
 - Relatório completo: `reports/overnight_2026-08-08.md`. **Nenhum deploy.**
+</details>
