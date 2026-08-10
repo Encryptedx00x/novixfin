@@ -26,25 +26,10 @@ $creditCards = $stmt->fetchAll();
 // Busca configurações de transações para cada cartão
 $settingsByAccount = [];
 try {
-    // Verifica se a tabela existe, se não, cria
-    $checkTable = $pdo->query("SHOW TABLES LIKE 'credit_card_transaction_settings'");
-    if ($checkTable->rowCount() == 0) {
-        $pdo->exec('
-            CREATE TABLE `credit_card_transaction_settings` (
-              `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-              `account_id` INT UNSIGNED NOT NULL,
-              `user_id` INT UNSIGNED NOT NULL,
-              `register_bill_as_expense` BOOLEAN DEFAULT TRUE,
-              `register_limit_as_income` BOOLEAN DEFAULT FALSE,
-              `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-              `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-              UNIQUE KEY `unique_account_user` (`account_id`, `user_id`),
-              INDEX `idx_user_id` (`user_id`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-        ');
-    }
-    
-    
+    // Task B7: removido o CREATE TABLE em runtime que existia aqui. A tabela é
+    // criada pela migração canônica (20240101000000_baseline_v3.sql), que traz
+    // as FKs — a versão criada em runtime NÃO tinha FK nenhuma e mascarava um
+    // deploy sem migração. Requisito de deploy: php scripts/migrate.php up.
     $stmt = $pdo->prepare('
         SELECT account_id, register_bill_as_expense, register_limit_as_income 
         FROM credit_card_transaction_settings 
@@ -124,6 +109,126 @@ foreach ($creditCards as $card) {
         'bills' => $bills,
         'current_bill' => $currentBill,
     ];
+}
+
+/**
+ * Task B7 — O QUE COMPÕE A FATURA.
+ *
+ * Até aqui a tela mostrava só o total: era impossível auditar por que se devia
+ * aquele valor. Agora cada fatura lista as transações vinculadas a ela por
+ * `bill_id` — a mesma fonte que `updateBillTotal()` soma.
+ *
+ * @return array<int, array<string, mixed>>
+ */
+function novix_bill_transactions(PDO $pdo, int $billId, int $userId): array
+{
+    $stmt = $pdo->prepare('
+        SELECT t.id, t.description, t.amount, t.transaction_date, t.type, t.is_effective,
+               t.installment_index, t.recurrence_total_occurrences,
+               c.name AS category_name
+          FROM transactions t
+          LEFT JOIN categories c ON c.id = t.category_id
+         WHERE t.bill_id = :bill_id AND t.user_id = :user_id
+         ORDER BY t.transaction_date ASC, t.id ASC
+    ');
+    $stmt->execute(['bill_id' => $billId, 'user_id' => $userId]);
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+}
+
+/**
+ * Task B7 — DE ONDE SAIU O DINHEIRO (cartão ↔ banco).
+ *
+ * O schema não liga cartão a banco (ver reports/auditoria_cartoes_faturas.md):
+ * cartão e conta são linhas irmãs em `accounts`, sem parentesco. O vínculo real
+ * e verificável é o PAGAMENTO — e desde a Task B5 ele está em `bill_payments`,
+ * com a conta de origem de cada parcela. É isso que a tela passa a mostrar, em
+ * vez de inventar uma relação que o modelo não tem.
+ *
+ * @return array<int, array<string, mixed>>
+ */
+function novix_bill_payment_sources(PDO $pdo, int $billId, int $userId): array
+{
+    try {
+        $stmt = $pdo->prepare('
+            SELECT bp.id, bp.source_type, bp.amount, bp.paid_at, a.name AS account_name, a.icon AS account_icon
+              FROM bill_payments bp
+              LEFT JOIN accounts a ON a.id = bp.source_account_id
+             WHERE bp.bill_id = :bill_id AND bp.user_id = :user_id
+             ORDER BY bp.id ASC
+        ');
+        $stmt->execute(['bill_id' => $billId, 'user_id' => $userId]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    } catch (Throwable $e) {
+        // Instalação sem a migração da B3 ainda: a tela não pode quebrar por isso.
+        error_log('bill_payments indisponível: ' . $e->getMessage());
+        return [];
+    }
+}
+
+/** Bloco reutilizável: composição da fatura + origens do pagamento. */
+function novix_render_bill_detail(PDO $pdo, array $bill, int $userId, string $currency): void
+{
+    $billId = (int) $bill['id'];
+    $items = novix_bill_transactions($pdo, $billId, $userId);
+    $sources = novix_bill_payment_sources($pdo, $billId, $userId);
+    $weekday = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+    ?>
+    <div class="cc-detail">
+        <div class="cc-detail-head">
+            <span class="cc-detail-title">O que compõe esta fatura</span>
+            <span class="cc-detail-count"><?php echo count($items); ?> <?php echo count($items) === 1 ? 'lançamento' : 'lançamentos'; ?></span>
+        </div>
+
+        <?php if (empty($items)) : ?>
+            <div class="cc-empty">Nenhum lançamento nesta fatura ainda.</div>
+        <?php else : ?>
+            <?php foreach ($items as $item) :
+                $isPending = !((bool) ($item['is_effective'] ?? true));
+                $ts = strtotime((string) $item['transaction_date']);
+                $desc = ($item['description'] ?? '') !== '' ? $item['description'] : ($item['category_name'] ?? 'Lançamento');
+                $parcela = (!empty($item['installment_index']) && !empty($item['recurrence_total_occurrences']))
+                    ? ((int) $item['installment_index']) . '/' . ((int) $item['recurrence_total_occurrences'])
+                    : null;
+            ?>
+            <div class="cc-item">
+                <span class="cc-item-date"><?php echo sanitize($weekday[(int) date('w', $ts)]); ?>, <?php echo date('d/m', $ts); ?></span>
+                <span class="cc-item-desc">
+                    <?php echo sanitize((string) $desc); ?>
+                    <?php if ($parcela !== null) : ?><span class="cc-chip">parcela <?php echo sanitize($parcela); ?></span><?php endif; ?>
+                    <?php if ($isPending) : ?><span class="cc-chip cc-chip-pending">pendente</span><?php endif; ?>
+                    <?php if (!empty($item['category_name'])) : ?>
+                        <span class="cc-item-cat"><?php echo sanitize((string) $item['category_name']); ?></span>
+                    <?php endif; ?>
+                </span>
+                <span class="cc-item-amount" data-balance><?php echo formatCurrency((float) $item['amount'], $currency); ?></span>
+            </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
+
+        <?php if (!empty($sources)) : ?>
+            <div class="cc-detail-head cc-detail-head-sep">
+                <span class="cc-detail-title">Pago com</span>
+            </div>
+            <?php foreach ($sources as $source) : ?>
+            <div class="cc-item">
+                <span class="cc-item-date"><?php echo !empty($source['paid_at']) ? date('d/m/Y', strtotime((string) $source['paid_at'])) : '—'; ?></span>
+                <span class="cc-item-desc">
+                    <?php if (($source['source_type'] ?? '') === 'external') : ?>
+                        Pagamento externo <span class="cc-item-cat">fora do app, não debitou conta</span>
+                    <?php else : ?>
+                        <?php echo sanitize((string) ($source['account_icon'] ?? '🏦')); ?>
+                        <?php echo sanitize((string) ($source['account_name'] ?? 'Conta removida')); ?>
+                        <span class="cc-item-cat">conta debitada</span>
+                    <?php endif; ?>
+                </span>
+                <span class="cc-item-amount cc-item-paid" data-balance>&minus; <?php echo formatCurrency((float) $source['amount'], $currency); ?></span>
+            </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </div>
+    <?php
 }
 
 $title = 'Cartões de Crédito | NovixFin';
@@ -293,6 +398,9 @@ $error = flash('error');
                                     </form>
                                 <?php endif; ?>
                             </div>
+
+                            <?php // Task B7: o que compõe a fatura + de onde saiu o pagamento.
+                            novix_render_bill_detail($pdo, $currentBill, $userId, $currentBill['currency'] ?? 'BRL'); ?>
                         </div>
                     </div>
                 <?php endif; ?>
@@ -389,6 +497,15 @@ $error = flash('error');
                                                         </form>
                                                     <?php endif; ?>
                                                 </div>
+                                            </td>
+                                        </tr>
+                                        <?php // Task B7: cada fatura do histórico também abre a sua composição. ?>
+                                        <tr>
+                                            <td colspan="7" style="padding:0 0 10px;">
+                                                <details class="cc-details-toggle">
+                                                    <summary class="cc-summary">Ver o que compõe esta fatura</summary>
+                                                    <?php novix_render_bill_detail($pdo, $bill, $userId, $bill['currency'] ?? 'BRL'); ?>
+                                                </details>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
