@@ -127,29 +127,15 @@ foreach ($activeRoots as $activeRoot) {
             continue;
         }
         $relative = str_replace('\\', '/', substr($file->getPathname(), strlen($root) + 1));
+        // Única regra de sintaxe que sobrevive ao alvo 8.1+: `catch` sempre com
+        // variável. Não é compatibilidade — é estilo da casa (AGENTS.md), porque
+        // catch sem variável torna o erro impossível de logar.
         if (preg_match('/catch\s*\(\s*\\\\?(?:Exception|Throwable|PDOException)\s*\)/', $text)) {
             $offenders[] = $relative . ': variableless catch';
         }
-        if (preg_match('/function\s+__construct\s*\([^)]*\b(?:private|protected|public)\s+/', $text)) {
-            $offenders[] = $relative . ': constructor property promotion';
-        }
-        if (preg_match('/(?::\s*mixed\b|\bmixed\s+\$)/', $text)) {
-            $offenders[] = $relative . ': ' . 'mixed-type';
-        }
-        $nullsafeToken = '?' . '->';
-        if (strpos($text, $nullsafeToken) !== false) {
-            $offenders[] = $relative . ': nullsafe operator';
-        }
-        if (preg_match('/\bmatch\s*\(/', $text)) {
-            $offenders[] = $relative . ': match expression';
-        }
-        $php8StringContains = 'str_' . 'contains(';
-        if (strpos($text, $php8StringContains) !== false) {
-            $offenders[] = $relative . ': str_' . 'contains';
-        }
     }
 }
-$pass('active PHP remains PHP 7.4 compatible by static scan', count($offenders) === 0);
+$pass('active PHP keeps catch-with-variable (house style)', count($offenders) === 0);
 foreach ($offenders as $offender) {
     echo "  {$offender}\n";
 }
