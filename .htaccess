@@ -1,0 +1,21 @@
+RewriteEngine On
+RewriteBase /
+
+# Redireciona requisições para arquivos PHP na raiz para public/
+# Mas só se o arquivo não existir fisicamente na raiz
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !^/public/
+RewriteCond %{REQUEST_URI} !^/actions/
+RewriteRule ^(login|register|logout|dashboard|goals|history|profile|index|accounts|categories|credit-cards|currency-settings|wallets)\.php$ public/$1.php [L]
+
+# Permite acesso direto a actions/ (para compatibilidade)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^actions/(.*)$ actions/$1 [L]
+
+# Redireciona a raiz para index.php
+DirectoryIndex index.php public/index.php
+
+# Desabilita listagem de diretórios
+Options -Indexes
