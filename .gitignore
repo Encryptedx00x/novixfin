@@ -1,24 +1,58 @@
-﻿.env
+# ---- Segredos / config local ----
+.env
 .env.*
 !.env.example
+!.env.test.example
+config/config.php
 
-backups/
-archive/
-NovixAnterior/
+# ---- Dumps de banco: NUNCA versionar (ex: u545165688_NovixFin.sql) ----
+# As migracoes e o schema em database/ e migrations/ SAO versionados.
 *.sql
+!database/*.sql
+!migrations/*.sql
+
+# ---- Python compilado / cache ----
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# ---- Artefatos de trabalho ----
+/backups/
+/archive/
+NovixAnterior/
+overnight.log
+Codex_run_subagents_parcial.txt
+tests/env/
+
+# ---- Uploads de usuario ----
+public/uploads/
+uploads/
+
+# ---- Dependencias ----
+vendor/
+composer.lock
+node_modules/
+
+# ---- Compactados / temporarios ----
 *.tar.gz
 *.zip
+*.bak
+*.log
+*.tmp
 
+# ---- Ferramentas de IA (contexto local, nao pertence ao repo) ----
 .codex/
 .cursor/
 .claude/
 .agents/
-.pytest_cache/
-node_modules/
-vendor/
 
+# ---- Editor / SO ----
 .DS_Store
 Thumbs.db
+.vscode/
+.idea/
 
+# ---- Landing de rascunho ----
 NovixFin - Landing Seletor Seta.html
 land_seta_clean.html
