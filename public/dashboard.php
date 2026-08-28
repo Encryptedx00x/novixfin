@@ -685,10 +685,15 @@ foreach ($overdueBills as &$bill) {
 }
 
 // Busca a meta mais relevante para destacar (prioriza: não completada, com prazo mais próximo, ou maior progresso)
-// Usa COALESCE para compatibilidade com diferentes versões do schema (title ou name)
+// `title` e a coluna CANONICA do schema v3 (baseline_v3.sql). Antes esta query
+// usava COALESCE(title, name), que exige que as DUAS colunas existam: num banco
+// onde so ha `title`, ela lancava PDOException, o catch caia na variante que
+// consulta `name` sozinho -- e essa tambem falhava, derrubando o dashboard com
+// fatal. O caminho normal usa so a coluna canonica; o fallback com `name` fica
+// para bancos legados nao reconciliados, onde `name` de fato existe.
 try {
     $featuredGoalStmt = $pdo->prepare('
-        SELECT id, COALESCE(title, name) as title, target_amount, current_amount, deadline, type, completed
+        SELECT id, title, target_amount, current_amount, deadline, type, completed
         FROM goals 
         WHERE user_id = :user_id 
         AND (completed = 0 OR completed IS NULL)
@@ -936,7 +941,7 @@ try {
 
 // Metas em andamento (lista real para o painel 4b).
 try {
-    $goalsStmt = $pdo->prepare('SELECT id, COALESCE(title, name) AS title,
+    $goalsStmt = $pdo->prepare('SELECT id, title,
         target_amount, current_amount, deadline
         FROM goals WHERE user_id = :user_id AND (completed = 0 OR completed IS NULL)
         ORDER BY (deadline IS NULL), deadline ASC,
