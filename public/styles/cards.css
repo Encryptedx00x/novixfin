@@ -178,3 +178,85 @@ dialog.cards-modal::backdrop { background: color-mix(in srgb, var(--ink) 45%, tr
     /* alvos de toque e botões de largura total */
     .cards-screen button[type="submit"] { min-height: 44px; }
 }
+
+/* =====================================================================
+   Task B7 — composição da fatura e origem do pagamento.
+   Tokenizado: funciona nos 15 temas, claro e escuro, sem cor fixa.
+   ===================================================================== */
+.cc-detail {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line-soft);
+}
+.cc-detail-head {
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+    padding: 2px 0 8px;
+}
+.cc-detail-head-sep {
+    margin-top: 10px; padding-top: 10px;
+    border-top: 1px solid var(--line-soft);
+}
+.cc-detail-title {
+    font-size: 12.5px; font-weight: 700; color: var(--ink);
+}
+.cc-detail-count {
+    margin-left: auto;
+    font-family: var(--f-m); font-size: 11px;
+    letter-spacing: .05em; text-transform: uppercase;
+    color: var(--muted);
+}
+.cc-empty {
+    padding: 14px 2px; font-size: 12.5px; color: var(--muted);
+}
+.cc-item {
+    display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+    padding: 9px 2px;
+    border-bottom: 1px solid var(--line-soft);
+}
+.cc-item:last-child { border-bottom: none; }
+.cc-item-date {
+    flex: 0 0 auto; min-width: 62px;
+    font-family: var(--f-m); font-size: 11.5px; color: var(--muted);
+}
+.cc-item-desc {
+    flex: 1 1 200px; min-width: 0;
+    font-size: 13px; color: var(--ink);
+    display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+}
+.cc-item-cat { font-size: 11.5px; color: var(--muted); }
+.cc-item-amount {
+    flex: 0 0 auto; margin-left: auto;
+    font-family: var(--f-num); font-size: 13.5px; font-weight: 700;
+    font-variant-numeric: tabular-nums; color: var(--ink);
+}
+/* O pagamento ABATE a fatura: cor de entrada, não de gasto. */
+.cc-item-paid { color: var(--pos); }
+.cc-chip {
+    font-family: var(--f-m); font-size: 10px; font-weight: 700;
+    letter-spacing: .05em; text-transform: uppercase;
+    padding: 2px 7px; color: var(--accent-text, var(--accent));
+    background: color-mix(in srgb, var(--accent) 14%, transparent);
+    border-radius: var(--r-chip); clip-path: var(--cut);
+}
+.cc-chip-pending {
+    color: var(--gold);
+    background: color-mix(in srgb, var(--gold) 16%, transparent);
+}
+
+@media (max-width: 768px) {
+    .cc-item { gap: 8px; padding: 11px 2px; }
+    .cc-item-date { min-width: 100%; }
+    .cc-item-amount { font-size: 14px; }
+}
+
+/* Cada fatura do histórico abre a própria composição, fechada por padrão
+   para a tabela não virar um paredão. */
+.cc-details-toggle { padding: 0 2px; }
+.cc-summary {
+    cursor: pointer; list-style: none;
+    padding: 7px 0; font-size: 12px; font-weight: 700;
+    color: var(--accent);
+}
+.cc-summary::-webkit-details-marker { display: none; }
+.cc-summary::before { content: '+ '; font-family: var(--f-m); }
+.cc-details-toggle[open] .cc-summary::before { content: '− '; }

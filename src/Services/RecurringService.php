@@ -198,8 +198,20 @@ final class RecurringService
             $childBillId = null;
             if ($this->accountIsCreditCard($parent['account_id'], $parent['user_id'])) {
                 try {
-                    $bill = (new CreditCardBillRepository($this->connection))
-                        ->findOrCreateBill($parent['account_id'], $parent['user_id'], $cursor->format('Y-m'));
+                    // Task B2: a parcela/ocorrência segue o mesmo ciclo de
+                    // fechamento das compras avulsas. Antes usava o mês do
+                    // calendário, então uma parcela gerada depois do fechamento
+                    // caía numa fatura já fechada.
+                    $billRepo = new CreditCardBillRepository($this->connection);
+                    $bill = $billRepo->findOrCreateBill(
+                        $parent['account_id'],
+                        $parent['user_id'],
+                        $billRepo->billingMonthForAccount(
+                            (int) $parent['account_id'],
+                            (int) $parent['user_id'],
+                            $cursor
+                        )
+                    );
                     $childBillId = (int) $bill['id'];
                 } catch (Throwable $e) {
                     error_log('RecurringService: bill-month resolution failed for parent ' . $parent['id'] . ' at ' . $cursor->format('Y-m-d') . ': ' . $e->getMessage());

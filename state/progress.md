@@ -1,9 +1,108 @@
 # NovixFin v3 Execution Progress
 
+## FILA TASKS.md — execução 2026-08-09 (CONCLUÍDA até a C1; sem deploy)
+**Ambiente destravado por Docker** (a fila de 2026-08-08 parou por falta de PHP):
+`php:8.3-cli` + `pdo_mysql` (PHP 8.3.33, produção é 8.3.32) e `mariadb:11.8`
+(11.8.8, produção é 11.8.x). O `.env` do repo é **neutralizado dentro do container**
+(bind-mount read-only apontando para o MariaDB de teste), porque `includes/env.php`
+sobrepõe variáveis de ambiente reais — sem isso os testes alcançariam PRODUÇÃO.
+Bancos: `novixfin_test` (schema das migrações do repo) e `novixfin_app` (vazio, só
+para o guard do helpers.php enxergar dois bancos distintos).
+
+- **Task 0.1 — CONCLUÍDA — `269e2dc`.** Harness validado em execução real pela
+  primeira vez. `php tests/run.php` → 6 arquivos, 0 falhas, exit 0. Canário
+  proposital provou a detecção (exit 1) e foi removido. `tests/harness_test.php`
+  (novo) exercita banco isolado, rollback sem resíduo, as 6 factories, o caminho
+  SKIP e o guard que recusa apontar para o banco da aplicação.
+  - **Decisão do usuário (invariante alterado):** o alvo **PHP 7.4 foi aposentado**.
+    O scan estático em `tests/recurrence_installments.php` contradizia o "PHP 8.1+"
+    das REGRAS GLOBAIS do TASKS.md e do AGENTS.md; produção é 8.3.32 e não existe
+    mais ambiente 7.4. O scan agora verifica só `catch` com variável (estilo da casa).
+    `state/context.md` atualizado.
+  - **Achado:** `includes/forecast.php` era **falso positivo** do scan — `mixed` só
+    em docblock (`array{amount?: mixed}`), nunca como declaração de tipo.
+- **Task 0.2 — CONCLUÍDA — `9bcd1ae`.** `tests/characterization_test.php`, 18
+  verificações ao centavo congelando o comportamento atual: saldo após criar/
+  editar/excluir (inclui troca de tipo e exclusão de pendente), efetivar pendente
+  (e efetivar de novo sem duplicar), saldo consolidado com cartão FORA, e previsão
+  determinística (3.400,25 + 1.500,00 − 400,00 = 4.500,25).
+  - **D6 registra de propósito** o comportamento apontado na auditoria: pendente de
+    CARTÃO entra em "a pagar" (a consulta do dashboard não filtra tipo de conta).
+    Se a Fase B mudar isso, este teste falha e a task que mudar deve atualizá-lo.
+- **Task A1 — CONCLUÍDA — `c5c88ff`.** A implementação já estava em `7f1178f`;
+  faltava o aceite. `tests/sheets_persist_test.php` exercita os handlers REAIS em
+  subprocesso (sessão + CSRF montados): A4 volta `=SUM(A1:A3)`, **não** o 60, e a
+  fórmula está literal em `sheets.content`. Cobre rejeição de content sem abas e
+  CSRF inválido, distinguindo resposta não-JSON de rejeição legítima.
+  - **Primeiro `php -l` real** de tudo que foi tocado nas sessões sem PHP:
+    `dashboard.php`, `header/footer`, os 5 handlers de sheets, a migração — limpos.
+- **Task A2 — CONCLUÍDA — `27935f2`.** Renomear in loco (duplo clique) e excluir
+  (× com confirm, recusa deixar zero abas). Renomear **reconstrói a engine** e
+  recusa nome duplicado, porque o nome da aba sustenta as fórmulas entre abas.
+  `tests/sheets_tabs_test.php`: 19 verificações (3 abas, ordem, isolamento entre
+  abas, referência cruzada, ciclo renomear+excluir).
+- **Task A3 — CONCLUÍDA — `0ad69ee`.** Undo/redo e indicador já existiam; faltava
+  **Ctrl+Shift+Z** (único "refazer" convencional no macOS). node --check ok.
+- **Task A4 — CONCLUÍDA — `0e41d67`.** `restore.php` lê `version_id` com
+  `filter_input(INPUT_POST)`, que lê o CORPO REAL da requisição e **ignora `$_POST`** —
+  teste em CLI nunca o exercitaria. Criado `tests/http_client.php` (streams, cookie jar,
+  login real). Poda 55→50 mantendo os mais novos; `ORDER BY` ganhou desempate por `id`
+  porque `created_at` é TIMESTAMP de 1s e marcos do mesmo segundo empatavam.
+- **Task A5 — CONCLUÍDA — `a131716`.** Seleção de intervalo, copiar/colar TSV (eventos
+  copy/paste, aceita Excel/Sheets) e fill handle com ajuste de referência relativa
+  (`$` absoluto, faixas, colunas multi-letra, `#REF!` fora da grade).
+- **Task B1 — CONCLUÍDA (VERMELHA) — `ae9e523`.** Capturou o bug do ciclo de fatura.
+- **Task B2 — CONCLUÍDA — `07cc651`.** Ciclo pelo `closing_day` numa única função
+  (`billingMonthFor`), usada por create/update/RecurringService. B1 ficou verde.
+- **Task B3 — CONCLUÍDA — `e77285e`.** `bill_payments` + comando `down` no runner
+  (migração pode devolver `['up'=>fn,'down'=>fn]`; contrato antigo segue valendo).
+- **Task B4 — CONCLUÍDA (VERMELHA) — `f22b1d9`.** Capturou a dupla cobrança do cartão.
+- **Task B5 — CONCLUÍDA — `fbf7af3`.** Pagamento multi-origem; nenhuma despesa na conta
+  do cartão; reversão por `bill_payments` com fallback para faturas antigas. 22/22 ao centavo.
+- **Task B6 — PULADA por instrução.** UI de pagamento multi-origem **aguarda design +
+  revisão humana**. Não inventei a tela. O backend já aceita `sources[]`.
+- **Task B7 — CONCLUÍDA — `0d4a01e`.** Fatura lista o que a compõe (`WHERE bill_id`) e
+  de onde saiu o pagamento; `CREATE TABLE` em runtime removido; CSS tokenizado.
+- **Task C1 — relatório em `/reports/overnight_2026-08-09.md`. SUÍTE 13/13, exit 0.
+  DEPLOY NÃO FEITO: não existe alvo de deploy no repo** (sem git remote, sem script,
+  sem ssh config; o único host documentado é PRODUÇÃO, e o alvo pedido é o de teste).
+- **⚠️ ACHADO GRAVE não corrigido:** `public/dashboard.php:691` usa
+  `COALESCE(title, name)` em `goals` — o baseline v3 só cria `title` e o fallback do
+  catch consulta `name` sozinho. **O dashboard FATALA em instalação v3 nova.** Produção
+  escapa só porque ainda tem a coluna legada. Afeta a decisão de deploy.
+
+
 ## Current State
 - **Phase**: SALDO DESNORMALIZADO (accounts.balance) — **PARTE 1 (código) COMPLETA**; PARTE 2
   (recompute) ENTREGUE, precisa rodar no SERVIDOR (backup + dry-run + --apply). Parado p/ revisão.
 - Reskin **100%**; modais completos; agora saldo consistente com as transações.
+
+## FILA OVERNIGHT (TASKS.md) — PAROU NA TASK 0.1 (2026-08-08)
+- **Report**: /reports/overnight_2026-08-08.md
+- **Nenhuma task concluída. Nenhuma mudança de lógica financeira. Nenhum deploy.**
+- **Causa da parada — ambiente, não bug:**
+  1. **Não existe PHP nesta máquina.** `which php php8 php8.1 php8.3` → vazio; PowerShell
+     `Get-Command php` → "php NOT on PATH"; nenhum XAMPP/Laragon/WAMP/`C:\php`. Isso torna
+     INEXECUTÁVEIS os aceites de TODAS as tasks (`php tests/run.php`, `php -l`).
+  2. **Não existe banco de teste isolado.** O `.env` aponta para o MariaDB remoto de
+     PRODUÇÃO (e sem acesso deste IP — visto em `probe_currency_save.py`: erro 1045). A
+     Task 0.1 exige banco isolado; as regras proíbem teste escrever no banco real.
+- **Decisão**: apliquei a regra "PARE NO PRIMEIRO ERRO, não contorne". Avançar significaria
+  escrever B2/B5 (ciclo de fatura + semântica de pagamento multi-origem) — que alteram saldo,
+  pagamento e reversão — sem rodar um único teste. A própria fila proíbe.
+- **Escrito, porém NÃO VALIDADO** (commitado assim de propósito, para não se perder):
+  - `tests/run.php` — runner sem Composer/PHPUnit; descobre `tests/*_test.php` + os
+    standalone existentes; roda cada teste em PROCESSO SEPARADO; agrega exit codes; sai ≠0 se
+    qualquer um falhar; aceita `--only=`.
+  - `tests/helpers.php` — asserções + factories. **`t_money` compara em CENTAVOS INTEIROS**
+    (exato ao centavo, sem tolerância de float). **Guard anti-produção**: banco de teste é
+    opt-in por `TEST_DB_*`; SKIP se ausente; RECUSA (exit 1) se `TEST_DB_DATABASE` for igual
+    ao banco do app ou não contiver "test"; `test_with_rollback()` sempre reverte.
+    Factories conferidas contra o schema real — inclusive `users.password` (não `password_hash`).
+- **Para retomar**: instalar PHP 8.1+ e um MySQL/MariaDB local, rodar
+  `DB_DATABASE=novixfin_test php scripts/migrate.php up`, exportar `TEST_DB_*`, então
+  `php -l tests/run.php tests/helpers.php` e `php tests/run.php` (precisa sair 0) + o canário.
+- **B6 pulada** conforme instrução: aguarda design/mockup + revisão humana. Não foi inventada.
 
 ## FIX — "Carregar mais" não revelava + olho não trocava de ícone (2026-08-06)
 - **Report**: /reports/checkpoint_fix_load_more_e_olho.md — corrige a fatia `190c255`.

@@ -41,10 +41,17 @@
 - No external services/integrations required (AI stays rule-based, no FX API).
 - v3.1 hide-balances privacy mode: `users.hide_balances` is the source of truth. Shared layout must render `body.hide-balances` server-side when enabled to avoid first-paint leaks; JS may toggle and persist, but must not override the DB preference with stale browser storage.
 - v3.1 inline category creation: dashboard transaction forms use `actions/categories/create-inline.php` with auth + CSRF and JSON responses. Newly created categories must update the dashboard create/edit category selects without full-page navigation and must preserve category type (`income`/`expense`). Transaction category scope must allow both user-owned categories and global default categories (`user_id IS NULL`).
-- PHP 7.4 compatibility: all catch blocks must include a variable. Do not
-  introduce PHP 8-only syntax such as variableless catch, `match`, nullsafe
-  operator, union types, constructor property promotion, `mixed` declarations,
-  or unpolyfilled PHP 8-only functions.
+- ~~PHP 7.4 compatibility~~ **APOSENTADO em 2026-08-09** (decisão do usuário na
+  fila do TASKS.md, Task 0.1). Produção roda **PHP 8.3.32** e a hospedagem
+  compartilhada foi descontinuada; não existe mais ambiente 7.4. AGENTS.md e as
+  REGRAS GLOBAIS do TASKS.md já diziam **PHP 8.1+ para código novo** — esta
+  linha era a única fonte em contrário e contradizia as duas.
+  O que **permanece obrigatório**: todo `catch` com variável
+  (`catch (Throwable $e)`) — estilo da casa, porque catch sem variável torna o
+  erro impossível de logar. O scan estático em `tests/recurrence_installments.php`
+  agora verifica só isso.
+  Continua valendo: **não retrofitar** código 7.4-era existente (churn com risco
+  de regressão e zero ganho para o usuário).
 - Balance privacy hotfix: hidden balances are replaced by JS textContent dots
   using `data-balance-value`; CSS pseudo-element masking is only a pre-JS
   first-paint fallback and must not remain active after

@@ -260,37 +260,14 @@ if ($type === 'expense') {
     if ($account && $account['type'] === 'credit') {
         $billRepository = new CreditCardBillRepository($pdo);
         
-        // Usa data de efetivação se não estiver efetivada e tiver uma data definida
-        $dateForBilling = $date;
-        if (!$isEffective && $effectiveDateObj !== null) {
-            // Verifica se a data de efetivação é posterior ao vencimento da fatura atual
-            $stmt = $pdo->prepare('
-                SELECT * FROM credit_card_bills 
-                WHERE account_id = :account_id AND user_id = :user_id AND status IN ("open", "overdue")
-                ORDER BY due_date ASC LIMIT 1
-            ');
-            $stmt->execute(['account_id' => $accountId, 'user_id' => $userId]);
-            $currentBill = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            if ($currentBill && isset($currentBill['due_date'])) {
-                $currentDueDate = new \DateTimeImmutable($currentBill['due_date']);
-                if ($effectiveDateObj > $currentDueDate && isset($currentBill['billing_month'])) {
-                    // Vai para próxima fatura
-                    $currentBillingDate = new \DateTimeImmutable($currentBill['billing_month'] . '-01');
-                    $billingMonth = $currentBillingDate->modify('+1 month')->format('Y-m');
-                    $dateForBilling = null; // Já temos o billingMonth
-                } else {
-                    $dateForBilling = $date;
-                }
-            } else {
-                $dateForBilling = $effectiveDateObj;
-            }
-        }
-        
-        if (!isset($billingMonth)) {
-            $billingMonth = $dateForBilling->format('Y-m');
-        }
-        
+        // Task B2: mesmo destino de fatura do create.php — pelo DIA DE
+        // FECHAMENTO do cartão, via CreditCardBillRepository::billingMonthFor().
+        // Para pendente com data de efetivação, a referência é a data em que o
+        // lançamento de fato cai. Substitui a heurística antiga de "próxima
+        // fatura aberta por due_date", que ignorava o fechamento.
+        $dateForBilling = (!$isEffective && $effectiveDateObj !== null) ? $effectiveDateObj : $date;
+        $billingMonth = $billRepository->billingMonthForAccount($accountId, $userId, $dateForBilling);
+
         try {
             $bill = $billRepository->findOrCreateBill($accountId, $userId, $billingMonth);
             $newBillId = (int) $bill['id'];

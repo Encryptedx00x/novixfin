@@ -231,67 +231,21 @@ if ($type === 'expense') {
             }
         }
         
-        // Busca ou cria a fatura do mês correspondente
-        // Se tiver data de efetivação e não estiver efetivada, verifica qual fatura usar
+        // Busca ou cria a fatura do mês correspondente.
+        //
+        // Task B2: o destino passa a sair de CreditCardBillRepository::billingMonthFor(),
+        // que aplica o DIA DE FECHAMENTO do cartão. Antes era o mês do calendário
+        // da compra, o que jogava todo gasto pós-fechamento numa fatura já fechada.
+        //
+        // Para lançamento PENDENTE com data de efetivação, a referência é a data
+        // em que ele de fato cai (effective_date) — a mesma regra de ciclo, e não
+        // a heurística antiga de "pega a próxima fatura aberta por due_date", que
+        // dependia de haver fatura aberta e ignorava o fechamento.
         $billRepository = new CreditCardBillRepository($pdo);
-        $dateForBilling = $date;
-        
-        // Se não estiver efetivada e tiver data de efetivação, verifica a fatura
-        if (!$isEffective && $effectiveDateObj) {
-            // Busca faturas abertas do cartão para verificar qual usar
-            try {
-                $stmt = $pdo->prepare('
-                    SELECT * FROM credit_card_bills 
-                    WHERE account_id = :account_id 
-                    AND user_id = :user_id 
-                    AND status IN ("open", "overdue")
-                    ORDER BY due_date ASC
-                    LIMIT 1
-                ');
-                $stmt->execute(['account_id' => $accountId, 'user_id' => $userId]);
-                $currentBill = $stmt->fetch(PDO::FETCH_ASSOC);
-                
-                if ($currentBill && isset($currentBill['due_date'])) {
-                    $currentDueDate = new \DateTimeImmutable($currentBill['due_date']);
-                    
-                    // Se a data de efetivação for posterior ao vencimento da fatura atual, vai para a próxima fatura
-                    if ($effectiveDateObj > $currentDueDate) {
-                        // Calcula o billing_month da fatura seguinte baseado na data de vencimento da atual
-                        // O billing_month é o mês da data de fechamento, não da data de vencimento
-                        // Então se a fatura atual fecha em jan/2026 e vence em fev/2026,
-                        // a próxima fecha em fev/2026 e vence em mar/2026
-                        $currentBillingMonth = $currentBill['billing_month']; // formato: YYYY-MM
-                        $currentBillingDate = new \DateTimeImmutable($currentBillingMonth . '-01');
-                        $nextBillingMonth = $currentBillingDate->modify('+1 month')->format('Y-m');
-                        
-                        // Usa o billing_month calculado para buscar/criar a fatura
-                        try {
-                            $bill = $billRepository->findOrCreateBill($accountId, $userId, $nextBillingMonth);
-                            $billId = (int) $bill['id'];
-                        } catch (Exception $e) {
-                            error_log('Erro ao criar fatura futura: ' . $e->getMessage());
-                            // Fallback: usa a data de efetivação
-                            $dateForBilling = $effectiveDateObj;
-                        }
-                    } else {
-                        // Se a data de efetivação for antes ou igual ao vencimento, usa a fatura atual
-                        $bill = $currentBill;
-                        $billId = (int) $bill['id'];
-                    }
-                } else {
-                    // Se não houver fatura aberta, usa a data de efetivação
-                    $dateForBilling = $effectiveDateObj;
-                }
-            } catch (Exception $e) {
-                // Em caso de erro, usa a data de efetivação
-                error_log('Erro ao buscar fatura atual: ' . $e->getMessage());
-                $dateForBilling = $effectiveDateObj;
-            }
-        }
-        
-        // Se ainda não determinou a fatura, busca ou cria baseado na data
+        $dateForBilling = (!$isEffective && $effectiveDateObj) ? $effectiveDateObj : $date;
+
         if ($billId === null) {
-            $billingMonth = $dateForBilling->format('Y-m');
+            $billingMonth = $billRepository->billingMonthForAccount($accountId, $userId, $dateForBilling);
             try {
                 $bill = $billRepository->findOrCreateBill($accountId, $userId, $billingMonth);
                 $billId = (int) $bill['id'];
