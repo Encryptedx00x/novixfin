@@ -184,6 +184,10 @@ dialog.nvx-modal.nvx-modal--danger { border: 1px solid color-mix(in srgb, var(--
 .nvx-modal .text-white,
 .nvx-modal .text-slate-100,
 .nvx-modal .text-slate-200 { color: var(--ink); }
+/* Mesma armadilha da variante de hover: `hover:text-white` e uma classe distinta
+   de `text-white`, entao sem esta regra o texto vira #fff no hover e some em
+   tema claro. Vale para qualquer modal, nao so o de cartoes. */
+.nvx-modal .hover\:text-white:hover { color: var(--ink); }
 .nvx-modal .text-slate-300 { color: color-mix(in srgb, var(--ink) 82%, var(--muted)); }
 .nvx-modal .text-slate-400,
 .nvx-modal .text-slate-500 { color: var(--muted); }

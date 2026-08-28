@@ -41,6 +41,14 @@
 .cards-screen .text-slate-100,
 .cards-screen .text-slate-200,
 .cards-modal .text-white { color: var(--ink) !important; }
+/* `hover:text-white` do Tailwind vira a classe PROPRIA `.hover\:text-white:hover`,
+   que NAO e a mesma coisa que `.text-white` — por isso a neutralizacao acima nao
+   a alcancava e, no hover, a cor caia para #fff puro. Em tema claro isso e branco
+   sobre superficie clara: o elemento sumia (link "Cadastre uma conta" no modal de
+   pagamento, e o botao de engrenagem do cartao). Mapeado para --ink, legivel nos
+   15 temas, claro e escuro. */
+.cards-screen .hover\:text-white:hover,
+.cards-modal .hover\:text-white:hover { color: var(--ink) !important; }
 .cards-screen .text-slate-300,
 .cards-modal .text-slate-300 { color: color-mix(in srgb, var(--ink) 82%, var(--muted)) !important; }
 .cards-screen .text-slate-400,
