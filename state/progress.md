@@ -1,5 +1,29 @@
 # NovixFin v3 Execution Progress
 
+## MERGE dev-fatura-cartao -> main, pronto para deploy (2026-08-28)
+- **Checklist**: `/reports/deploy_2026-08-28.md`. **Nada foi enviado ao servidor; sem push.**
+- `b652564` **fix do COALESCE** direto em main: as duas queries de metas (linhas 691 e 939)
+  exigiam `goals.name`; no schema v3 canonico so existe `title`, e o fallback do catch
+  tambem consultava `name` -> fatal. Agora usam so a coluna canonica.
+- `7474461` **merge**. Modo Planilha RESTAURADO por decisao do usuario (fora apagado no
+  commit de sync `16f591b`). Dois casos distintos no merge:
+  - conflito modify/delete (4): `sheet.js`, `sheet.css`, `actions/sheets/load.php`,
+    `actions/sheets/snapshot.php` -> mantida a versao de dev;
+  - **exclusao silenciosa (4)**: `_bootstrap.php`, `save.php`, `restore.php` e
+    `migrations/20240101000008_sheets_v3.php` -> apagados em main e intocados em dev,
+    o git removeria sem conflito. Restaurados a mao. Sem isso a Planilha ficaria
+    meio quebrada: grade sem tres handlers e sem a migracao.
+- **Tag de rollback**: `pre-merge-fatura-2026-08-28`.
+- **Validado no resultado do merge** (nao so na branch): suite 13/13 exit 0; `php -l` em
+  79 arquivos; `node --check`; e verificacao HTTP ponta a ponta num banco SEM `goals.name`
+  -> dashboard 200 sem fatal e com a meta renderizada, Cartoes 200, Planilha `load.php` ok,
+  e o ciclo compra->fatura->pagamento fechando ao centavo (300,00; cartao NAO duplica).
+- **Migracoes pendentes em producao (3, nesta ordem)**: `0008` sheets/sheet_versions,
+  `0009` bill_payments, `0010` zera register_bill_as_expense. Ensaiadas em banco virgem
+  (11/11) e em banco simulando producao (`status` -> exatamente 3 pending).
+- **Nao resolvido**: faturas pagas ANTES do deploy seguem infladas pelas linhas
+  `Fatura do cartao - %` antigas; precisa script retroativo (SQL de diagnostico no checklist).
+
 ## FILA TASKS.md — execução 2026-08-09 (CONCLUÍDA até a C1; sem deploy)
 **Ambiente destravado por Docker** (a fila de 2026-08-08 parou por falta de PHP):
 `php:8.3-cli` + `pdo_mysql` (PHP 8.3.33, produção é 8.3.32) e `mariadb:11.8`
