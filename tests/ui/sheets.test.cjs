@@ -94,6 +94,3 @@ const chrome = process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Applic
     console.log('OK: conflito entre páginas não sobrescreve a gravação recente');
   } finally { if (browser) await browser.close(); fixture('delete'); }
 })().catch(e => { console.error(e); process.exitCode=1; });
-
-
-
