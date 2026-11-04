@@ -32,6 +32,8 @@
     var savedRevision = 0;
     var pendingWrites = 0;
     var writeQueue = Promise.resolve();
+    var serverRevision = null;
+    var conflict = false;
     var lastSnapshotAt = 0;
     var editing = null;
 
@@ -127,10 +129,16 @@
         Object.keys(data).forEach(function (k) { body.append(k, data[k]); });
         pendingWrites += 1;
         var request = writeQueue.then(function () {
+            if (conflict) { throw new Error('Planilha alterada em outra página. Copie suas alterações antes de recarregar.'); }
+            if (!serverRevision) { throw new Error('Planilha ainda não carregada.'); }
+            body.append('_revision', serverRevision);
             return fetch(url, { method: 'POST', body: body, credentials: 'same-origin' })
                 .then(function (res) {
                     return res.json().then(function (json) {
+                        if (res.status === 409) { conflict = true; }
                         if (!res.ok || !json || !json.ok) { throw new Error((json && json.error) || 'Falha ao salvar'); }
+                        if (!json.revision) { throw new Error('Resposta de salvamento incompleta.'); }
+                        serverRevision = json.revision;
                         return json;
                     });
                 });
@@ -757,9 +765,9 @@
                     status((res && res.error) || 'Falha ao criar marco', false);
                 }
             })
-            .catch(function () {
+            .catch(function (error) {
                 lastSnapshotAt = 0;
-                status('Sem conexão — marco não criado', false);
+                status((error.message || 'Sem conexão') + ' — marco não criado', false);
             });
     }
 
@@ -783,7 +791,7 @@
                 if (el.histMenu) { el.histMenu.hidden = true; }
                 if (revision === restoreRevision) { status('Versão restaurada', false); }
             })
-            .catch(function () { status('Sem conexão — não restaurado', false); });
+            .catch(function (error) { status((error.message || 'Sem conexão') + ' — não restaurado', false); });
     }
 
     function adoptContent(content) {
@@ -809,10 +817,13 @@
                     return;
                 }
                 state.id = res.id;
+                if (!res.revision) { status('Falha ao carregar a versão da planilha', false); return; }
+                serverRevision = res.revision;
                 state.versions = res.versions || [];
                 adoptContent(res.content);
                 renderVersions();
                 syncUndoButtons();
+                if (el.screen) { el.screen.inert = false; }
                 status(res.updated_at ? 'Salvo em ' + res.updated_at : 'Pronto', false);
             })
             .catch(function () { status('Sem conexão', false); });
@@ -997,7 +1008,7 @@
         });
 
         window.addEventListener('online', function () {
-            if (revision > savedRevision && !saveTimer) { save(); }
+            if (!conflict && revision > savedRevision && !saveTimer) { save(); }
         });
 
         document.addEventListener('visibilitychange', function () {
@@ -1020,6 +1031,7 @@
     document.addEventListener('DOMContentLoaded', function () {
         el = {
             grid: document.getElementById('sheetGrid'),
+            screen: document.querySelector('.sheet-screen'),
             fx: document.getElementById('sheetFx'),
             ref: document.getElementById('sheetRef'),
             tabs: document.getElementById('sheetTabs'),
@@ -1032,6 +1044,7 @@
             addTab: document.getElementById('sheetAddTab')
         };
         if (!el.grid) { return; } // página sem o Modo Planilha
+        if (el.screen) { el.screen.inert = true; }
 
         if (!window.HyperFormula) {
             status('Motor de cálculo indisponível', false);

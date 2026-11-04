@@ -12,7 +12,8 @@ const chrome = process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Applic
   let browser;
   try {
     browser = await chromium.launch({ executablePath: chrome, headless: true });
-    const page = await browser.newPage();
+    const context = await browser.newContext();
+    const page = await context.newPage();
     await page.goto(base + '/public/login.php');
     await page.locator('input[name=email]').fill(email);
     await page.locator('input[name=password]').fill('SenhaTeste123!');
@@ -76,6 +77,21 @@ const chrome = process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Applic
     await page.locator('[data-tab="planilha"]').click();
     assert.equal(await fx.inputValue(), 'após erro HTTP');
     console.log('OK: erro HTTP preserva pendência e permite nova tentativa');
+    const other = await page.context().newPage();
+    await other.goto(base + '/public/dashboard.php');
+    await other.waitForFunction(() => document.querySelector('#sheetStatus')?.textContent.includes('Salvo em'), null, {timeout:20000});
+    await other.locator('[data-tab="planilha"]').click();
+    await edit('mais recente');
+    await page.waitForFunction(() => document.querySelector('#sheetStatus')?.textContent.includes('Salvo às'), null, {timeout:10000});
+    await other.locator('#sheetFx').fill('cópia antiga');
+    await other.locator('#sheetSnapshot').focus();
+    await other.waitForFunction(() => document.querySelector('#sheetStatus')?.textContent.includes('outra página'), null, {timeout:10000});
+    assert.equal(await other.evaluate(() => { const e = new Event('beforeunload', {cancelable:true}); window.dispatchEvent(e); return e.defaultPrevented; }), true);
+    const stored = await page.evaluate(async () => (await (await fetch('/actions/sheets/load.php')).json()).content.tabs[0].cells.A1);
+    assert.equal(stored, 'mais recente');
+    assert.equal(await other.locator('#sheetFx').inputValue(), 'cópia antiga');
+    await other.close({runBeforeUnload:false});
+    console.log('OK: conflito entre páginas não sobrescreve a gravação recente');
   } finally { if (browser) await browser.close(); fixture('delete'); }
 })().catch(e => { console.error(e); process.exitCode=1; });
 

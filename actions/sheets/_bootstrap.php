@@ -61,6 +61,23 @@ function sheets_get_or_create(PDO $pdo, int $userId): array
     ];
 }
 
+/** Dentro de uma transação, impede que uma cópia antiga sobrescreva outra. */
+function sheets_lock_revision(PDO $pdo, int $sheetId, int $userId): void
+{
+    $expected = $_POST['_revision'] ?? null;
+    if ($expected !== null && (!is_string($expected) || !preg_match('/^[a-f0-9]{64}$/D', $expected))) {
+        $pdo->rollBack();
+        sheets_json(['ok' => false, 'error' => 'Versão inválida.'], 422);
+    }
+    $stmt = $pdo->prepare('SELECT content FROM sheets WHERE id = :id AND user_id = :u FOR UPDATE');
+    $stmt->execute(['id' => $sheetId, 'u' => $userId]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$row || ($expected !== null && !hash_equals(hash('sha256', (string) $row['content']), $expected))) {
+        $pdo->rollBack();
+        sheets_json(['ok' => false, 'error' => 'Planilha alterada em outra página. Copie suas alterações antes de recarregar.'], 409);
+    }
+}
+
 /** Valida e normaliza o content recebido (array de abas com células). */
 function sheets_sanitize_content(string $raw): ?string
 {

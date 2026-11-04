@@ -44,6 +44,20 @@ try {
     t_ok('usuário anônimo não salva', $denied['status'] >= 300 && $denied['status'] < 400);
     $load = http_request('GET', '/actions/sheets/load.php', [], $session);
     t_same('rejeições não alteram dados', json_decode($load['body'], true)['content'] ?? null, $payloads[1]);
+    $revision = json_decode($load['body'], true)['revision'];
+    $snapshot = http_post('/actions/sheets/snapshot.php', ['_revision' => $revision, 'content' => json_encode($payloads[1])], $session);
+    t_same('snapshot com versão atual', $snapshot['status'], 200);
+    $versionId = json_decode($snapshot['body'], true)['versions'][0]['id'];
+    $fresh = $payloads[1];
+    $fresh['tabs'][0]['cells']['A1'] = 'nova versão';
+    $saved = http_post('/actions/sheets/save.php', ['_revision' => $revision, 'content' => json_encode($fresh)], $session);
+    t_same('salva com versão atual', $saved['status'], 200);
+    foreach (['save.php' => ['content' => json_encode($payloads[0])], 'snapshot.php' => ['content' => json_encode($payloads[0])], 'restore.php' => ['version_id' => $versionId]] as $handler => $args) {
+        $stale = http_post('/actions/sheets/' . $handler, array_merge($args, ['_revision' => $revision]), $session);
+        t_same($handler . ' rejeita versão antiga', $stale['status'], 409);
+    }
+    $load = http_request('GET', '/actions/sheets/load.php', [], $session);
+    t_same('conflitos preservam versão recente', json_decode($load['body'], true)['content'] ?? null, $fresh);
 } finally {
     $pdo->prepare('DELETE FROM users WHERE id = ?')->execute([$userId]);
 }

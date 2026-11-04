@@ -13,7 +13,16 @@ $pdo = \Novix\Database\Connection::get();
 $userId = (int) (currentUserId() ?? 0);
 $sheet = sheets_get_or_create($pdo, $userId);
 
-$upd = $pdo->prepare('UPDATE sheets SET content = :c WHERE id = :id AND user_id = :u');
-$upd->execute(['c' => $content, 'id' => (int) $sheet['id'], 'u' => $userId]);
+$pdo->beginTransaction();
+try {
+    sheets_lock_revision($pdo, (int) $sheet['id'], $userId);
+    $upd = $pdo->prepare('UPDATE sheets SET content = :c WHERE id = :id AND user_id = :u');
+    $upd->execute(['c' => $content, 'id' => (int) $sheet['id'], 'u' => $userId]);
+    $pdo->commit();
+} catch (Throwable $e) {
+    if ($pdo->inTransaction()) { $pdo->rollBack(); }
+    error_log('sheets/save: ' . $e->getMessage());
+    sheets_json(['ok' => false, 'error' => 'Falha ao salvar.'], 500);
+}
 
-sheets_json(['ok' => true, 'id' => (int) $sheet['id'], 'saved_at' => date('H:i')]);
+sheets_json(['ok' => true, 'id' => (int) $sheet['id'], 'revision' => hash('sha256', $content), 'saved_at' => date('H:i')]);

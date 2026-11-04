@@ -1485,3 +1485,5 @@ internas estiverem reskinadas — mexer agora arriscaria Entrada/Landing já ent
 - Regressão HTTP isolada em reports/checkpoint_sheets_http_2026-11-04.md; concorrência e validação final pendentes.
 
 - Planilhas: aba vazia e fila local em reports/checkpoint_sheets_queue_2026-11-04.md; proteção entre páginas pendente.
+
+- Planilhas: verificação transacional de versão em reports/checkpoint_sheets_conflict_2026-11-04.md; validação final pendente.
