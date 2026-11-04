@@ -1487,3 +1487,5 @@ internas estiverem reskinadas — mexer agora arriscaria Entrada/Landing já ent
 - Planilhas: aba vazia e fila local em reports/checkpoint_sheets_queue_2026-11-04.md; proteção entre páginas pendente.
 
 - Planilhas: verificação transacional de versão em reports/checkpoint_sheets_conflict_2026-11-04.md; validação final pendente.
+
+- Planilhas: testes de handlers portáveis, ver reports/checkpoint_sheets_test_paths_2026-11-04.md.

@@ -54,7 +54,7 @@ $callHandler = static function (string $handler, array $post) use ($userId): arr
         . 'session_start();'
         . '$_SESSION["user"] = ["id" => ' . $userId . '];'
         . '$_SESSION["csrf_token"] = "test-token";'
-        . 'require "/app/actions/sheets/' . $handler . '";';
+        . 'require ' . var_export(dirname(__DIR__) . '/actions/sheets/' . $handler, true) . ';';
 
     $tmp = tempnam(sys_get_temp_dir(), 'tabs_') . '.php';
     file_put_contents($tmp, $bootstrap);
