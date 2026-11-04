@@ -1489,3 +1489,5 @@ internas estiverem reskinadas — mexer agora arriscaria Entrada/Landing já ent
 - Planilhas: verificação transacional de versão em reports/checkpoint_sheets_conflict_2026-11-04.md; validação final pendente.
 
 - Planilhas: testes de handlers portáveis, ver reports/checkpoint_sheets_test_paths_2026-11-04.md.
+
+- Planilhas: validação final e plano de rollback em reports/sheets_persistence_validation_2026-11-04.md. Sem deploy.
