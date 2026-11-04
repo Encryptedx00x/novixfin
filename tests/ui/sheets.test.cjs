@@ -1,0 +1,83 @@
+const { chromium } = require('playwright-core');
+const { execFileSync } = require('child_process');
+const crypto = require('crypto');
+const assert = require('assert/strict');
+const base = process.env.HTTP_BASE || '';
+if (!/^http:\/\/(127\.0\.0\.1|localhost):\d+$/.test(base)) throw Error('HTTP_BASE deve apontar para servidor local');
+const email = `ui-${crypto.randomBytes(8).toString('hex')}@novixfin.test`;
+const fixture = (op) => execFileSync('php', [__dirname + '/fixture.php', op, email], { stdio: 'inherit' });
+const chrome = process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe';
+(async () => {
+  fixture('create');
+  let browser;
+  try {
+    browser = await chromium.launch({ executablePath: chrome, headless: true });
+    const page = await browser.newPage();
+    await page.goto(base + '/public/login.php');
+    await page.locator('input[name=email]').fill(email);
+    await page.locator('input[name=password]').fill('SenhaTeste123!');
+    await Promise.all([page.waitForURL('**/dashboard.php**'), page.locator('button[type=submit]').click()]);
+    await page.waitForFunction(() => document.querySelector('#sheetStatus')?.textContent.includes('Pronto') || document.querySelector('#sheetStatus')?.textContent.includes('Salvo'), null, {timeout:20000});
+    await page.locator('[data-tab="planilha"]').click();
+    const fx = page.locator('#sheetFx');
+    await fx.fill('ação & café');
+    await page.locator('#sheetSnapshot').focus();
+    await page.waitForFunction(() => document.querySelector('#sheetStatus')?.textContent.includes('Salvo às'), null, {timeout:10000});
+    await page.reload();
+    await page.waitForFunction(() => document.querySelector('#sheetStatus')?.textContent.includes('Salvo em'), null, {timeout:20000});
+    await page.locator('[data-tab="planilha"]').click();
+    assert.equal(await fx.inputValue(), 'ação & café');
+    console.log('OK: barra de fórmula persiste após trocar foco e recarregar');
+    let releaseFirst, firstSeen;
+    const firstStarted = new Promise(resolve => { firstSeen = resolve; });
+    const holdFirst = new Promise(resolve => { releaseFirst = resolve; });
+    let writes = 0;
+    const endpoint = '**/actions/sheets/save.php';
+    await page.route(endpoint, async route => {
+      writes++;
+      if (writes === 1) { firstSeen(); await holdFirst; }
+      await route.continue();
+    });
+    const edit = async value => { await fx.fill(value); await page.locator('#sheetSnapshot').focus(); };
+    await edit('antiga');
+    await firstStarted;
+    await edit('nova');
+    await page.waitForTimeout(1100);
+    assert.equal(writes, 1, 'segunda gravação aguarda a primeira');
+    assert.equal(await page.evaluate(() => { const e = new Event('beforeunload', {cancelable:true}); window.dispatchEvent(e); return e.defaultPrevented; }), true);
+    releaseFirst();
+    await page.waitForFunction(() => document.querySelector('#sheetStatus')?.textContent.includes('Salvo às'), null, {timeout:10000});
+    assert.equal(writes, 2);
+    await page.unroute(endpoint);
+    await page.reload();
+    await page.waitForFunction(() => document.querySelector('#sheetStatus')?.textContent.includes('Salvo em'), null, {timeout:20000});
+    await page.locator('[data-tab="planilha"]').click();
+    assert.equal(await fx.inputValue(), 'nova');
+    console.log('OK: edições rápidas são serializadas e a mais recente persiste');
+    await page.route(endpoint, route => route.abort('failed'), {times:1});
+    await edit('após falha');
+    await page.waitForFunction(() => document.querySelector('#sheetStatus')?.textContent.includes('não salvo'), null, {timeout:10000});
+    assert.equal(await page.evaluate(() => { const e = new Event('beforeunload', {cancelable:true}); window.dispatchEvent(e); return e.defaultPrevented; }), true);
+    await page.evaluate(() => window.dispatchEvent(new Event('online')));
+    await page.waitForFunction(() => document.querySelector('#sheetStatus')?.textContent.includes('Salvo às'), null, {timeout:10000});
+    await page.reload();
+    await page.waitForFunction(() => document.querySelector('#sheetStatus')?.textContent.includes('Salvo em'), null, {timeout:20000});
+    await page.locator('[data-tab="planilha"]').click();
+    assert.equal(await fx.inputValue(), 'após falha');
+    console.log('OK: erro de rede mantém aviso e recuperação persiste');
+    await page.route(endpoint, route => route.fulfill({status:500, contentType:'application/json', body:JSON.stringify({ok:false,error:'Erro de teste'})}), {times:1});
+    await edit('após erro HTTP');
+    await page.waitForFunction(() => document.querySelector('#sheetStatus')?.textContent.includes('Erro de teste'), null, {timeout:10000});
+    assert.equal(await page.evaluate(() => { const e = new Event('beforeunload', {cancelable:true}); window.dispatchEvent(e); return e.defaultPrevented; }), true);
+    await page.evaluate(() => window.dispatchEvent(new Event('online')));
+    await page.waitForFunction(() => document.querySelector('#sheetStatus')?.textContent.includes('Salvo às'), null, {timeout:10000});
+    await page.reload();
+    await page.waitForFunction(() => document.querySelector('#sheetStatus')?.textContent.includes('Salvo em'), null, {timeout:20000});
+    await page.locator('[data-tab="planilha"]').click();
+    assert.equal(await fx.inputValue(), 'após erro HTTP');
+    console.log('OK: erro HTTP preserva pendência e permite nova tentativa');
+  } finally { if (browser) await browser.close(); fixture('delete'); }
+})().catch(e => { console.error(e); process.exitCode=1; });
+
+
+

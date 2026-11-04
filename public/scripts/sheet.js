@@ -28,6 +28,10 @@
     var undoStack = [];
     var redoStack = [];
     var saveTimer = null;
+    var revision = 0;
+    var savedRevision = 0;
+    var pendingWrites = 0;
+    var writeQueue = Promise.resolve();
     var lastSnapshotAt = 0;
     var editing = null;
 
@@ -121,8 +125,21 @@
         var body = new FormData();
         body.append('_token', window.NOVIX_CSRF_TOKEN || '');
         Object.keys(data).forEach(function (k) { body.append(k, data[k]); });
-        return fetch(url, { method: 'POST', body: body, credentials: 'same-origin' })
-            .then(function (res) { return res.json(); });
+        pendingWrites += 1;
+        var request = writeQueue.then(function () {
+            return fetch(url, { method: 'POST', body: body, credentials: 'same-origin' })
+                .then(function (res) {
+                    return res.json().then(function (json) {
+                        if (!res.ok || !json || !json.ok) { throw new Error((json && json.error) || 'Falha ao salvar'); }
+                        return json;
+                    });
+                });
+        });
+        writeQueue = request.then(function () {}, function () {});
+        return request.then(function (result) { pendingWrites -= 1; return result; }, function (error) {
+            pendingWrites -= 1;
+            throw error;
+        });
     }
 
     // ------------------------------------------------------- HyperFormula
@@ -632,6 +649,7 @@
         input.value = seedFromKey === undefined ? rawAt(sel.r, sel.c) : seedFromKey;
         cell.appendChild(input);
         editing = { input: input, r: sel.r, c: sel.c };
+        input.addEventListener('input', function () { status('Alterações não salvas', true); });
         // Teclado virtual no mobile: garante que a célula em edição fique visível.
         cell.scrollIntoView({ block: 'nearest', inline: 'nearest' });
         input.focus();
@@ -689,6 +707,7 @@
     }
 
     function scheduleSave() {
+        revision += 1;
         if (saveTimer) { clearTimeout(saveTimer); }
         status('Alterações não salvas', true);
         saveTimer = setTimeout(save, AUTOSAVE_MS);
@@ -696,13 +715,22 @@
 
     function save() {
         saveTimer = null;
+        var savingRevision = revision;
+        var content = payload();
         status('Salvando…', true);
-        post('/actions/sheets/save.php', { content: payload() })
+        post('/actions/sheets/save.php', { content: content })
             .then(function (res) {
-                if (res && res.ok) { status('Salvo às ' + res.saved_at, false); }
-                else { status((res && res.error) || 'Falha ao salvar', false); }
+                savedRevision = Math.max(savedRevision, savingRevision);
+                if (revision === savingRevision && !hasEditorChanges()) { status('Salvo às ' + res.saved_at, false); }
             })
-            .catch(function () { status('Sem conexão — não salvo', false); });
+            .catch(function (error) {
+                if (revision === savingRevision) { status((error.message || 'Sem conexão') + ' — não salvo', false); }
+            });
+    }
+
+    function hasEditorChanges() {
+        return (editing && editing.input.value !== rawAt(editing.r, editing.c)) ||
+            (el.fx && document.activeElement === el.fx && el.fx.value !== rawAt(sel.r, sel.c));
     }
 
     function snapshot() {
@@ -715,13 +743,15 @@
             return;
         }
         lastSnapshotAt = now;
+        var snapshotRevision = revision;
         status('Criando marco…', true);
         post('/actions/sheets/snapshot.php', { content: payload(), label: 'Marco salvo' })
             .then(function (res) {
                 if (res && res.ok) {
                     state.versions = res.versions || [];
                     renderVersions();
-                    status('Marco criado às ' + res.saved_at, false);
+                    savedRevision = Math.max(savedRevision, snapshotRevision);
+                    if (revision === snapshotRevision && !hasEditorChanges()) { status('Marco criado às ' + res.saved_at, false); }
                 } else {
                     lastSnapshotAt = 0;
                     status((res && res.error) || 'Falha ao criar marco', false);
@@ -734,6 +764,8 @@
     }
 
     function restoreVersion(versionId) {
+        if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; save(); }
+        var restoreRevision = revision;
         status('Restaurando…', true);
         post('/actions/sheets/restore.php', { version_id: versionId })
             .then(function (res) {
@@ -741,10 +773,15 @@
                     status((res && res.error) || 'Falha ao restaurar', false);
                     return;
                 }
-                pushUndo();
-                adoptContent(res.content);
+                if (revision === restoreRevision && !hasEditorChanges()) {
+                    pushUndo();
+                    adoptContent(res.content);
+                    savedRevision = revision;
+                } else {
+                    scheduleSave();
+                }
                 if (el.histMenu) { el.histMenu.hidden = true; }
-                status('Versão restaurada', false);
+                if (revision === restoreRevision) { status('Versão restaurada', false); }
             })
             .catch(function () { status('Sem conexão — não restaurado', false); });
     }
@@ -752,7 +789,7 @@
     function adoptContent(content) {
         var tabs = (content && Array.isArray(content.tabs)) ? content.tabs : [];
         state.tabs = tabs.map(function (t) {
-            return { name: String(t.name || 'Página'), cells: (t.cells && typeof t.cells === 'object') ? t.cells : {} };
+            return { name: String(t.name || 'Página'), cells: (t.cells && typeof t.cells === 'object' && !Array.isArray(t.cells)) ? t.cells : {} };
         });
         if (!state.tabs.length) { state.tabs = [{ name: 'Página 1', cells: {} }]; }
         state.active = 0;
@@ -866,6 +903,7 @@
         });
 
         if (el.fx) {
+            el.fx.addEventListener('input', function () { status('Alterações não salvas', true); });
             el.fx.addEventListener('blur', function () {
                 setCell(sel.r, sel.c, el.fx.value);
             });
@@ -958,19 +996,23 @@
             else if (k === 'y') { ev.preventDefault(); redo(); }
         });
 
-        // Autosave pendente não pode se perder ao sair da página.
-        window.addEventListener('beforeunload', function () {
+        window.addEventListener('online', function () {
+            if (revision > savedRevision && !saveTimer) { save(); }
+        });
+
+        document.addEventListener('visibilitychange', function () {
+            if (document.visibilityState !== 'hidden') { return; }
             if (editing) { closeEditor(true); }
             if (document.activeElement === el.fx) { setCell(sel.r, sel.c, el.fx.value); }
-            if (saveTimer) {
-                clearTimeout(saveTimer);
-                saveTimer = null;
-                var body = new FormData();
-                body.append('_token', window.NOVIX_CSRF_TOKEN || '');
-                body.append('content', payload());
-                if (navigator.sendBeacon) {
-                    navigator.sendBeacon('/actions/sheets/save.php', body);
-                }
+            if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; save(); }
+        });
+
+        // A saída pode cancelar requisições: peça confirmação enquanto houver trabalho pendente.
+        window.addEventListener('beforeunload', function (event) {
+            if (revision > savedRevision || pendingWrites || hasEditorChanges()) {
+                event.preventDefault();
+                event.returnValue = '';
+                return '';
             }
         });
     }
