@@ -1481,3 +1481,5 @@ internas estiverem reskinadas — mexer agora arriscaria Entrada/Landing já ent
 
 ## Planilhas — investigação 2026-11-04
 - Etapa da barra de fórmulas em reports/checkpoint_sheets_2026-11-04.md; integração e concorrência pendentes. Sem deploy.
+
+- Regressão HTTP isolada em reports/checkpoint_sheets_http_2026-11-04.md; concorrência e validação final pendentes.
