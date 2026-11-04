@@ -1478,3 +1478,6 @@ internas estiverem reskinadas — mexer agora arriscaria Entrada/Landing já ent
 - **Score impact**: security posture recovered to full marks (+2 pts). Overall 88 → 90/100.
 - **Recommendation upgraded**: DEPLOY WITH WARNINGS → **SAFE TO DEPLOY**.
 - **W2 status: RESOLVED.**
+
+## Planilhas — investigação 2026-11-04
+- Etapa da barra de fórmulas em reports/checkpoint_sheets_2026-11-04.md; integração e concorrência pendentes. Sem deploy.

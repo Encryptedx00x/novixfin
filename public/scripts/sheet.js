@@ -706,6 +706,8 @@
     }
 
     function snapshot() {
+        if (editing) { closeEditor(true); }
+        if (document.activeElement === el.fx) { setCell(sel.r, sel.c, el.fx.value); }
         var now = Date.now();
         if (now - lastSnapshotAt < SNAPSHOT_MIN_INTERVAL) {
             var mins = Math.ceil((SNAPSHOT_MIN_INTERVAL - (now - lastSnapshotAt)) / 60000);
@@ -796,6 +798,8 @@
 
             var r = parseInt(cell.dataset.r, 10);
             var c = parseInt(cell.dataset.c, 10);
+            // O mousedown muda a seleção antes de o input perder o foco.
+            if (document.activeElement === el.fx) { setCell(sel.r, sel.c, el.fx.value); }
 
             if (ev.shiftKey) {
                 selEnd = { r: r, c: c };       // Shift+clique estende
@@ -862,6 +866,9 @@
         });
 
         if (el.fx) {
+            el.fx.addEventListener('blur', function () {
+                setCell(sel.r, sel.c, el.fx.value);
+            });
             el.fx.addEventListener('keydown', function (ev) {
                 if (ev.key === 'Enter') {
                     ev.preventDefault();
@@ -953,6 +960,8 @@
 
         // Autosave pendente não pode se perder ao sair da página.
         window.addEventListener('beforeunload', function () {
+            if (editing) { closeEditor(true); }
+            if (document.activeElement === el.fx) { setCell(sel.r, sel.c, el.fx.value); }
             if (saveTimer) {
                 clearTimeout(saveTimer);
                 saveTimer = null;

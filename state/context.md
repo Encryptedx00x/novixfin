@@ -306,3 +306,6 @@
 - actions/login.php, actions/register.php, actions/logout.php (duplicates of public/)
 - database/update-accounts.sql, database/fix_categories.sql, database/add_effective_date.sql
 - v1.7 (antes de mudar design completamente)/, v2 (prototipo 1)/, v2.1 (com sidebar correta)/
+
+## Planilhas — 2026-11-04
+- Alterações na barra de fórmulas precisam ser confirmadas antes de mudar de célula, criar marco ou sair. Persistência integrada ainda requer validação.
