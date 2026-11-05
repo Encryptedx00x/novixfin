@@ -1495,3 +1495,5 @@ internas estiverem reskinadas — mexer agora arriscaria Entrada/Landing já ent
 - PR planilhas: revisão obrigatória; ver reports/checkpoint_sheets_revision_required_2026-11-04.md.
 
 - PR planilhas: resposta perdida e cópia manual; ver reports/checkpoint_sheets_uncertain_response_2026-11-05.md.
+
+- PR planilhas: preparação e limitações em reports/sheets_deploy_readiness_2026-11-05.md; suíte 14/14, sem deploy.
