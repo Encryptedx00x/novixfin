@@ -1501,3 +1501,5 @@ internas estiverem reskinadas — mexer agora arriscaria Entrada/Landing já ent
 - PR planilhas: ensaio isolado em reports/sheets_gate_rehearsal_2026-11-05.md; drenagem de produção e OPcache FPM não comprovados; deploy bloqueado.
 
 - Auditoria final: correção do clipboard da recuperação e suite 14/14; ver reports/checkpoint_sheets_final_audit_2026-11-05.md.
+
+- FPM real: listener separado, proxy+scoreboard, OPcache positivo/negativo e rollback com barreira ensaiados; ver reports/checkpoint_sheets_fpm_lab_2026-11-05.md. Bootstrap na VPS ainda exige janela autorizada.
