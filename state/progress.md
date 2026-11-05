@@ -1,5 +1,13 @@
 # NovixFin v3 Execution Progress
 
+## History compilation warning — 2026-11-05
+- Published technical commit `1a3dcd70340581e9bcbe3052a945f8b264c6b985` to GitHub/main and production.
+- Removed the ineffective global `DateTimeImmutable` import; namespaced imports in `src/` remain valid.
+- Regression: 15 public entrypoints linted with diagnostics enabled, including warnings that return exit code zero.
+- Isolated suite: 14 files returned zero; 8 database tests skipped without a configured disposable database.
+- Production: only `public/history.php` replaced, same owner/mode, no migrations/restarts. Backup and validation: `reports/history-warning-2026-11-05.md`.
+- Existing untracked images and `docker-compose.test.yml` preserved.
+
 ## MERGE dev-fatura-cartao -> main, pronto para deploy (2026-08-28)
 - **Checklist**: `/reports/deploy_2026-08-28.md`. **Nada foi enviado ao servidor; sem push.**
 - `b652564` **fix do COALESCE** direto em main: as duas queries de metas (linhas 691 e 939)
