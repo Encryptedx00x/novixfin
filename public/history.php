@@ -7,7 +7,6 @@ require_once __DIR__ . '/../includes/csrf.php';
 require_once __DIR__ . '/../includes/history_summary.php';
 requireAuth();
 
-use DateTimeImmutable;
 use Novix\Database\Connection;
 use Novix\Repositories\TransactionRepository;
 use Novix\Repositories\CurrencySettingsRepository;
