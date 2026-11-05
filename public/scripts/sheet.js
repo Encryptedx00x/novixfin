@@ -34,6 +34,8 @@
     var writeQueue = Promise.resolve();
     var serverRevision = null;
     var conflict = false;
+    var recoveryButton = null;
+    var recoveryText = null;
     var lastSnapshotAt = 0;
     var editing = null;
 
@@ -123,6 +125,36 @@
         el.status.appendChild(document.createTextNode(text));
     }
 
+    // A cópia inclui todas as abas e o conteúdo ainda aberto no editor.
+    function offerRecovery() {
+        if (recoveryButton || !el.screen) { return; }
+        recoveryButton = document.createElement('button');
+        recoveryButton.type = 'button';
+        recoveryButton.textContent = 'Copiar dados pendentes';
+        recoveryText = document.createElement('textarea');
+        recoveryText.setAttribute('aria-label', 'Dados pendentes para copiar');
+        recoveryText.hidden = true;
+        recoveryText.readOnly = true;
+        recoveryText.style.width = '100%';
+        recoveryText.rows = 8;
+        recoveryButton.addEventListener('click', function () {
+            var copy = JSON.parse(payload());
+            var tab = copy.tabs[state.active];
+            var ref = editing ? refOf(editing.r, editing.c) : refOf(sel.r, sel.c);
+            var value = editing ? editing.input.value : (document.activeElement === el.fx ? el.fx.value : null);
+            if (tab && value !== null) {
+                if (value === '') { delete tab.cells[ref]; } else { tab.cells[ref] = value; }
+            }
+            recoveryText.value = JSON.stringify(copy, null, 2);
+            recoveryText.hidden = false;
+            recoveryText.focus();
+            recoveryText.select();
+            status('Dados selecionados: copie antes de sair ou atualizar.', false);
+        });
+        el.status.parentNode.appendChild(recoveryButton);
+        el.screen.insertBefore(recoveryText, el.screen.children[1]);
+    }
+
     function post(url, data) {
         var body = new FormData();
         body.append('_token', window.NOVIX_CSRF_TOKEN || '');
@@ -133,6 +165,7 @@
             if (!serverRevision) { throw new Error('Planilha ainda não carregada.'); }
             body.append('_revision', serverRevision);
             return fetch(url, { method: 'POST', body: body, credentials: 'same-origin' })
+                .catch(function () { throw new Error('Não foi possível confirmar o salvamento. Copie os dados pendentes'); })
                 .then(function (res) {
                     return res.json().then(function (json) {
                         if (res.status === 409) { conflict = true; }
@@ -732,6 +765,7 @@
                 if (revision === savingRevision && !hasEditorChanges()) { status('Salvo às ' + res.saved_at, false); }
             })
             .catch(function (error) {
+                offerRecovery();
                 if (revision === savingRevision) { status((error.message || 'Sem conexão') + ' — não salvo', false); }
             });
     }
@@ -767,6 +801,7 @@
             })
             .catch(function (error) {
                 lastSnapshotAt = 0;
+                offerRecovery();
                 status((error.message || 'Sem conexão') + ' — marco não criado', false);
             });
     }
@@ -791,7 +826,7 @@
                 if (el.histMenu) { el.histMenu.hidden = true; }
                 if (revision === restoreRevision) { status('Versão restaurada', false); }
             })
-            .catch(function (error) { status((error.message || 'Sem conexão') + ' — não restaurado', false); });
+            .catch(function (error) { offerRecovery(); status((error.message || 'Sem conexão') + ' — não restaurado', false); });
     }
 
     function adoptContent(content) {

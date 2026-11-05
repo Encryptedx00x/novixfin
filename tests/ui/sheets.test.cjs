@@ -29,6 +29,13 @@ const chrome = process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Applic
     await page.locator('[data-tab="planilha"]').click();
     assert.equal(await fx.inputValue(), 'ação & café');
     console.log('OK: barra de fórmula persiste após trocar foco e recarregar');
+    await fx.fill('ao ocultar');
+    const hiddenSave = page.waitForRequest(req => req.url().endsWith('/actions/sheets/save.php'), {timeout:700});
+    await page.evaluate(() => { Object.defineProperty(document, 'visibilityState', {configurable:true, value:'hidden'}); document.dispatchEvent(new Event('visibilitychange')); });
+    await hiddenSave;
+    await page.waitForFunction(() => document.querySelector('#sheetStatus')?.textContent.includes('Salvo às'), null, {timeout:10000});
+    await page.evaluate(() => { delete document.visibilityState; });
+    console.log('OK: ocultar a página antecipa o salvamento do editor');
     let releaseFirst, firstSeen;
     const firstStarted = new Promise(resolve => { firstSeen = resolve; });
     const holdFirst = new Promise(resolve => { releaseFirst = resolve; });
@@ -92,5 +99,36 @@ const chrome = process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Applic
     assert.equal(await other.locator('#sheetFx').inputValue(), 'cópia antiga');
     await other.close({runBeforeUnload:false});
     console.log('OK: conflito entre páginas não sobrescreve a gravação recente');
+    await page.route(endpoint, async route => { await route.fetch(); await route.abort('failed'); }, {times:1});
+    await edit('resposta perdida');
+    await page.waitForFunction(() => document.querySelector('#sheetStatus')?.textContent.includes('confirmar'), null, {timeout:10000});
+    assert.equal(await fx.inputValue(), 'resposta perdida');
+    assert.equal(await page.evaluate(async () => (await (await fetch('/actions/sheets/load.php')).json()).content.tabs[0].cells.A1), 'resposta perdida');
+    const newer = await page.context().newPage();
+    await newer.goto(base + '/public/dashboard.php');
+    await newer.waitForFunction(() => document.querySelector('#sheetStatus')?.textContent.includes('Salvo em'), null, {timeout:20000});
+    await newer.locator('[data-tab="planilha"]').click();
+    await newer.locator('#sheetFx').fill('outra página gravou');
+    await newer.locator('#sheetSnapshot').focus();
+    await newer.waitForFunction(() => document.querySelector('#sheetStatus')?.textContent.includes('Salvo às'), null, {timeout:10000});
+    await page.evaluate(() => window.dispatchEvent(new Event('online')));
+    await page.waitForFunction(() => document.querySelector('#sheetStatus')?.textContent.includes('outra página'), null, {timeout:10000});
+    await page.getByRole('button', {name:'Copiar dados pendentes'}).click();
+    const pending = JSON.parse(await page.getByLabel('Dados pendentes para copiar').inputValue());
+    assert.equal(pending.tabs[0].cells.A1, 'resposta perdida');
+    assert.equal(await newer.evaluate(async () => (await (await fetch('/actions/sheets/load.php')).json()).content.tabs[0].cells.A1), 'outra página gravou');
+    assert.equal(await page.evaluate(() => { const e = new Event('beforeunload', {cancelable:true}); window.dispatchEvent(e); return e.defaultPrevented; }), true);
+    await newer.close();
+    console.log('OK: resposta perdida, cópia local e proteção contra outra página');
+    for (const leave of [() => page.reload(), () => page.goto(base + '/public/accounts.php'), () => page.close({runBeforeUnload:true})]) {
+      const dialogPromise = page.waitForEvent('dialog', {timeout:5000});
+      const leaving = leave().catch(() => {});
+      const dialog = await dialogPromise;
+      assert.equal(dialog.type(), 'beforeunload');
+      await dialog.dismiss();
+      await leaving;
+      assert.equal(page.isClosed(), false);
+    }
+    console.log('OK: Chrome alerta ao atualizar, navegar e fechar com alterações pendentes');
   } finally { if (browser) await browser.close(); fixture('delete'); }
 })().catch(e => { console.error(e); process.exitCode=1; });
