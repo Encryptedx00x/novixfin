@@ -12,7 +12,7 @@ const chrome = process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Applic
   let browser;
   try {
     browser = await chromium.launch({ executablePath: chrome, headless: true });
-    const context = await browser.newContext();
+    const context = await browser.newContext({permissions:['clipboard-read','clipboard-write']});
     const page = await context.newPage();
     await page.goto(base + '/public/login.php');
     await page.locator('input[name=email]').fill(email);
@@ -116,6 +116,9 @@ const chrome = process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Applic
     await page.getByRole('button', {name:'Copiar dados pendentes'}).click();
     const pending = JSON.parse(await page.getByLabel('Dados pendentes para copiar').inputValue());
     assert.equal(pending.tabs[0].cells.A1, 'resposta perdida');
+    await page.keyboard.press('Control+C');
+    const clipboard = await page.evaluate(() => navigator.clipboard.readText());
+    assert.deepEqual(JSON.parse(clipboard), pending, 'cópia real conserva todas as abas em JSON');
     assert.equal(await newer.evaluate(async () => (await (await fetch('/actions/sheets/load.php')).json()).content.tabs[0].cells.A1), 'outra página gravou');
     assert.equal(await page.evaluate(() => { const e = new Event('beforeunload', {cancelable:true}); window.dispatchEvent(e); return e.defaultPrevented; }), true);
     await newer.close();

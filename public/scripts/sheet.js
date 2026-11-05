@@ -1009,6 +1009,7 @@
         document.addEventListener('copy', function (ev) {
             var scope = document.querySelector('.sheet-screen');
             if (!scope || !scope.contains(document.activeElement)) { return; }
+            if (document.activeElement === recoveryText || document.activeElement === el.fx) { return; }
             if (editing) { return; }
             ev.preventDefault();
             var g = normRange();
@@ -1021,6 +1022,7 @@
         document.addEventListener('paste', function (ev) {
             var scope = document.querySelector('.sheet-screen');
             if (!scope || !scope.contains(document.activeElement)) { return; }
+            if (document.activeElement === recoveryText || document.activeElement === el.fx) { return; }
             if (editing) { return; }
             ev.preventDefault();
             var text = ev.clipboardData ? ev.clipboardData.getData('text/plain') : '';
@@ -1033,6 +1035,7 @@
             if (!(ev.ctrlKey || ev.metaKey)) { return; }
             var scope = document.querySelector('.sheet-screen');
             if (!scope || !scope.contains(document.activeElement)) { return; }
+            if (document.activeElement === recoveryText) { return; }
             var k = ev.key.toLowerCase();
             if (k === 's') { ev.preventDefault(); snapshot(); }
             // Ctrl+Shift+Z é o "refazer" do resto do mundo (e o único no

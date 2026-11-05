@@ -1499,3 +1499,5 @@ internas estiverem reskinadas — mexer agora arriscaria Entrada/Landing já ent
 - PR planilhas: preparação e limitações em reports/sheets_deploy_readiness_2026-11-05.md; suíte 14/14, sem deploy.
 
 - PR planilhas: ensaio isolado em reports/sheets_gate_rehearsal_2026-11-05.md; drenagem de produção e OPcache FPM não comprovados; deploy bloqueado.
+
+- Auditoria final: correção do clipboard da recuperação e suite 14/14; ver reports/checkpoint_sheets_final_audit_2026-11-05.md.
