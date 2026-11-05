@@ -23,3 +23,6 @@ Este relatório substitui as limitações e o procedimento do relatório de 04/1
 - Fechamento forçado, falha do navegador ou do sistema pode impedir eventos e avisos. A cópia manual deve ser feita antes da saída; não há mesclagem automática.
 - Uma resposta perdida deixa o resultado incerto; eventual conflito exige copiar o conteúdo local antes de atualizar. As cópias podem conter informações financeiras, portanto devem ser tratadas como privadas.
 - Durante um rollback para backend antigo, a proteção de revisão deixará de existir. A troca não é segura sem a barreira e a coordenação das sessões.
+
+## Atualização de ensaio — 2026-11-05
+A barreira foi ensaiada isoladamente, mas a drenagem na VPS e a invalidação de bytecode no FPM continuam sem comprovação. Leia reports/sheets_gate_rehearsal_2026-11-05.md; a decisão permanece AINDA BLOQUEADO.
