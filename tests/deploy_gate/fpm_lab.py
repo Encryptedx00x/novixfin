@@ -7,6 +7,10 @@ import hashlib, http.client, io, json, os, pathlib, shutil, socket, stat, struct
 
 ROOT=pathlib.Path(__file__).resolve().parents[2]
 assert os.environ.get('NOVIXFIN_LOCAL_LAB')=='YES', 'Explicit local-lab opt-in required'
+assert os.environ.get('DOCKER_HOST','unix:///var/run/docker.sock')=='unix:///var/run/docker.sock', 'Remote Docker is forbidden'
+endpoint=subprocess.check_output(['docker','context','inspect','--format','{{.Endpoints.docker.Host}}'],text=True).strip()
+assert endpoint=='unix:///var/run/docker.sock', 'Only the local Linux Docker socket is permitted'
+assert 'vps-19a59c53' not in socket.gethostname(), 'Never run this lab on the VPS'
 CADDY=pathlib.Path(os.environ['CADDY_EXE']).resolve()
 PREFIX='nvx-fpm-'+uuid.uuid4().hex[:10]
 LAB=pathlib.Path(tempfile.mkdtemp(prefix=PREFIX+'-'))
@@ -126,6 +130,8 @@ try:
         shutil.copyfile(ROOT/'scripts/deploy'/f,OPS/f);(OPS/f).chmod(0o640);os.chown(OPS/f,0,33)
     (OPS/'control.key').write_text(uuid.uuid4().hex+uuid.uuid4().hex);(OPS/'control.key').chmod(0o640);os.chown(OPS/'control.key',0,33)
     fpm=LAB/'fpm.conf';fpm.write_text('''[global]\ndaemonize = no\nerror_log = /proc/self/fd/2\n[www]\nuser = www-data\ngroup = www-data\nlisten = 127.0.0.1:39091\npm = static\npm.max_children = 5\npm.max_requests = 0\npm.status_path = /__novixfin_fpm_status\npm.status_listen = 127.0.0.1:39092\nclear_env = no\ncatch_workers_output = yes\nrequest_terminate_timeout = 0\n''')
+    status_options='pm.status_path = /__novixfin_fpm_status\npm.status_listen = 127.0.0.1:39092\n'
+    if os.environ.get('LAB_BOOTSTRAP')=='YES':fpm.write_text(fpm.read_text().replace(status_options,''))
     ini=LAB/'opcache.ini';ini.write_text('opcache.enable=1\nopcache.validate_timestamps=0\nopcache.file_update_protection=0\nopcache.enable_cli=0\n')
     php_control='''<?php
 header('Content-Type: application/json');
@@ -158,6 +164,30 @@ $p->exec('UPDATE fpm_probe SET value=value+1');echo 'write finished';
     sql('CREATE DATABASE novixfin_app; CREATE DATABASE novixfin_test; CREATE TABLE novixfin_test.fpm_probe (value INT NOT NULL); INSERT INTO novixfin_test.fpm_probe VALUES(0);')
     docker('run','-d','--name',PHP,'--label','novixfin.lab='+PREFIX,'--network','host','--mount','type=bind,src='+str(APP)+',dst=/srv/novixfin','--mount','type=bind,src='+str(CONTROL)+',dst=/control','--mount','type=bind,src='+str(controlfile)+',dst=/opt/lab/control.php,readonly','--mount','type=bind,src='+str(OPS)+',dst=/opt/ops,readonly','--mount','type=bind,src='+str(fpm)+',dst=/opt/lab/fpm.conf,readonly','--mount','type=bind,src='+str(ini)+',dst=/usr/local/etc/php/conf.d/zz-lab.ini,readonly','-e','DB_HOST=127.0.0.1','-e','DB_PORT=33317','-e','DB_DATABASE=novixfin_app','-e','DB_USERNAME=root',PHP_IMAGE,'php-fpm','--fpm-config','/opt/lab/fpm.conf')
     containers.append(PHP)
+    if os.environ.get('LAB_BOOTSTRAP')=='YES':
+        def main_ready():
+            try:return admin('op=probe')['sapi']=='fpm-fcgi'
+            except (OSError,ValueError,RuntimeError):return False
+        until(main_ready)
+        identity_code="$out=[];foreach(explode(' ',trim(file_get_contents('/proc/1/task/1/children'))) as $pid){if(!$pid||!is_file('/proc/'.$pid.'/stat'))continue;$s=file_get_contents('/proc/'.$pid.'/stat');$f=explode(' ',substr($s,strrpos($s,')')+2));$out[$pid]=$f[19];}echo json_encode($out);"
+        def identities():return json.loads(docker('exec',PHP,'php','-r',identity_code))
+        before=identities();assert len(before)==5
+        bootstrap_token=uuid.uuid4().hex
+        with cf.ThreadPoolExecutor(max_workers=2) as ex:
+            fs=[ex.submit(fcgi,'/srv/novixfin/actions/sheets/__lab_slow.php','token='+bootstrap_token+'&finish=1') for _ in range(2)]
+            for future in fs:assert b'response finished' in future.result()
+        fpm.write_text(fpm.read_text()+status_options)
+        docker('kill','--signal=USR2',PHP)  # Only this uniquely labelled lab container.
+        still=identities();value_before_release=int(sql('SELECT value FROM novixfin_test.fpm_probe'))
+        # No code is replaced while the old worker identities remain.
+        (CONTROL/('release-'+bootstrap_token)).touch()
+        until(lambda:all(identities().get(pid)!=ticks for pid,ticks in before.items()),30)
+        value_after_release=int(sql('SELECT value FROM novixfin_test.fpm_probe'))
+        EVIDENCE['bootstrap']={'old_workers':before,'after_signal':still,'after':identities(),'writes_before_release':value_before_release,'writes_after_release':value_after_release,'expected_writes':2,'replaced_code_while_old_workers_present':False,'safe':value_after_release==2}
+        if value_after_release!=2:
+            check('controle negativo: reload gracioso não preservou trabalho após resposta; bootstrap REPROVADO')
+        else:
+            check('bootstrap isolado preservou gravações; identidades PID+start_ticks verificadas')
     def ready():
         try:return status()
         except (OSError,ValueError,RuntimeError):return False
@@ -175,6 +205,7 @@ $p->exec('UPDATE fpm_probe SET value=value+1');echo 'write finished';
     assert proxy_inflight()==0
     EVIDENCE['probe_A']=all_worker_probe('A');assert admin('op=cached')['cached']
     check('FPM real: 5 workers executaram A e o script está no OPcache')
+    initial_value=int(sql('SELECT value FROM novixfin_test.fpm_probe'))
     token=uuid.uuid4().hex
     with cf.ThreadPoolExecutor(max_workers=6) as ex:
         futures=[ex.submit(fcgi,'/srv/novixfin/actions/sheets/__lab_slow.php','token='+token+'&finish=1') for _ in range(5)]
@@ -185,10 +216,10 @@ $p->exec('UPDATE fpm_probe SET value=value+1');echo 'write finished';
         gate(True);assert_gate()
         try:require_drained();raise AssertionError('guard allowed busy pool')
         except RuntimeError:pass
-        assert sql('SELECT value FROM novixfin_test.fpm_probe')=='0'
+        assert int(sql('SELECT value FROM novixfin_test.fpm_probe'))==initial_value
         EVIDENCE['finishing']=busy;EVIDENCE['queued']=queued
         (CONTROL/('release-'+token)).touch();sixth.result();idle=until(lambda:(x if drained(x:=status()) else False))
-    assert sql('SELECT value FROM novixfin_test.fpm_probe')=='6'
+    assert int(sql('SELECT value FROM novixfin_test.fpm_probe'))==initial_value+6
     EVIDENCE['drained']=idle;check('barreira 28 métodos/endpoints; FPM Finishing + fila impedem troca; Idle e fila=0 liberam')
     # Partial request body admitted before reload must be counted even with idle FPM.
     gate(False)
@@ -200,7 +231,7 @@ $p->exec('UPDATE fpm_probe SET value=value+1');echo 'write finished';
     try:require_drained();raise AssertionError('guard allowed old upload')
     except RuntimeError:pass
     upload.close();(CONTROL/('release-'+bodytoken)).touch();until(lambda:proxy_inflight()==0 and drained(status()))
-    probe_value=int(sql('SELECT value FROM novixfin_test.fpm_probe'));assert probe_value in (6,7)
+    probe_value=int(sql('SELECT value FROM novixfin_test.fpm_probe'));assert probe_value in (initial_value+6,initial_value+7)
     check('corpo HTTP antigo incompleto bloqueia drenagem por métrica do proxy')
     # A connection with incomplete headers must use the newly loaded barrier.
     gate(False);headers=socket.create_connection(('127.0.0.1',38127));headers.sendall(b'POST /actions/sheets/save.php HTTP/1.1\r\nHost: 127.0.0.1:38127\r\n')
@@ -241,7 +272,7 @@ finally:
         (CONTROL/('release-'+p.name.split('-')[1])).touch()
     if proxy:proxy.terminate();proxy.wait(timeout=5)
     for c in reversed(containers):
-        EVIDENCE[c+'_logs']=docker('logs',c)
+        logs=run(['docker','logs',c]);EVIDENCE[c+'_logs']=(logs.stdout+logs.stderr).decode(errors='replace')
         # Only this run's uniquely named/labelled containers can be removed.
         label=docker('inspect','--format','{{ index .Config.Labels "novixfin.lab" }}',c).strip();assert label==PREFIX
         subprocess.run(['docker','rm','-fv',c],stdout=subprocess.DEVNULL,check=True)
