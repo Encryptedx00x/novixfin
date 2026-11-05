@@ -26,3 +26,6 @@ Este relatório substitui as limitações e o procedimento do relatório de 04/1
 
 ## Atualização de ensaio — 2026-11-05
 A barreira foi ensaiada isoladamente, mas a drenagem na VPS e a invalidação de bytecode no FPM continuam sem comprovação. Leia reports/sheets_gate_rehearsal_2026-11-05.md; a decisão permanece AINDA BLOQUEADO.
+
+## Auditoria e FPM real — 2026-11-05
+O relatório vigente é reports/sheets_final_audit_and_fpm_2026-11-05.md. Drenagem e OPcache foram comprovados no FPM isolado, mas o bootstrap por reload não preservou 2 gravações pós-resposta e foi reprovado. NO-GO para o primeiro corte da VPS.
