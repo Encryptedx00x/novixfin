@@ -1491,3 +1491,5 @@ internas estiverem reskinadas — mexer agora arriscaria Entrada/Landing já ent
 - Planilhas: testes de handlers portáveis, ver reports/checkpoint_sheets_test_paths_2026-11-04.md.
 
 - Planilhas: validação final e plano de rollback em reports/sheets_persistence_validation_2026-11-04.md. Sem deploy.
+
+- PR planilhas: revisão obrigatória; ver reports/checkpoint_sheets_revision_required_2026-11-04.md.

@@ -64,13 +64,17 @@ if (!http_login($email, $senha, $session)) {
  * restore.php, que lê `version_id` com filter_input(INPUT_POST, ...) — e essa
  * função ignora a superglobal $_POST, lendo o corpo verdadeiro da requisição.
  */
-$callHandler = static function (string $handler, array $post) use (&$session): array {
+$revision = null;
+$callHandler = static function (string $handler, array $post) use (&$session, &$revision): array {
+    if ($post !== [] && $revision !== null) { $post['_revision'] = $revision; }
     $path = '/actions/sheets/' . $handler;
     $res = ($post === [])
         ? http_get_json($path, $session)
         : http_post_json($path, $post, $session);
+    if (isset($res['revision'])) { $revision = $res['revision']; }
     return $res ?? ['__nao_json' => true];
 };
+$callHandler('load.php', []);
 
 $mkContent = static function (string $marker): string {
     return json_encode([

@@ -56,7 +56,9 @@ $userId = (int) $pdo->lastInsertId();
  * Roda um handler de actions/sheets em subprocesso, com sessão autenticada e
  * CSRF válido, e devolve o JSON decodificado.
  */
-$callHandler = static function (string $handler, array $post) use ($userId): array {
+$revision = null;
+$callHandler = static function (string $handler, array $post) use ($userId, &$revision): array {
+    if ($post !== [] && $revision !== null) { $post['_revision'] = $revision; }
     $bootstrap = '<?php' . "\n"
         . '$_SERVER["REQUEST_METHOD"] = ' . var_export($post === [] ? 'GET' : 'POST', true) . ';'
         . '$_SERVER["HTTP_HOST"] = "localhost";'
@@ -82,8 +84,10 @@ $callHandler = static function (string $handler, array $post) use ($userId): arr
         fwrite(STDERR, "Resposta não-JSON de {$handler}:\n{$raw}\n");
         return ['__nao_json' => true, 'raw' => $raw];
     }
+    if (isset($decoded['revision'])) { $revision = $decoded['revision']; }
     return $decoded;
 };
+$callHandler('load.php', []);
 
 // ------------------------------------------------------- salvar com fórmula
 // A célula A4 guarda a FÓRMULA. 10+20+30 = 60 — se em algum momento voltar

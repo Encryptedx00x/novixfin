@@ -46,7 +46,9 @@ $stmt->execute([
 ]);
 $userId = (int) $pdo->lastInsertId();
 
-$callHandler = static function (string $handler, array $post) use ($userId): array {
+$revision = null;
+$callHandler = static function (string $handler, array $post) use ($userId, &$revision): array {
+    if ($post !== [] && $revision !== null) { $post['_revision'] = $revision; }
     $bootstrap = '<?php' . "\n"
         . '$_SERVER["REQUEST_METHOD"] = ' . var_export($post === [] ? 'GET' : 'POST', true) . ';'
         . '$_SERVER["HTTP_HOST"] = "localhost";'
@@ -68,8 +70,10 @@ $callHandler = static function (string $handler, array $post) use ($userId): arr
         fwrite(STDERR, "Resposta não-JSON de {$handler}:\n" . implode("\n", $output) . "\n");
         return ['__nao_json' => true];
     }
+    if (isset($decoded['revision'])) { $revision = $decoded['revision']; }
     return $decoded;
 };
+$callHandler('load.php', []);
 
 // ----------------------------------------------------- documento com 3 abas
 $crossRef = "='Receitas'!B2";
