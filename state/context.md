@@ -321,3 +321,6 @@
 
 ## Sonda viva aprovada — 2026-11-06
 - Instalação mínima autorizada e uma consulta status comprovadas após manutenção de swap encerrada: controls em /srv/sites/.novixfin-deploy/probe-20261106T040503Z, root:33, dirs750/files640, sem manifesto. Preservar chave, nunca versioná-la. Pool www, geração1793209094, workers788/789/929, somente observador789 Running e fila0. GO para agendamento; nenhum deploy/barreira/reload/invalidação/SQL. Ver reports/sheets_probe_approved_2026-11-06.md e comandos externos atualizados; package antigo imutável tem documentação histórica.
+
+## Produção em contenção após tentativa — 2026-11-06
+- Marcador /srv/sites/.novixfin-deploy/sheets.pause ATIVO. Manifesto controls/sheets-manifest.json agora rollback-guard; cinco arquivos originais restaurados, bootstrap 503 SHA6d05fafb00a069ca65d567ba1a4de0e771176e161d1cc6abb31134250fdeac8b. Não restaurar bootstrap legado/reabrir. Três checkpoints da troca e três do rollback passaram; QA parou por premissa extra incorreta do smoke sobre células vazias HTTP, sem prova de regressão de persistência. Reter falha, alinhar QA ao contrato homologado e obter decisão de retomada. Ver reports/sheets_publication_attempt_2026-11-06.md. Dados preservados; nenhum merge/SQL direto/restart FPM.

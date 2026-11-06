@@ -1,5 +1,7 @@
 # Sonda privada aprovada e encerramento do preflight — 06/11/2026
 
+> Atualização posterior: publicação autorizada foi tentada e revertida em contenção após interrupção da QA. Estado atual: planilhas HTTP 503; não considerar o GO histórico abaixo como publicação concluída. Relatório vigente: `sheets_publication_attempt_2026-11-06.md`.
+
 **APTO PARA AGENDAR PUBLICAÇÃO.** A consulta real superou o único bloqueio pendente de observabilidade inicial. Não foi autorizado nem executado deploy. A aprovação refere-se ao agendamento do protocolo ensaiado; não declara que a produção já foi drenada ou atualizada.
 
 ## Estabilidade e instalação autorizada

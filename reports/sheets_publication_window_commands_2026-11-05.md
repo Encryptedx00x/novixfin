@@ -1,5 +1,7 @@
 # Comandos preparados — executar somente com autorização separada
 
+> Estado atual de 06/11: houve tentativa autorizada, três checkpoints aprovados e posterior rollback de contenção após QA incompleta. Planilhas em HTTP 503, cinco originais + bootstrap de trava. Não repetir estes comandos cegamente: artefatos já existem e a pré-condição atual é o manifesto `rollback-guard`. Leia `sheets_publication_attempt_2026-11-06.md` para evidências e condições de recuperação.
+
 Complementa `sheets_first_transition_2026-11-05.md` e o preflight de produção. Candidato funcional fixado em `ccf9ef8`. Em 06/11 foram instalados exclusivamente os dois utilitários privados e a chave; uma consulta `status` foi aprovada. Ver `sheets_probe_approved_2026-11-06.md`. **Os comandos de publicação abaixo não foram executados nem estão autorizados.** Não executar todo o documento de uma vez; cada checkpoint é um gate manual. Falha depois da ativação deixa a contenção ativa.
 
 ## 0. Reutilizar a sonda validada; preparar o restante somente na janela autorizada
