@@ -14,13 +14,29 @@ if (PHP_SAPI !== 'fpm-fcgi' || !is_string($provided) || strlen($key) < 64 || !ha
     control_reply(['ok' => false, 'error' => 'Control access denied.'], 403);
 }
 try {
+    $operation = $_GET['op'] ?? 'inspect';
+    if ($operation === 'status') {
+        if (!function_exists('fpm_get_status')) { throw new RuntimeException('Pool observation unavailable.'); }
+        $raw = fpm_get_status();
+        if (!is_array($raw) || !isset($raw['procs'])) { throw new RuntimeException('Invalid pool snapshot.'); }
+        $status = [];
+        foreach (['pool', 'start-time', 'accepted-conn', 'listen-queue', 'active-processes', 'idle-processes', 'total-processes'] as $field) {
+            if (!array_key_exists($field, $raw)) { throw new RuntimeException('Incomplete pool snapshot.'); }
+            $status[str_replace('-', ' ', $field)] = $raw[$field];
+        }
+        $status['processes'] = [];
+        $status['observer pid'] = getmypid();
+        foreach ($raw['procs'] as $process) {
+            $status['processes'][] = ['pid' => $process['pid'], 'state' => $process['state'], 'start time' => $process['start-time'], 'requests' => $process['requests']];
+        }
+        control_reply(['ok' => true, 'sapi' => PHP_SAPI, 'status' => $status]);
+    }
     $manifest = json_decode((string) file_get_contents(__DIR__ . '/sheets-manifest.json'), true, 512, JSON_THROW_ON_ERROR);
     $allowed = ['actions/sheets/_bootstrap.php', 'actions/sheets/load.php', 'actions/sheets/save.php', 'actions/sheets/snapshot.php', 'actions/sheets/restore.php', 'public/scripts/sheet.js'];
     $root = realpath((string) ($manifest['root'] ?? ''));
     if ($root === false || $root === '/' || array_keys($manifest['sha256'] ?? []) !== $allowed) {
         throw new RuntimeException('Invalid private manifest.');
     }
-    $operation = $_GET['op'] ?? 'inspect';
     if (!in_array($operation, ['inspect', 'invalidate'], true)) { throw new RuntimeException('Invalid operation.'); }
     $cache = opcache_get_status(false);
     if ($cache === false || empty($cache['opcache_enabled'])) { throw new RuntimeException('OPcache must be enabled.'); }

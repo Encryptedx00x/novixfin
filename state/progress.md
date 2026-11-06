@@ -1507,3 +1507,5 @@ internas estiverem reskinadas — mexer agora arriscaria Entrada/Landing já ent
 - Bootstrap por reload reprovado no FPM isolado: 0/2 gravações pós-resposta; ver reports/checkpoint_sheets_fpm_bootstrap_2026-11-05.md. NO-GO na VPS.
 
 - Auditoria/FPM concluídos em laboratório; relatório vigente reports/sheets_final_audit_and_fpm_2026-11-05.md. Primeiro corte na VPS e estabilização da manutenção ainda não comprovados; NO-GO.
+
+- Primeira transição sem reload: sonda nativa + trava PHP e drenagens sucessivas; ver reports/checkpoint_sheets_first_transition_2026-11-05.md. Ensaio passou; produção não alterada.

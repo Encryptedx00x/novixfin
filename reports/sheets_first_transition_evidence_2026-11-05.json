@@ -1,0 +1,463 @@
+{
+  "lab": "nvx-fpm-f3993af9b9",
+  "php_image": "novixfin-fpm-lab:8.3.36",
+  "db_image": "mariadb:11.8.8",
+  "checks": [
+    "FPM real: 5 workers executaram A e o script está no OPcache",
+    "barreira 28 métodos/endpoints; trabalhos Finishing impedem troca; ociosidade comprovada sem sinal",
+    "pool saturado: sonda expira e nega troca; cinco gravações antigas terminam naturalmente",
+    "corpo HTTP antigo incompleto bloqueia drenagem por métrica do proxy",
+    "cabeçalhos incompletos antes da ativação entram na nova barreira",
+    "cliente desconectado: worker ativo observado até escrita concluída",
+    "trava PHP: upload anterior recebe 503; writer já admitido conclui naturalmente antes dos handlers",
+    "controle negativo: disco B e CLI invalidado ainda servem A pelo FPM",
+    "invalidação no FPM: os mesmos 5 workers executam B sem reinício",
+    "33 verificações HTTP/MariaDB após troca dos seis arquivos",
+    "falha de hash: rollback preserva gravações posteriores, FPM executa A e barreira fica ativa para backend legado"
+  ],
+  "workers": [
+    13,
+    14,
+    15,
+    16,
+    17
+  ],
+  "generation": 1793923510,
+  "php": "PHP 8.3.36 (cli) (built: Oct 28 2026 01:27:49) (NTS)",
+  "caddy": "v2.11.4 h1:XKxkMTgNSizEvKG6QHue6cAsFOteU2qA61w2tKkCWi0=",
+  "probe_A": [
+    {
+      "sapi": "fpm-fcgi",
+      "pid": 17,
+      "enabled": "1",
+      "value": "A"
+    },
+    {
+      "sapi": "fpm-fcgi",
+      "pid": 16,
+      "enabled": "1",
+      "value": "A"
+    },
+    {
+      "sapi": "fpm-fcgi",
+      "pid": 14,
+      "enabled": "1",
+      "value": "A"
+    },
+    {
+      "sapi": "fpm-fcgi",
+      "pid": 15,
+      "enabled": "1",
+      "value": "A"
+    },
+    {
+      "sapi": "fpm-fcgi",
+      "pid": 13,
+      "enabled": "1",
+      "value": "A"
+    }
+  ],
+  "initial_upload_last_snapshot": {
+    "pool": "www",
+    "start time": 1793923510,
+    "accepted conn": 20,
+    "listen queue": 0,
+    "active processes": 4,
+    "idle processes": 1,
+    "total processes": 5,
+    "processes": [
+      {
+        "pid": 13,
+        "state": "Finishing",
+        "start time": 1793923510,
+        "requests": 4
+      },
+      {
+        "pid": 14,
+        "state": "Finishing",
+        "start time": 1793923510,
+        "requests": 4
+      },
+      {
+        "pid": 15,
+        "state": "Finishing",
+        "start time": 1793923510,
+        "requests": 4
+      },
+      {
+        "pid": 16,
+        "state": "Idle",
+        "start time": 1793923510,
+        "requests": 4
+      },
+      {
+        "pid": 17,
+        "state": "Running",
+        "start time": 1793923510,
+        "requests": 4
+      }
+    ],
+    "observer pid": 17
+  },
+  "initial_proxy_install": {
+    "fpm_config_changed": false,
+    "fpm_signal_sent": false,
+    "caddy_only_reload": true
+  },
+  "finishing": {
+    "pool": "www",
+    "start time": 1793923510,
+    "accepted conn": 19,
+    "listen queue": 0,
+    "active processes": 4,
+    "idle processes": 1,
+    "total processes": 5,
+    "processes": [
+      {
+        "pid": 13,
+        "state": "Finishing",
+        "start time": 1793923510,
+        "requests": 4
+      },
+      {
+        "pid": 14,
+        "state": "Finishing",
+        "start time": 1793923510,
+        "requests": 4
+      },
+      {
+        "pid": 15,
+        "state": "Finishing",
+        "start time": 1793923510,
+        "requests": 4
+      },
+      {
+        "pid": 16,
+        "state": "Running",
+        "start time": 1793923510,
+        "requests": 4
+      },
+      {
+        "pid": 17,
+        "state": "Idle",
+        "start time": 1793923510,
+        "requests": 3
+      }
+    ],
+    "observer pid": 16
+  },
+  "first_transition_old_writes": {
+    "token": "e71169b9cbcd419dad0aa4d9e24e51ec",
+    "expected": 3,
+    "committed": 3,
+    "initial_upload_before_proxy_install": true
+  },
+  "drained": {
+    "pool": "www",
+    "start time": 1793923510,
+    "accepted conn": 22,
+    "listen queue": 0,
+    "active processes": 1,
+    "idle processes": 4,
+    "total processes": 5,
+    "processes": [
+      {
+        "pid": 13,
+        "state": "Idle",
+        "start time": 1793923510,
+        "requests": 4
+      },
+      {
+        "pid": 14,
+        "state": "Idle",
+        "start time": 1793923510,
+        "requests": 4
+      },
+      {
+        "pid": 15,
+        "state": "Idle",
+        "start time": 1793923510,
+        "requests": 4
+      },
+      {
+        "pid": 16,
+        "state": "Idle",
+        "start time": 1793923510,
+        "requests": 5
+      },
+      {
+        "pid": 17,
+        "state": "Running",
+        "start time": 1793923510,
+        "requests": 5
+      }
+    ],
+    "observer pid": 17
+  },
+  "production_checker": {
+    "drained_accepted": true,
+    "busy_rejected": true,
+    "missing_metric_rejected": true,
+    "active_proxy_rejected": true
+  },
+  "saturation": {
+    "observer_exit": 1,
+    "swap_permitted": false,
+    "writes_before_release": 3
+  },
+  "disconnect": {
+    "pool": "www",
+    "start time": 1793923510,
+    "accepted conn": 33,
+    "listen queue": 0,
+    "active processes": 2,
+    "idle processes": 3,
+    "total processes": 5,
+    "processes": [
+      {
+        "pid": 13,
+        "state": "Idle",
+        "start time": 1793923510,
+        "requests": 6
+      },
+      {
+        "pid": 14,
+        "state": "Running",
+        "start time": 1793923510,
+        "requests": 6
+      },
+      {
+        "pid": 15,
+        "state": "Idle",
+        "start time": 1793923510,
+        "requests": 7
+      },
+      {
+        "pid": 16,
+        "state": "Idle",
+        "start time": 1793923510,
+        "requests": 7
+      },
+      {
+        "pid": 17,
+        "state": "Running",
+        "start time": 1793923510,
+        "requests": 7
+      }
+    ],
+    "observer pid": 14
+  },
+  "admitted_race": {
+    "pool": "www",
+    "start time": 1793923510,
+    "accepted conn": 38,
+    "listen queue": 0,
+    "active processes": 2,
+    "idle processes": 3,
+    "total processes": 5,
+    "processes": [
+      {
+        "pid": 13,
+        "state": "Idle",
+        "start time": 1793923510,
+        "requests": 7
+      },
+      {
+        "pid": 14,
+        "state": "Idle",
+        "start time": 1793923510,
+        "requests": 7
+      },
+      {
+        "pid": 15,
+        "state": "Idle",
+        "start time": 1793923510,
+        "requests": 8
+      },
+      {
+        "pid": 16,
+        "state": "Finishing",
+        "start time": 1793923510,
+        "requests": 8
+      },
+      {
+        "pid": 17,
+        "state": "Running",
+        "start time": 1793923510,
+        "requests": 8
+      }
+    ],
+    "observer pid": 17
+  },
+  "late_http": {
+    "status": 503,
+    "db_write_allowed": false
+  },
+  "old_admitted_write_preserved": true,
+  "private_entry_checks": 4,
+  "candidate_hashes": {
+    "actions/sheets/_bootstrap.php": "692628827a670fbd27d6153318a2010b276b477cb6c9bfa258a5112b59ea95fc",
+    "actions/sheets/load.php": "7d8190d841e89ef4530bf6d9b888050888311805cce28e3560d3d84c96a079c8",
+    "actions/sheets/save.php": "d4233a8340e1eee8adfdd69127e26fff7b18cbbf2418d49d09fcff9e2a8fceab",
+    "actions/sheets/snapshot.php": "9a33bf3fd6bbb9ab98f21feeb6e3cdc1678d4f9c38859e6738cab3241266f43c",
+    "actions/sheets/restore.php": "0f8e330cf2ebb7039acf6283c15c4faf17fa85ab27a2327b4001a9f4aba42812",
+    "public/scripts/sheet.js": "b3fc746f8a7c94bd7548d6c62523a130d9b8df90096967375b0e02a8c913fc0c"
+  },
+  "fpm_admin_invalidation": {
+    "ok": true,
+    "sapi": "fpm-fcgi",
+    "pid": 13,
+    "opcache_start_time": 1793923510,
+    "operation": "invalidate",
+    "files": {
+      "actions/sheets/_bootstrap.php": {
+        "sha256": "692628827a670fbd27d6153318a2010b276b477cb6c9bfa258a5112b59ea95fc",
+        "cached_before": true,
+        "cached_after": false
+      },
+      "actions/sheets/load.php": {
+        "sha256": "7d8190d841e89ef4530bf6d9b888050888311805cce28e3560d3d84c96a079c8",
+        "cached_before": true,
+        "cached_after": false
+      },
+      "actions/sheets/save.php": {
+        "sha256": "d4233a8340e1eee8adfdd69127e26fff7b18cbbf2418d49d09fcff9e2a8fceab",
+        "cached_before": true,
+        "cached_after": false
+      },
+      "actions/sheets/snapshot.php": {
+        "sha256": "9a33bf3fd6bbb9ab98f21feeb6e3cdc1678d4f9c38859e6738cab3241266f43c",
+        "cached_before": true,
+        "cached_after": false
+      },
+      "actions/sheets/restore.php": {
+        "sha256": "0f8e330cf2ebb7039acf6283c15c4faf17fa85ab27a2327b4001a9f4aba42812",
+        "cached_before": true,
+        "cached_after": false
+      },
+      "public/scripts/sheet.js": {
+        "sha256": "b3fc746f8a7c94bd7548d6c62523a130d9b8df90096967375b0e02a8c913fc0c",
+        "cached_before": false
+      }
+    }
+  },
+  "probe_B": [
+    {
+      "sapi": "fpm-fcgi",
+      "pid": 16,
+      "enabled": "1",
+      "value": "B"
+    },
+    {
+      "sapi": "fpm-fcgi",
+      "pid": 15,
+      "enabled": "1",
+      "value": "B"
+    },
+    {
+      "sapi": "fpm-fcgi",
+      "pid": 13,
+      "enabled": "1",
+      "value": "B"
+    },
+    {
+      "sapi": "fpm-fcgi",
+      "pid": 14,
+      "enabled": "1",
+      "value": "B"
+    },
+    {
+      "sapi": "fpm-fcgi",
+      "pid": 17,
+      "enabled": "1",
+      "value": "B"
+    }
+  ],
+  "http": "OK: 33 verificações passaram.",
+  "rollback_hashes": {
+    "actions/sheets/_bootstrap.php": "380453e3886a6b4c2e3ee9f3cb503ad0d9bc0bd4dce02209071218ff7e13a2e4",
+    "actions/sheets/load.php": "c51293d01b983e4ff19b90c382c3268b9aaaaf668fd77c1a411e0cef7c781be6",
+    "actions/sheets/save.php": "1ab29541c03a7d2e2f92ab0f7656d47def63cced9fe3e03d06ef4459456039e4",
+    "actions/sheets/snapshot.php": "ed993a84a4ae836a814cf9acf57558d456388389415f6e1c92660dd325bff498",
+    "actions/sheets/restore.php": "abc3a7d6d40c6b17834fbeeb7b9df7cd32442c8ef67b87fa7c12f7d845ad90be",
+    "public/scripts/sheet.js": "67f6ef50fb25a85c27505505b25b88091dc9e6076d98cbfa4afc2b20ff4fa520"
+  },
+  "rollback_invalidation": {
+    "ok": true,
+    "sapi": "fpm-fcgi",
+    "pid": 13,
+    "opcache_start_time": 1793923510,
+    "operation": "invalidate",
+    "files": {
+      "actions/sheets/_bootstrap.php": {
+        "sha256": "380453e3886a6b4c2e3ee9f3cb503ad0d9bc0bd4dce02209071218ff7e13a2e4",
+        "cached_before": true,
+        "cached_after": false
+      },
+      "actions/sheets/load.php": {
+        "sha256": "c51293d01b983e4ff19b90c382c3268b9aaaaf668fd77c1a411e0cef7c781be6",
+        "cached_before": true,
+        "cached_after": false
+      },
+      "actions/sheets/save.php": {
+        "sha256": "1ab29541c03a7d2e2f92ab0f7656d47def63cced9fe3e03d06ef4459456039e4",
+        "cached_before": true,
+        "cached_after": false
+      },
+      "actions/sheets/snapshot.php": {
+        "sha256": "ed993a84a4ae836a814cf9acf57558d456388389415f6e1c92660dd325bff498",
+        "cached_before": true,
+        "cached_after": false
+      },
+      "actions/sheets/restore.php": {
+        "sha256": "abc3a7d6d40c6b17834fbeeb7b9df7cd32442c8ef67b87fa7c12f7d845ad90be",
+        "cached_before": true,
+        "cached_after": false
+      },
+      "public/scripts/sheet.js": {
+        "sha256": "67f6ef50fb25a85c27505505b25b88091dc9e6076d98cbfa4afc2b20ff4fa520",
+        "cached_before": false
+      }
+    }
+  },
+  "rollback_workers": [
+    {
+      "sapi": "fpm-fcgi",
+      "pid": 16,
+      "enabled": "1",
+      "value": "A"
+    },
+    {
+      "sapi": "fpm-fcgi",
+      "pid": 14,
+      "enabled": "1",
+      "value": "A"
+    },
+    {
+      "sapi": "fpm-fcgi",
+      "pid": 15,
+      "enabled": "1",
+      "value": "A"
+    },
+    {
+      "sapi": "fpm-fcgi",
+      "pid": 13,
+      "enabled": "1",
+      "value": "A"
+    },
+    {
+      "sapi": "fpm-fcgi",
+      "pid": 17,
+      "enabled": "1",
+      "value": "A"
+    }
+  ],
+  "fpm_configuration_unchanged": true,
+  "post_deploy_sheet_preserved": true,
+  "result": "PASS first transition without FPM reload",
+  "function_status": true,
+  "fpm_signals_sent": [],
+  "source_commit": "019ce99 (six application files unchanged; new private controls tested from worktree)",
+  "upstream_php_digest": "library/php:8.3.36-fpm-bookworm@sha256:afb8f6d51d776e81ea35b25202ed1c98e41c2a2cb0c7edffaf25f5f564e7cce5",
+  "upstream_mariadb_digest": "library/mariadb:11.8.8@sha256:e564bcaefb87c3d2b8b09b539ea791d34f4b62c05e2e7cb03f5d6388bdc54f2c"
+}
