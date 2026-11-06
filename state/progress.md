@@ -1511,3 +1511,5 @@ internas estiverem reskinadas — mexer agora arriscaria Entrada/Landing já ent
 - Primeira transição sem reload: sonda nativa + trava PHP e drenagens sucessivas; ver reports/checkpoint_sheets_first_transition_2026-11-05.md. Ensaio passou; produção não alterada.
 
 - GO técnico para protocolo ensaiado sem reload FPM, condicionado às pré-condições. NO-GO para execução enquanto manutenção não confirmada estável/sem autorização. Runbook vigente: reports/sheets_first_transition_2026-11-05.md.
+
+- Preflight somente leitura (05/11 local, 06/11 UTC): manutenção de capacidade encerrada no relatório Orcivo; serviços estáveis nas amostras, seis arquivos/backup exatos e árvore suja preservados. Configuração compatível com sonda sem reload, mas consulta real ainda não autorizada/instalada. BLOQUEADO para encerrar preflight; ver reports/sheets_production_preflight_2026-11-05.md e comandos de janela preparados. Nenhuma operação de publicação.

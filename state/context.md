@@ -315,3 +315,6 @@
 
 ## Primeira transição — protocolo vigente 2026-11-05
 - fpm_get_status() consulta o pool existente sem pm.status_path/reload. Excluir somente o PID da sonda validada; saturação é aborto, não ociosidade. Trava temporária no bootstrap + drenagem após invalidação protege contra admissões tardias; manter trava no rollback legado. Ver reports/sheets_first_transition_2026-11-05.md.
+
+## Preflight readonly — 2026-11-05 local / 06 UTC
+- VPS PHP 8.3.36, pool www dynamic/max5 (lab static5), OPcache com timestamps e proteção de atualização 2s, Caddy 2.11.4 sem métrica HTTP ativa. Seis hashes e backup correspondem; 117 entradas sujas preservadas. Sonda nativa está no binário, mas diretório privado/consulta no FPM vivo pendentes de autorização específica de escrita; não tratar compatibilidade estática como execução comprovada. Decisão e comandos em reports/sheets_production_preflight_2026-11-05.md.

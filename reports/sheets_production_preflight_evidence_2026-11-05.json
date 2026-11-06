@@ -1,0 +1,654 @@
+{
+  "candidate_commit": "ccf9ef8d62ebdcbded82af2ddf7fbbeeaa3feb70",
+  "inspection_initial_utc": "2026-11-06T02:41:00.619631+00:00",
+  "inspection_final_utc": "2026-11-06T03:11:41Z",
+  "decision": "BLOCKED: private live FPM status probe not installed/executed under read-only scope",
+  "six_files": {
+    "actions/sheets/_bootstrap.php": {
+      "sha256": "aa63ac1b94c7150354d4199db51d6c0d42a8d5a02d91a48d6d51ce9da0e826b8",
+      "mode": "0o664",
+      "uid": 1000,
+      "gid": 1000,
+      "size": 3556,
+      "symlink": false,
+      "backup_matches": true,
+      "working_tree_candidate_sha256": "692628827a670fbd27d6153318a2010b276b477cb6c9bfa258a5112b59ea95fc",
+      "candidate_git_blob_sha256": "a3162d56ce78676fd5c39b02bebe269c7908648b0ebaaa528c5b0dde0d1a94de"
+    },
+    "actions/sheets/load.php": {
+      "sha256": "c51293d01b983e4ff19b90c382c3268b9aaaaf668fd77c1a411e0cef7c781be6",
+      "mode": "0o664",
+      "uid": 1000,
+      "gid": 1000,
+      "size": 758,
+      "symlink": false,
+      "backup_matches": true,
+      "working_tree_candidate_sha256": "7d8190d841e89ef4530bf6d9b888050888311805cce28e3560d3d84c96a079c8",
+      "candidate_git_blob_sha256": "ab5bcb7249b879a5f82f69e5b8445646870f8c2f5ff2cf8e6b4b7a7467b65d8b"
+    },
+    "actions/sheets/save.php": {
+      "sha256": "1ab29541c03a7d2e2f92ab0f7656d47def63cced9fe3e03d06ef4459456039e4",
+      "mode": "0o664",
+      "uid": 1000,
+      "gid": 1000,
+      "size": 736,
+      "symlink": false,
+      "backup_matches": true,
+      "working_tree_candidate_sha256": "d4233a8340e1eee8adfdd69127e26fff7b18cbbf2418d49d09fcff9e2a8fceab",
+      "candidate_git_blob_sha256": "213cb7992b465113486d9fae159e0e4aa0c0ad6f56d62840b2f33e112ebf7dfa"
+    },
+    "actions/sheets/snapshot.php": {
+      "sha256": "ed993a84a4ae836a814cf9acf57558d456388389415f6e1c92660dd325bff498",
+      "mode": "0o664",
+      "uid": 1000,
+      "gid": 1000,
+      "size": 2270,
+      "symlink": false,
+      "backup_matches": true,
+      "working_tree_candidate_sha256": "9a33bf3fd6bbb9ab98f21feeb6e3cdc1678d4f9c38859e6738cab3241266f43c",
+      "candidate_git_blob_sha256": "8d2aede31ac890bda94688d96d1ba9050fc725fae1932ca5664a6e4297188c4f"
+    },
+    "actions/sheets/restore.php": {
+      "sha256": "abc3a7d6d40c6b17834fbeeb7b9df7cd32442c8ef67b87fa7c12f7d845ad90be",
+      "mode": "0o664",
+      "uid": 1000,
+      "gid": 1000,
+      "size": 1085,
+      "symlink": false,
+      "backup_matches": true,
+      "working_tree_candidate_sha256": "0f8e330cf2ebb7039acf6283c15c4faf17fa85ab27a2327b4001a9f4aba42812",
+      "candidate_git_blob_sha256": "dec16351f208b81437d8cdcc93356814e2bcf25a6b6696141d7d219e5faacc37"
+    },
+    "public/scripts/sheet.js": {
+      "sha256": "67f6ef50fb25a85c27505505b25b88091dc9e6076d98cbfa4afc2b20ff4fa520",
+      "mode": "0o664",
+      "uid": 1000,
+      "gid": 1000,
+      "size": 38994,
+      "symlink": false,
+      "backup_matches": true,
+      "working_tree_candidate_sha256": "b3fc746f8a7c94bd7548d6c62523a130d9b8df90096967375b0e02a8c913fc0c",
+      "candidate_git_blob_sha256": "0e478631a197185a5c49d6c27c3a158234a781120b057c02671fd7207ca38a68"
+    }
+  },
+  "production_git_head": "a006bd3856bac9c3b2bacacb10b73da3734a0eff",
+  "git_status_sha256": "d9a9218ae97146f2c927fdcc7019447e592d3ab325f19ec81a3b134129e6e4c7",
+  "dirty_paths": {
+    ".env.example": {
+      "mode": "0o644",
+      "sha256": "2f4be05acf6a91e0ced853a4be87a4fe547ef3bd2652f94927e7c3db09f4b70b"
+    },
+    ".env.test.example": {
+      "mode": "0o664",
+      "sha256": "d0095716bab2d74b476b762a898fb87b150b3123253819c2774b4ddadfddb4e9"
+    },
+    ".gitignore": {
+      "mode": "0o644",
+      "sha256": "d7bb317218c359e50798cf8cba77046d265c6c403954ccfa77fa124f41cc246e"
+    },
+    ".htaccess": {
+      "mode": "0o644",
+      "sha256": "1fb87751f61ef565ab63d194f464d2eeb9f387a96e1353ee2b83b9a53eb0d043"
+    },
+    "0": {
+      "mode": "0o644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "Birthday.jpg": {
+      "mode": "0o664",
+      "sha256": "dd647f5c7c43c87642cd55f498ac18c76eb5bdf2949d9f840e2bcc3b3d28a72f"
+    },
+    "NF.jpg": {
+      "mode": "0o664",
+      "sha256": "0d68f88cf4ed58f45a03fa1f6ac5a3cf8de9607f153218fdec0156fa52c2f876"
+    },
+    "TASKS.md": {
+      "mode": "0o664",
+      "sha256": "0452b94b553b788126260b498c10eef4d9ccd7e2ce93f4228e76ffaa537a5d43"
+    },
+    "actions/accounts/delete.php": {
+      "mode": "0o644",
+      "sha256": "bf4b7a89f62cc0681fa5c318c98c596f394c3d08df4053b7d58c02df33a3d99d"
+    },
+    "actions/accounts/save.php": {
+      "mode": "0o644",
+      "sha256": "c4bceeba25b30112d4585ce5ef336333390c424bfef9e7b0afe9b007bcdada30"
+    },
+    "actions/accounts/toggle-dashboard.php": {
+      "mode": "0o644",
+      "sha256": "04525d921450835c5e2b1e7957407b255c74511babaf960e56de1bf85abb07a5"
+    },
+    "actions/accounts/toggle.php": {
+      "mode": "0o644",
+      "sha256": "9cf53daea4612cd9d56e2ff9442a36e05288b3993ed7164d41b7e07fde84f9d7"
+    },
+    "actions/categories/delete.php": {
+      "mode": "0o644",
+      "sha256": "4d5ea1cfd26a08733acf0ca5ae408f63c358f4b714ffd5a41ff6e9e54e17dc77"
+    },
+    "actions/categories/save.php": {
+      "mode": "0o644",
+      "sha256": "2ead94f088360baa809b4c844470938e9b3523c73a943bd14b313dc340a57a6d"
+    },
+    "actions/credit-cards/delete-bill.php": {
+      "mode": "0o644",
+      "sha256": "022fcfbb668caa4fcd865a6186c27cda9a6f7708c0399b6a1299b870b195843c"
+    },
+    "actions/credit-cards/pay-bill.php": {
+      "mode": "0o644",
+      "sha256": "42678c24c3f21a8c87b3dba652411e7fab5a9130ca72a0b01799df54c5b9c0c6"
+    },
+    "actions/credit-cards/revert-payment.php": {
+      "mode": "0o644",
+      "sha256": "11605655899afc52af3bfbc63e3069ff7b95227b8a4122b7f96d895c3b8b080e"
+    },
+    "actions/currency-settings/save.php": {
+      "mode": "0o644",
+      "sha256": "f31dbf093f72943eb0178e1154a906508ed96ce6517872aded2c1ad044a23670"
+    },
+    "actions/goals/delete.php": {
+      "mode": "0o644",
+      "sha256": "6f6e458bf4f804704b98aa8ddbb9ccbbb9e19d4e58de29d81931484e562e3c93"
+    },
+    "actions/profile/update-theme.php": {
+      "mode": "0o644",
+      "sha256": "9f95d48c5e28c3c6e3015777accde70b098c8314d3c79012002418c872faaaba"
+    },
+    "actions/profile/update.php": {
+      "mode": "0o644",
+      "sha256": "4de6765c6a56f64345328acd07030e89da13a986c3e5e04664f78587248d50da"
+    },
+    "actions/sheets/_bootstrap.php": {
+      "mode": "0o664",
+      "sha256": "aa63ac1b94c7150354d4199db51d6c0d42a8d5a02d91a48d6d51ce9da0e826b8"
+    },
+    "actions/sheets/load.php": {
+      "mode": "0o664",
+      "sha256": "c51293d01b983e4ff19b90c382c3268b9aaaaf668fd77c1a411e0cef7c781be6"
+    },
+    "actions/sheets/restore.php": {
+      "mode": "0o664",
+      "sha256": "abc3a7d6d40c6b17834fbeeb7b9df7cd32442c8ef67b87fa7c12f7d845ad90be"
+    },
+    "actions/sheets/save.php": {
+      "mode": "0o664",
+      "sha256": "1ab29541c03a7d2e2f92ab0f7656d47def63cced9fe3e03d06ef4459456039e4"
+    },
+    "actions/sheets/snapshot.php": {
+      "mode": "0o664",
+      "sha256": "ed993a84a4ae836a814cf9acf57558d456388389415f6e1c92660dd325bff498"
+    },
+    "actions/transactions/create.php": {
+      "mode": "0o644",
+      "sha256": "087033096bdde8ed506c513eadce086aeee840890d3c56205e135ec756561c31"
+    },
+    "actions/transactions/delete.php": {
+      "mode": "0o644",
+      "sha256": "575a6a9ffaf3c61c940054e2801fb9b3a63a37142322179ebdf442339a869617"
+    },
+    "actions/transactions/delete_all.php": {
+      "mode": "0o644",
+      "sha256": "36f3fa1c421e1c0159333e04fcfd64e94a9692a03e7a1da5ae2f9c0d14bc2e84"
+    },
+    "actions/transactions/delete_by_account.php": {
+      "mode": "0o644",
+      "sha256": "0b276cdd718e269533e593733d5dae83769c43de8c80043a346f011ddecd8a41"
+    },
+    "actions/transactions/update.php": {
+      "mode": "0o644",
+      "sha256": "fe8d5c860f1cd424cf47299733846bc688829f1a7b0b04864e9beea03412648f"
+    },
+    "actions/wallets/delete.php": {
+      "mode": "0o644",
+      "sha256": "4fc975e93d3e064a5656ae60178fc0d1f08199a46467f9595991d186d0420aef"
+    },
+    "actions/wallets/get-accounts.php": {
+      "mode": "0o644",
+      "sha256": "e6045ec659c4e2038f236f9acc805e7a2239127d58fc2f2855c64978b9bcbdfc"
+    },
+    "actions/wallets/save.php": {
+      "mode": "0o644",
+      "sha256": "fd1c7d117df5355182bd7b5b8318fcedfa18b9d3da955b039ad113db69cb86c6"
+    },
+    "database/add_account_features.sql": {
+      "mode": "0o644",
+      "sha256": "738280f59e9d9451c818219df90d92aeacfa5432f685c63b8a94e5b2fc47c5fd"
+    },
+    "database/add_accounts.sql": {
+      "mode": "0o644",
+      "sha256": "f6df14b1ef20a9041df9195235135f487763d24ae2444359667f387315099d14"
+    },
+    "database/add_arrecadacao_category.sql": {
+      "mode": "0o644",
+      "sha256": "582194e0966841af42fbf478584a3fb3337e439ce13011fe4731a695dfff8ad4"
+    },
+    "database/add_credit_card_support.sql": {
+      "mode": "0o644",
+      "sha256": "c182ad62e0705704835bd352eed65773431687dd542c88724cec10e563de8b79"
+    },
+    "database/add_credit_card_transaction_settings.sql": {
+      "mode": "0o644",
+      "sha256": "a8dfc5d7f2caecb9f624741aaef949907731ea3f07573b2c977d0011c28eff14"
+    },
+    "database/add_currency_settings.sql": {
+      "mode": "0o644",
+      "sha256": "71e3e6f12106963e6d9656baa30f3a923ec2c28d4c00ba778ccc60ed63523647"
+    },
+    "database/add_currency_to_transactions.sql": {
+      "mode": "0o644",
+      "sha256": "0b3907ee4faf276e043c3e1d0128eb11df506b6fbcf1f5ab69d5db3bc6d84569"
+    },
+    "database/add_theme_support.sql": {
+      "mode": "0o644",
+      "sha256": "8b9ec3e04abbeb983e1b0eada086eadf3e89074e77335b6aee87bb34f9cd7f48"
+    },
+    "database/add_transaction_flags.sql": {
+      "mode": "0o644",
+      "sha256": "d5f98fd99cf5a23aede7c3fb45aee3ea4b2b41ab19f17d44bc3e87abd1c0c162"
+    },
+    "database/add_wallets.sql": {
+      "mode": "0o644",
+      "sha256": "88355dc0f70e25b6188c96addae80d69364d67291395f00bbae3fa380b28dc61"
+    },
+    "database/fix_categories_safe.sql": {
+      "mode": "0o644",
+      "sha256": "8ba6481b5e79beb51e8505fda6bdf3f3d84103d7beb8201213ba7be118a23647"
+    },
+    "database/improve_recurring_transactions.sql": {
+      "mode": "0o644",
+      "sha256": "c3f48f48af1122b7a70b8ec986555b5e27c1327d1bf0f4481ca81aad2ecdd99d"
+    },
+    "database/schema.sql": {
+      "mode": "0o644",
+      "sha256": "53728ffd072d2a1312d2417b2d48454fbac9f70bc23ff090cdb700ea50480722"
+    },
+    "database/seed.sql": {
+      "mode": "0o644",
+      "sha256": "f24a34c51ac89f9e930ca6a91afb83423b969b7eb83458f83052140a56900cdb"
+    },
+    "database/update_categories.sql": {
+      "mode": "0o644",
+      "sha256": "8b254b2d2c44a85138a0f41d0b9370c587c2b965f44c4c49f9e22e661f4931bd"
+    },
+    "database/update_goals_table.sql": {
+      "mode": "0o644",
+      "sha256": "956626e6592abd59f9e0fbd2110751655558d46ceb844ca7d8a34185b8ec631b"
+    },
+    "docker-compose.test.yml": {
+      "mode": "0o664",
+      "sha256": "6f2811502ef05b521576bcfd084f4f1598dfb4f0d7b95a29e10ae97484a1a55e"
+    },
+    "docs/GAMIFICATION.md": {
+      "mode": "0o644",
+      "sha256": "8d07e84e90d4f1099db9d4e7c1fd6fe8fd9b567b9297b4209cf57e26b5bfe9d0"
+    },
+    "docs/ROADMAP.md": {
+      "mode": "0o644",
+      "sha256": "eb6a54dbc1b5f9ef605ba8d939170e46f9c3f59d759d3b3997b1c9e99292fb6f"
+    },
+    "docs/SETUP.md": {
+      "mode": "0o644",
+      "sha256": "aae05b0aed3494e75f05873de8363ea3bcb1bdee81f9e7f89337b14e06683a4a"
+    },
+    "docs/TESTING.md": {
+      "mode": "0o644",
+      "sha256": "6db8a9a42c62350c503806b216ef42215e21effeedc02d802e771e0270fc839a"
+    },
+    "docs/migration-order.md": {
+      "mode": "0o644",
+      "sha256": "24c0e5e71c2f6f3e76f8f2e764542d12b351d6a948702b3403da86ee8f8085cc"
+    },
+    "includes/auth.php": {
+      "mode": "0o644",
+      "sha256": "61119fa305bf3e354231394c851314dfb102974c55e17f63646320d7702d0c41"
+    },
+    "includes/csrf.php": {
+      "mode": "0o644",
+      "sha256": "c749c248af0aa630b0f94c49547139143c3955565dd9c7467e4ca1d0264ce3cb"
+    },
+    "includes/currency.php": {
+      "mode": "0o644",
+      "sha256": "84f3fe46a75752597cd145b42330781ce09be1aa04532d5554298da75a468508"
+    },
+    "includes/goals.php": {
+      "mode": "0o644",
+      "sha256": "70912828eb3153e46fb5fed5765b5771c04329492e250852f55680f7371892f8"
+    },
+    "includes/helpers.php": {
+      "mode": "0o644",
+      "sha256": "6d35581b331971a58246996131063afb01f5b2737c30d5c6a9cdd8f63788a754"
+    },
+    "includes/layout/footer.php": {
+      "mode": "0o644",
+      "sha256": "4d726c322f6212cd56ff996120e89df9510aca57241fd943f9d2f158aeeac5c8"
+    },
+    "includes/session.php": {
+      "mode": "0o644",
+      "sha256": "bfaca52512d6a875301328ec558ed09bdc12d5e136dabc0c46a8b2a4aa4e859c"
+    },
+    "index.php": {
+      "mode": "0o644",
+      "sha256": "0909550f64db1688798e5e7d8c2a742c1cdee0210bdd62ee8204ad5aceec7a07"
+    },
+    "migrations/20240101000000_baseline_v3.sql": {
+      "mode": "0o644",
+      "sha256": "054431db7280bdfc3af7e347579bd8969ee1e98c2bd0a451dbd18fea6b49e1b6"
+    },
+    "migrations/20240101000002_seed_categories_v3.sql": {
+      "mode": "0o644",
+      "sha256": "2ce73eb280bf1e29481c76122a249fe6850d228d96ce46fdabdddd553b782095"
+    },
+    "migrations/20240101000003_add_recurring_generated_v3.sql": {
+      "mode": "0o644",
+      "sha256": "35144b39e42039703c1519a497d74a52ea77f2c8331a7f2feba3435e101686ff"
+    },
+    "migrations/20240101000004_add_login_attempts_v3.sql": {
+      "mode": "0o644",
+      "sha256": "329a9a388d312b6d25f3395f48edf6dbfe7b7c6a810143ba83856d1553db0cd6"
+    },
+    "migrations/20240101000005_add_hide_balances_v3.sql": {
+      "mode": "0o644",
+      "sha256": "7a62ddd9966b46dc02a8497434e9e2ceb5283b71fbd5eaa01ba90cd80cc92a8a"
+    },
+    "migrations/20240101000008_sheets_v3.php": {
+      "mode": "0o664",
+      "sha256": "85b4d7b7e76f2156e48280e628cd9c8d567fc771dcd424655f583b40e029f26b"
+    },
+    "migrations/20240101000009_bill_payments_v3.php": {
+      "mode": "0o664",
+      "sha256": "8bd1f0ff6917dfbf842a2cf005a54b31cfefa7302f3f8fe42278b7de26b645d7"
+    },
+    "migrations/20240101000010_disable_bill_as_expense_v3.php": {
+      "mode": "0o664",
+      "sha256": "83198684fdeecfc19abbb55f3ac169d7942dc505be5ba17633dcae6c8d3c57f3"
+    },
+    "public/credit-cards.php": {
+      "mode": "0o644",
+      "sha256": "ae144a34066f66bf63c28eedba8d14749ecb922258bf56af0f60cf2c87794e4e"
+    },
+    "public/dashboard.php": {
+      "mode": "0o644",
+      "sha256": "dd58b4c699870c41f6538158a267ad8690d6a017891c9effe4d9924aee68553f"
+    },
+    "public/history.php": {
+      "mode": "0o644",
+      "sha256": "7abd1fd32e3d2a201aea6aac05effd5d1a0194ae719fe84e28d20a09ecc7ec2c"
+    },
+    "public/login.php": {
+      "mode": "0o644",
+      "sha256": "972b792bc5b663b97f95f12707f81e6e2b002577563d67ffbc2d154387a8ac00"
+    },
+    "public/logout.php": {
+      "mode": "0o644",
+      "sha256": "88ff5eb445ef5ad01014801e167e7e1d707c8cd8ba9b5701e7e1c0a1f5cc1ce4"
+    },
+    "public/register.php": {
+      "mode": "0o644",
+      "sha256": "0b9a3a15f5a1904f273f4ced8b56ce9635f519f261effa9137e617dc57a5b34a"
+    },
+    "public/scripts/date-format.js": {
+      "mode": "0o644",
+      "sha256": "1812a4cabbd86df63b9102210d6a1adadfbea48b6353ba859bf2c6ac8587dff5"
+    },
+    "public/scripts/date-mask.js": {
+      "mode": "0o644",
+      "sha256": "b0e6fb831430920f94d9f95662494506d2faac6e00c73b05d82bdb84980f47ea"
+    },
+    "public/scripts/forecast-chart.js": {
+      "mode": "0o644",
+      "sha256": "3b7cbec5deeb7856dab06175bb8d91052fdc139aa5241c061ead112588a9619d"
+    },
+    "public/scripts/goals.js": {
+      "mode": "0o644",
+      "sha256": "840e88628d1a4503a89106e324d16cba479b3531d0e665aba899945e040c08d6"
+    },
+    "public/scripts/history.js": {
+      "mode": "0o644",
+      "sha256": "911adc919eca09df93419a0080c96953f663dbea7a45a8ba80488ca845a6ab03"
+    },
+    "public/scripts/kanban.js": {
+      "mode": "0o644",
+      "sha256": "181aad2bcdd81b58bfd3c57c4f149e433198f932ca0ddd3f2d93cf34947554a8"
+    },
+    "public/scripts/main.js": {
+      "mode": "0o644",
+      "sha256": "3b0e09fe82772cab73be5f640f351172ea61b340a636be509018c82179ebed78"
+    },
+    "public/scripts/sheet.js": {
+      "mode": "0o664",
+      "sha256": "67f6ef50fb25a85c27505505b25b88091dc9e6076d98cbfa4afc2b20ff4fa520"
+    },
+    "public/styles/cards.css": {
+      "mode": "0o644",
+      "sha256": "f42d03d96bbddd2063a5e4561aec35686e9587b17532ab3caf71b3a7a2f3d88c"
+    },
+    "public/styles/main.css": {
+      "mode": "0o644",
+      "sha256": "f855b49c9eb4a084360037d5d6e828c5eb8bbc31097367f2b17ad7c293cffef3"
+    },
+    "public/styles/modal.css": {
+      "mode": "0o644",
+      "sha256": "57091d5bd5da5d435ea0f185f92382ae9b8f6c26056193c35852e1cb60955325"
+    },
+    "public/styles/sheet.css": {
+      "mode": "0o664",
+      "sha256": "b3ed9a16fabfefbbc45a426ac58673df3d30936f2c7df277bd175f46022fbc90"
+    },
+    "reports/auditoria_cartoes_faturas.md": {
+      "mode": "0o664",
+      "sha256": "024e2956762616d4aa525c6b75143987c8f0ff14bd32a068ec2971b50dd520a6"
+    },
+    "reports/overnight_2026-08-08.md": {
+      "mode": "0o664",
+      "sha256": "5bb15387c36a7acb7927c63510b68f48565d4ead06d4b7f1cec8469eb339a163"
+    },
+    "reports/overnight_2026-08-09.md": {
+      "mode": "0o664",
+      "sha256": "49ea35ca253054cd34686ed1e0112008633d9cdbc100a2c1aa65d4468b478d65"
+    },
+    "scripts/migrate.php": {
+      "mode": "0o644",
+      "sha256": "ef30c427dc95b041d33dacaffe0bd47c347807fe1bb88000e401a9a87b15f4a4"
+    },
+    "setima.jpg": {
+      "mode": "0o664",
+      "sha256": "eb0ebf2a901e119d04390843b2088d6bc0050483a08865cd44e205fa741696f8"
+    },
+    "src/Database/Connection.php": {
+      "mode": "0o644",
+      "sha256": "43e4d8e0f91a8bcb971b573f40b73417705cf1c4d06f6173542726f61f2dec1a"
+    },
+    "src/Repositories/CreditCardBillRepository.php": {
+      "mode": "0o644",
+      "sha256": "6db5bcef5d942fa215d33c9e5782c16e334945aaf5c1242e8be2d493732d8495"
+    },
+    "src/Repositories/CurrencySettingsRepository.php": {
+      "mode": "0o644",
+      "sha256": "ef5ae3afa73e268ddb9753a2af6391f4c8a3789f033cc1ae616cf53e6e207184"
+    },
+    "src/Repositories/TransactionRepository.php": {
+      "mode": "0o644",
+      "sha256": "46ad621d759cbba139dd122f926296e3950b7bcbf9cd0c656f2fc794356f27dc"
+    },
+    "src/Repositories/UserRepository.php": {
+      "mode": "0o644",
+      "sha256": "fce9f275cc088c2603752e176b8be2d070016e148122e411af0b84ad815d22ee"
+    },
+    "src/Services/RecurringService.php": {
+      "mode": "0o644",
+      "sha256": "9ac81ab4198f575113c824f603ca9418b61399abaeb4ef0f4e1a8ac90eda8d91"
+    },
+    "state/active_php_files.txt": {
+      "mode": "0o644",
+      "sha256": "50a4d17d928406e03e67377f6fab0fa39af69ceb1a2b36106a00d4c3f65ab979"
+    },
+    "state/context.md": {
+      "mode": "0o644",
+      "sha256": "e727fd1e9cf67628a1c275fa0dc30c562372d057c3b074419e3c0bcd5dd3ad21"
+    },
+    "state/progress.md": {
+      "mode": "0o644",
+      "sha256": "69c6000dc7056d3bd9a9a340971254b0bf71e6d974ca15364ab35c8aaba323b4"
+    },
+    "tests/bill_cycle_test.php": {
+      "mode": "0o664",
+      "sha256": "2f3907ce537bfca9d0287bd98f80216a15e137b2a3519ea373fb8c51eb8d11e5"
+    },
+    "tests/bill_payment_semantics_test.php": {
+      "mode": "0o664",
+      "sha256": "7a70bf0e4b598c4a5622f141e4920de8152a2631805d4b25eef3c9f2347d7d5c"
+    },
+    "tests/bill_payments_schema_test.php": {
+      "mode": "0o664",
+      "sha256": "5e032a81c5aeba40e97dc94e9ee09b3aa4b4cd2177b7a7cb230e709010dcd37b"
+    },
+    "tests/characterization_test.php": {
+      "mode": "0o664",
+      "sha256": "0b888a8a1aa19be06846e6a3de37ac6214600ebc9418a1ae0460f0190e9141b8"
+    },
+    "tests/harness_test.php": {
+      "mode": "0o664",
+      "sha256": "e110ddf3175c14c4593d24ea6b841dcd249af360f0b4fce7842adb459dd6a66e"
+    },
+    "tests/helpers.php": {
+      "mode": "0o664",
+      "sha256": "34da84cef6bfb3d303f6d53f1cbd3b45e9a9df57264ef177f29f56c923f5b6c4"
+    },
+    "tests/http_client.php": {
+      "mode": "0o664",
+      "sha256": "6bfd65406a752b1845ee12998ab2dd369b3f8b61baf65fe99e56a64b9f677ad0"
+    },
+    "tests/probe_currency_save.py": {
+      "mode": "0o644",
+      "sha256": "08d6762f2987c69a6d0f8246f5f66f9dba0e5ed118a93ca576239cceba711f56"
+    },
+    "tests/recurrence_installments.php": {
+      "mode": "0o644",
+      "sha256": "638de7ae94d6cfab977f8e1a7da43320c504bdb1a6f036a0db75152b6040498e"
+    },
+    "tests/run.php": {
+      "mode": "0o664",
+      "sha256": "33d34bf7fff6c7a579e37ea11fb598e3fa7141887fe0442f92459c1b3f31b540"
+    },
+    "tests/sheets_history_test.php": {
+      "mode": "0o664",
+      "sha256": "f83ae3118d9d2e2d03cf61b4daf9ecc79f4a686c4f3e588d93a61e38ae7f38f3"
+    },
+    "tests/sheets_persist_test.php": {
+      "mode": "0o664",
+      "sha256": "e1a438aabb1bdebe59bd391951194ce1204c5d507150cfa200546c479b634fa2"
+    },
+    "tests/sheets_tabs_test.php": {
+      "mode": "0o664",
+      "sha256": "216cfa32a00cfa1105a5c8e6807f3e15764bac262f6eef7b1b2b52f003b5df52"
+    }
+  },
+  "dirty_paths_count": 117,
+  "dirty_content_and_modes_unchanged": true,
+  "caddy_sha256": "40f6e5ea50c7a2af6eff13cedf96189b12e313c123c630fc8bce4ff836421595",
+  "caddy_validation": {
+    "local_adapt": true,
+    "live_novix_matches_disk": true,
+    "other_vhosts_unchanged": true,
+    "only_new_novix_route": "marker-gated /actions/sheets/* 503",
+    "http_metrics_added": true,
+    "normalization": "generated group identifiers and Caddy auto-added hide path for source config only",
+    "environment_note": "local parser used placeholder for unrelated env expansion; no secret copied",
+    "production_provision_validation": "pending authorized window"
+  },
+  "initial_health": {
+    "utc": "2026-11-06T02:42:13Z",
+    "containers": {
+      "stack-php-1": {
+        "image_id": "sha256:2062784dabb3243134d20f601f9cee05536610f4cce4354db053bf5d43607dda",
+        "started": "2026-10-28T17:38:11.754640479Z",
+        "restart_count": 0,
+        "health": "unconfigured"
+      },
+      "stack-caddy-1": {
+        "image_id": "sha256:844f60b64e4724a5aa8245e019dace0d3f199f7433ce6c57676cb30a920dbad9",
+        "started": "2026-10-28T17:38:11.650698913Z",
+        "restart_count": 0,
+        "health": "unconfigured"
+      },
+      "stack-db-1": {
+        "image_id": "sha256:d9f7eb2637296652f24b484afd5d246f759f49f5babcadc6a9e344c9acb75fbf",
+        "started": "2026-10-28T17:38:11.712001545Z",
+        "restart_count": 0,
+        "health": "unconfigured"
+      },
+      "orcivo-backend": {
+        "image_id": "sha256:ed7aa5669dbc05bf2dc3db75f8da3e1f8ca5f624bafef91b80fbf820d10db2b6",
+        "started": "2026-11-04T16:58:06.625088522Z",
+        "restart_count": 0,
+        "health": "healthy"
+      },
+      "orcivo-web": {
+        "image_id": "sha256:1e42113204a1052a23838f88f6e309481b8467de9e29e2696e9bbb96081cc530",
+        "started": "2026-11-04T16:58:12.49711213Z",
+        "restart_count": 0,
+        "health": "healthy"
+      },
+      "orcivo-db": {
+        "image_id": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+        "started": "2026-10-28T17:38:11.708922909Z",
+        "restart_count": 0,
+        "health": "healthy"
+      },
+      "orcivo-redis": {
+        "image_id": "sha256:858f009f9709ce576febc734aa78b8f6d624b82571f9ddb6bda4377c833b3499",
+        "started": "2026-10-28T17:38:11.636182237Z",
+        "restart_count": 0,
+        "health": "healthy"
+      },
+      "orcivo-minio": {
+        "image_id": "sha256:7187fcb23cab59939e45c9fd14b1c74b1cee7b065ed72550b8471b20a451652e",
+        "started": "2026-10-28T17:38:11.62596612Z",
+        "restart_count": 0,
+        "health": "healthy"
+      }
+    },
+    "disk": "Filesystem       1B-blocks        Used  Available Use% Mounted on\n/dev/sda1      40424828928 32404058112 8003993600  81% /\n",
+    "memory": {
+      "MemAvailable": "    1814272 kB",
+      "SwapTotal": "       2097148 kB",
+      "SwapFree": "         491308 kB"
+    },
+    "kernel_events": "-- No entries --\n"
+  },
+  "final_services": {
+    "stack-php-1": {
+      "started": "2026-10-28T17:38:11.754640479Z",
+      "restarts": 0,
+      "health": "unconfigured"
+    },
+    "stack-caddy-1": {
+      "started": "2026-10-28T17:38:11.650698913Z",
+      "restarts": 0,
+      "health": "unconfigured"
+    },
+    "orcivo-backend": {
+      "started": "2026-11-04T16:58:06.625088522Z",
+      "restarts": 0,
+      "health": "healthy"
+    },
+    "orcivo-web": {
+      "started": "2026-11-04T16:58:12.49711213Z",
+      "restarts": 0,
+      "health": "healthy"
+    },
+    "orcivo-db": {
+      "started": "2026-10-28T17:38:11.708922909Z",
+      "restarts": 0,
+      "health": "healthy"
+    }
+  },
+  "final_memory": {
+    "MemAvailable": "    1763584 kB",
+    "SwapFree": "         493432 kB"
+  },
+  "fpm_binary_sha256": "c05fc7b4fa52c240c93ee21f2497bf897bd0bcdea3da0166c18cb06354ee4cdb",
+  "live_status_query_executed": false,
+  "production_configuration_modified": false,
+  "production_barrier_activated": false
+}
