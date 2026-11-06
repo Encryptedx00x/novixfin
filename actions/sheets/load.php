@@ -14,6 +14,7 @@ $vstmt->execute(['u' => $userId, 'sid' => (int) $sheet['id']]);
 sheets_json([
     'ok' => true,
     'id' => (int) $sheet['id'],
+    'revision' => hash('sha256', (string) $sheet['content']),
     'content' => json_decode((string) ($sheet['content'] ?: '{"tabs":[]}'), true),
     'updated_at' => $sheet['updated_at'],
     'versions' => $vstmt->fetchAll(PDO::FETCH_ASSOC),

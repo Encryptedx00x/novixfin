@@ -1,0 +1,3 @@
+ARG PHP_IMAGE=php:8.3.36-fpm-bookworm@sha256:afb8f6d51d776e81ea35b25202ed1c98e41c2a2cb0c7edffaf25f5f564e7cce5
+FROM ${PHP_IMAGE}
+RUN docker-php-ext-install pdo_mysql

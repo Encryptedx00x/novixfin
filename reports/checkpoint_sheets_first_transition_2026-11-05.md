@@ -1,0 +1,8 @@
+# Checkpoint — primeira transição sem reload (2026-11-05)
+
+- Escolhida sonda privada com fpm_get_status(), que consulta o scoreboard existente sem configurar página/listener de status. Ela identifica o próprio PID; só aceita observação com os outros workers Idle, fila zero e identidades estáveis. Saturação/timeout bloqueiam o procedimento.
+- Complemento necessário: trava temporária 503 em `_bootstrap.php`, invalidação no próprio FPM e segunda drenagem antes de substituir handlers; nova drenagem sob a trava antes de colocar o bootstrap candidato por último. Isso cobre admissões HTTP antigas ainda fora do pool.
+- PHP-FPM Linux 8.3.36, mesmo master/workers/configuração do início ao fim, zero sinais. Três writers antigos gravaram; outras cinco gravações terminaram após saturação; um writer admitido na janela antes da trava concluiu; POST legado autenticado com upload anterior recebeu 503 pela trava, sem SQL. Foram aprovadas as 33 verificações HTTP/MariaDB e os controles negativo/positivo de OPcache.
+- Rollback restaurou os cinco arquivos restantes mantendo o bootstrap como trava, em vez de reabrir backend inseguro; uma alteração de planilha realizada após a publicação permaneceu no banco.
+- Artefatos: controles privados em scripts/deploy; checker fail-closed; laboratório estendido no modo LAB_STATUS_FUNCTION=YES; evidência sanitizada em reports/sheets_first_transition_evidence_2026-11-05.json. Nenhuma alteração funcional de planilha nem migração nova; nenhuma operação na VPS.
+- Confiança: 90% no ambiente ensaiado. Restam runbook final e atualização do PR. Execução de produção depende de manutenção estabilizada, precondições equivalentes e autorização expressa. O reload FPM reprovado não foi repetido.

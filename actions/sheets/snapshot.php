@@ -18,6 +18,7 @@ $sheetId = (int) $sheet['id'];
 
 $pdo->beginTransaction();
 try {
+    sheets_lock_revision($pdo, $sheetId, $userId);
     $pdo->prepare('UPDATE sheets SET content = :c WHERE id = :id AND user_id = :u')
         ->execute(['c' => $content, 'id' => $sheetId, 'u' => $userId]);
 
@@ -45,4 +46,4 @@ try {
 
 $vstmt = $pdo->prepare('SELECT id, label, created_at FROM sheet_versions WHERE sheet_id = :s ORDER BY created_at DESC, id DESC LIMIT 50');
 $vstmt->execute(['s' => $sheetId]);
-sheets_json(['ok' => true, 'versions' => $vstmt->fetchAll(PDO::FETCH_ASSOC), 'saved_at' => date('H:i')]);
+sheets_json(['ok' => true, 'revision' => hash('sha256', $content), 'versions' => $vstmt->fetchAll(PDO::FETCH_ASSOC), 'saved_at' => date('H:i')]);

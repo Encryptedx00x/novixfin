@@ -1486,3 +1486,44 @@ internas estiverem reskinadas — mexer agora arriscaria Entrada/Landing já ent
 - **Score impact**: security posture recovered to full marks (+2 pts). Overall 88 → 90/100.
 - **Recommendation upgraded**: DEPLOY WITH WARNINGS → **SAFE TO DEPLOY**.
 - **W2 status: RESOLVED.**
+
+## Planilhas — investigação 2026-11-04
+- Etapa da barra de fórmulas em reports/checkpoint_sheets_2026-11-04.md; integração e concorrência pendentes. Sem deploy.
+
+- Regressão HTTP isolada em reports/checkpoint_sheets_http_2026-11-04.md; concorrência e validação final pendentes.
+
+- Planilhas: aba vazia e fila local em reports/checkpoint_sheets_queue_2026-11-04.md; proteção entre páginas pendente.
+
+- Planilhas: verificação transacional de versão em reports/checkpoint_sheets_conflict_2026-11-04.md; validação final pendente.
+
+- Planilhas: testes de handlers portáveis, ver reports/checkpoint_sheets_test_paths_2026-11-04.md.
+
+- Planilhas: validação final e plano de rollback em reports/sheets_persistence_validation_2026-11-04.md. Sem deploy.
+
+- PR planilhas: revisão obrigatória; ver reports/checkpoint_sheets_revision_required_2026-11-04.md.
+
+- PR planilhas: resposta perdida e cópia manual; ver reports/checkpoint_sheets_uncertain_response_2026-11-05.md.
+
+- PR planilhas: preparação e limitações em reports/sheets_deploy_readiness_2026-11-05.md; suíte 14/14, sem deploy.
+
+- PR planilhas: ensaio isolado em reports/sheets_gate_rehearsal_2026-11-05.md; drenagem de produção e OPcache FPM não comprovados; deploy bloqueado.
+
+- Auditoria final: correção do clipboard da recuperação e suite 14/14; ver reports/checkpoint_sheets_final_audit_2026-11-05.md.
+
+- FPM real: listener separado, proxy+scoreboard, OPcache positivo/negativo e rollback com barreira ensaiados; ver reports/checkpoint_sheets_fpm_lab_2026-11-05.md. Bootstrap na VPS ainda exige janela autorizada.
+
+- Bootstrap por reload reprovado no FPM isolado: 0/2 gravações pós-resposta; ver reports/checkpoint_sheets_fpm_bootstrap_2026-11-05.md. NO-GO na VPS.
+
+- Auditoria/FPM concluídos em laboratório; relatório vigente reports/sheets_final_audit_and_fpm_2026-11-05.md. Primeiro corte na VPS e estabilização da manutenção ainda não comprovados; NO-GO.
+
+- Primeira transição sem reload: sonda nativa + trava PHP e drenagens sucessivas; ver reports/checkpoint_sheets_first_transition_2026-11-05.md. Ensaio passou; produção não alterada.
+
+- GO técnico para protocolo ensaiado sem reload FPM, condicionado às pré-condições. NO-GO para execução enquanto manutenção não confirmada estável/sem autorização. Runbook vigente: reports/sheets_first_transition_2026-11-05.md.
+
+- Preflight somente leitura (05/11 local, 06/11 UTC): manutenção de capacidade encerrada no relatório Orcivo; serviços estáveis nas amostras, seis arquivos/backup exatos e árvore suja preservados. Configuração compatível com sonda sem reload, mas consulta real ainda não autorizada/instalada. BLOQUEADO para encerrar preflight; ver reports/sheets_production_preflight_2026-11-05.md e comandos de janela preparados. Nenhuma operação de publicação.
+
+- 06/11: manutenção de swap encerrada e estabilidade revalidada; instalação mínima autorizada em /srv/sites/.novixfin-deploy/probe-20261106T040503Z/controls. Uma consulta real status aprovada (observador789, outros788/929 Idle, fila0), sem reload ou troca de geração. Aplicação, 117 entradas sujas e configurações preservadas. APTO PARA AGENDAR PUBLICAÇÃO; execução separadamente autorizada. Ver reports/sheets_probe_approved_2026-11-06.md.
+
+- 06/11, tentativa autorizada: três checkpoints e invalidações FPM PASS; ccf9ef8 aplicado e reaberto às01:21. QA interrompida por asserção adicional indevida de cells=={} no HTTP inicial, antes de testar persistência. Rollback de contenção concluído às01:24: cinco originais + bootstrap guard, HTTP503 mantido. 22 containers preservados; sem SQL direto/restore/merge. PUBLICAÇÃO FUNCIONAL NÃO CONCLUÍDA. Ver reports/sheets_publication_attempt_2026-11-06.md; não repetir comandos históricos cegamente.
+
+- 06/11 recuperação autorizada: estado rollback-guard confirmado; nova baseline e três checkpoints PASS; mesmos seis blobs ccf9ef8 reaplicados, bootstrap por último e invalidações FPM PASS. Barreira removida às07:01:01 BRT. QA31 HTTP +17 Chrome PASS, incluindo aba vazia recebida como array, A1/fórmula semEnter, recarga, 428/422/409, duas sessões, snapshot/restore. Mesma conta sintética, fixture bancário de saldo zero via UI; nenhum SQL direto/merge/restart. 22 serviços preservados e 111 outras entradas sujas intactas. Planilhas DISPONÍVEIS nos dois hosts. Ver reports/sheets_recovery_completed_2026-11-06.md.

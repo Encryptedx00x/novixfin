@@ -1,0 +1,591 @@
+{
+  "lab": "nvx-fpm-264f4799ba",
+  "php_image": "novixfin-fpm-lab:8.3.36",
+  "db_image": "mariadb:11.8.8",
+  "checks": [
+    "FPM real: 5 workers executaram A e o script está no OPcache",
+    "barreira 28 métodos/endpoints; FPM Finishing + fila impedem troca; Idle e fila=0 liberam",
+    "corpo HTTP antigo incompleto bloqueia drenagem por métrica do proxy",
+    "cabeçalhos incompletos antes da ativação entram na nova barreira",
+    "cliente desconectado: worker ativo observado até escrita concluída",
+    "controle negativo: disco B e CLI invalidado ainda servem A pelo FPM",
+    "invalidação no FPM: os mesmos 5 workers executam B sem reinício",
+    "33 verificações HTTP/MariaDB após troca dos seis arquivos",
+    "falha de hash: rollback preserva gravações posteriores, FPM executa A e barreira fica ativa para backend legado"
+  ],
+  "workers": [
+    8,
+    9,
+    10,
+    11,
+    12
+  ],
+  "generation": 1793873946,
+  "php": "PHP 8.3.36 (cli) (built: Oct 28 2026 01:27:49) (NTS)",
+  "caddy": "v2.11.4 h1:XKxkMTgNSizEvKG6QHue6cAsFOteU2qA61w2tKkCWi0=",
+  "probe_A": [
+    {
+      "sapi": "fpm-fcgi",
+      "pid": 10,
+      "enabled": "1",
+      "value": "A"
+    },
+    {
+      "sapi": "fpm-fcgi",
+      "pid": 11,
+      "enabled": "1",
+      "value": "A"
+    },
+    {
+      "sapi": "fpm-fcgi",
+      "pid": 12,
+      "enabled": "1",
+      "value": "A"
+    },
+    {
+      "sapi": "fpm-fcgi",
+      "pid": 9,
+      "enabled": "1",
+      "value": "A"
+    },
+    {
+      "sapi": "fpm-fcgi",
+      "pid": 8,
+      "enabled": "1",
+      "value": "A"
+    }
+  ],
+  "finishing": {
+    "pool": "www",
+    "process manager": "static",
+    "start time": 1793873946,
+    "start since": 5,
+    "accepted conn": 13,
+    "listen queue": 0,
+    "max listen queue": 0,
+    "listen queue len": 4096,
+    "idle processes": 0,
+    "active processes": 5,
+    "total processes": 5,
+    "max active processes": 5,
+    "max children reached": 0,
+    "slow requests": 0,
+    "processes": [
+      {
+        "pid": 8,
+        "state": "Finishing",
+        "start time": 1793873946,
+        "start since": 5,
+        "requests": 3,
+        "request duration": 2623,
+        "request method": "GET",
+        "request uri": "/__admin?token=e957a18d130a4076935875a2b7d83120&finish=1",
+        "content length": 0,
+        "user": "-",
+        "script": "/srv/novixfin/actions/sheets/__lab_slow.php",
+        "last request cpu": 0.0,
+        "last request memory": 0
+      },
+      {
+        "pid": 9,
+        "state": "Finishing",
+        "start time": 1793873946,
+        "start since": 5,
+        "requests": 3,
+        "request duration": 2292,
+        "request method": "GET",
+        "request uri": "/__admin?token=e957a18d130a4076935875a2b7d83120&finish=1",
+        "content length": 0,
+        "user": "-",
+        "script": "/srv/novixfin/actions/sheets/__lab_slow.php",
+        "last request cpu": 0.0,
+        "last request memory": 0
+      },
+      {
+        "pid": 10,
+        "state": "Finishing",
+        "start time": 1793873946,
+        "start since": 5,
+        "requests": 2,
+        "request duration": 3663,
+        "request method": "GET",
+        "request uri": "/__admin?token=e957a18d130a4076935875a2b7d83120&finish=1",
+        "content length": 0,
+        "user": "-",
+        "script": "/srv/novixfin/actions/sheets/__lab_slow.php",
+        "last request cpu": 0.0,
+        "last request memory": 0
+      },
+      {
+        "pid": 11,
+        "state": "Finishing",
+        "start time": 1793873946,
+        "start since": 5,
+        "requests": 3,
+        "request duration": 1532,
+        "request method": "GET",
+        "request uri": "/__admin?token=e957a18d130a4076935875a2b7d83120&finish=1",
+        "content length": 0,
+        "user": "-",
+        "script": "/srv/novixfin/actions/sheets/__lab_slow.php",
+        "last request cpu": 0.0,
+        "last request memory": 0
+      },
+      {
+        "pid": 12,
+        "state": "Finishing",
+        "start time": 1793873946,
+        "start since": 5,
+        "requests": 2,
+        "request duration": 1561,
+        "request method": "GET",
+        "request uri": "/__admin?token=e957a18d130a4076935875a2b7d83120&finish=1",
+        "content length": 0,
+        "user": "-",
+        "script": "/srv/novixfin/actions/sheets/__lab_slow.php",
+        "last request cpu": 0.0,
+        "last request memory": 0
+      }
+    ]
+  },
+  "queued": {
+    "pool": "www",
+    "process manager": "static",
+    "start time": 1793873946,
+    "start since": 5,
+    "accepted conn": 13,
+    "listen queue": 1,
+    "max listen queue": 1,
+    "listen queue len": 4096,
+    "idle processes": 0,
+    "active processes": 5,
+    "total processes": 5,
+    "max active processes": 5,
+    "max children reached": 0,
+    "slow requests": 0,
+    "processes": [
+      {
+        "pid": 8,
+        "state": "Finishing",
+        "start time": 1793873946,
+        "start since": 5,
+        "requests": 3,
+        "request duration": 725118,
+        "request method": "GET",
+        "request uri": "/__admin?token=e957a18d130a4076935875a2b7d83120&finish=1",
+        "content length": 0,
+        "user": "-",
+        "script": "/srv/novixfin/actions/sheets/__lab_slow.php",
+        "last request cpu": 0.0,
+        "last request memory": 0
+      },
+      {
+        "pid": 9,
+        "state": "Finishing",
+        "start time": 1793873946,
+        "start since": 5,
+        "requests": 3,
+        "request duration": 724787,
+        "request method": "GET",
+        "request uri": "/__admin?token=e957a18d130a4076935875a2b7d83120&finish=1",
+        "content length": 0,
+        "user": "-",
+        "script": "/srv/novixfin/actions/sheets/__lab_slow.php",
+        "last request cpu": 0.0,
+        "last request memory": 0
+      },
+      {
+        "pid": 10,
+        "state": "Finishing",
+        "start time": 1793873946,
+        "start since": 5,
+        "requests": 2,
+        "request duration": 726158,
+        "request method": "GET",
+        "request uri": "/__admin?token=e957a18d130a4076935875a2b7d83120&finish=1",
+        "content length": 0,
+        "user": "-",
+        "script": "/srv/novixfin/actions/sheets/__lab_slow.php",
+        "last request cpu": 0.0,
+        "last request memory": 0
+      },
+      {
+        "pid": 11,
+        "state": "Finishing",
+        "start time": 1793873946,
+        "start since": 5,
+        "requests": 3,
+        "request duration": 724027,
+        "request method": "GET",
+        "request uri": "/__admin?token=e957a18d130a4076935875a2b7d83120&finish=1",
+        "content length": 0,
+        "user": "-",
+        "script": "/srv/novixfin/actions/sheets/__lab_slow.php",
+        "last request cpu": 0.0,
+        "last request memory": 0
+      },
+      {
+        "pid": 12,
+        "state": "Finishing",
+        "start time": 1793873946,
+        "start since": 5,
+        "requests": 2,
+        "request duration": 724056,
+        "request method": "GET",
+        "request uri": "/__admin?token=e957a18d130a4076935875a2b7d83120&finish=1",
+        "content length": 0,
+        "user": "-",
+        "script": "/srv/novixfin/actions/sheets/__lab_slow.php",
+        "last request cpu": 0.0,
+        "last request memory": 0
+      }
+    ]
+  },
+  "drained": {
+    "pool": "www",
+    "process manager": "static",
+    "start time": 1793873946,
+    "start since": 6,
+    "accepted conn": 14,
+    "listen queue": 0,
+    "max listen queue": 1,
+    "listen queue len": 4096,
+    "idle processes": 5,
+    "active processes": 0,
+    "total processes": 5,
+    "max active processes": 5,
+    "max children reached": 0,
+    "slow requests": 0,
+    "processes": [
+      {
+        "pid": 8,
+        "state": "Idle",
+        "start time": 1793873946,
+        "start since": 6,
+        "requests": 4,
+        "request duration": 2623,
+        "request method": "GET",
+        "request uri": "/__admin?token=e957a18d130a4076935875a2b7d83120&finish=1",
+        "content length": 0,
+        "user": "-",
+        "script": "/srv/novixfin/actions/sheets/__lab_slow.php",
+        "last request cpu": 0.0,
+        "last request memory": 2097152
+      },
+      {
+        "pid": 9,
+        "state": "Idle",
+        "start time": 1793873946,
+        "start since": 6,
+        "requests": 3,
+        "request duration": 1049911,
+        "request method": "GET",
+        "request uri": "/__admin?token=e957a18d130a4076935875a2b7d83120&finish=1",
+        "content length": 0,
+        "user": "-",
+        "script": "/srv/novixfin/actions/sheets/__lab_slow.php",
+        "last request cpu": 0.0,
+        "last request memory": 2097152
+      },
+      {
+        "pid": 10,
+        "state": "Idle",
+        "start time": 1793873946,
+        "start since": 6,
+        "requests": 2,
+        "request duration": 1051266,
+        "request method": "GET",
+        "request uri": "/__admin?token=e957a18d130a4076935875a2b7d83120&finish=1",
+        "content length": 0,
+        "user": "-",
+        "script": "/srv/novixfin/actions/sheets/__lab_slow.php",
+        "last request cpu": 0.0,
+        "last request memory": 2097152
+      },
+      {
+        "pid": 11,
+        "state": "Idle",
+        "start time": 1793873946,
+        "start since": 6,
+        "requests": 3,
+        "request duration": 1049475,
+        "request method": "GET",
+        "request uri": "/__admin?token=e957a18d130a4076935875a2b7d83120&finish=1",
+        "content length": 0,
+        "user": "-",
+        "script": "/srv/novixfin/actions/sheets/__lab_slow.php",
+        "last request cpu": 0.0,
+        "last request memory": 2097152
+      },
+      {
+        "pid": 12,
+        "state": "Idle",
+        "start time": 1793873946,
+        "start since": 6,
+        "requests": 2,
+        "request duration": 1049288,
+        "request method": "GET",
+        "request uri": "/__admin?token=e957a18d130a4076935875a2b7d83120&finish=1",
+        "content length": 0,
+        "user": "-",
+        "script": "/srv/novixfin/actions/sheets/__lab_slow.php",
+        "last request cpu": 0.0,
+        "last request memory": 2097152
+      }
+    ]
+  },
+  "disconnect": {
+    "pool": "www",
+    "process manager": "static",
+    "start time": 1793873946,
+    "start since": 7,
+    "accepted conn": 15,
+    "listen queue": 0,
+    "max listen queue": 1,
+    "listen queue len": 4096,
+    "idle processes": 4,
+    "active processes": 1,
+    "total processes": 5,
+    "max active processes": 5,
+    "max children reached": 0,
+    "slow requests": 0,
+    "processes": [
+      {
+        "pid": 8,
+        "state": "Idle",
+        "start time": 1793873946,
+        "start since": 7,
+        "requests": 4,
+        "request duration": 2623,
+        "request method": "GET",
+        "request uri": "/__admin?token=e957a18d130a4076935875a2b7d83120&finish=1",
+        "content length": 0,
+        "user": "-",
+        "script": "/srv/novixfin/actions/sheets/__lab_slow.php",
+        "last request cpu": 0.0,
+        "last request memory": 2097152
+      },
+      {
+        "pid": 9,
+        "state": "Idle",
+        "start time": 1793873946,
+        "start since": 7,
+        "requests": 3,
+        "request duration": 1049911,
+        "request method": "GET",
+        "request uri": "/__admin?token=e957a18d130a4076935875a2b7d83120&finish=1",
+        "content length": 0,
+        "user": "-",
+        "script": "/srv/novixfin/actions/sheets/__lab_slow.php",
+        "last request cpu": 0.0,
+        "last request memory": 2097152
+      },
+      {
+        "pid": 10,
+        "state": "Running",
+        "start time": 1793873946,
+        "start since": 7,
+        "requests": 3,
+        "request duration": 49631,
+        "request method": "POST",
+        "request uri": "/actions/sheets/__lab_slow.php?token=34fa1991d9464599b9b84868b18d5b3e",
+        "content length": 0,
+        "user": "-",
+        "script": "/srv/novixfin/actions/sheets/__lab_slow.php",
+        "last request cpu": 0.0,
+        "last request memory": 0
+      },
+      {
+        "pid": 11,
+        "state": "Idle",
+        "start time": 1793873946,
+        "start since": 7,
+        "requests": 3,
+        "request duration": 1049475,
+        "request method": "GET",
+        "request uri": "/__admin?token=e957a18d130a4076935875a2b7d83120&finish=1",
+        "content length": 0,
+        "user": "-",
+        "script": "/srv/novixfin/actions/sheets/__lab_slow.php",
+        "last request cpu": 0.0,
+        "last request memory": 2097152
+      },
+      {
+        "pid": 12,
+        "state": "Idle",
+        "start time": 1793873946,
+        "start since": 7,
+        "requests": 2,
+        "request duration": 1049288,
+        "request method": "GET",
+        "request uri": "/__admin?token=e957a18d130a4076935875a2b7d83120&finish=1",
+        "content length": 0,
+        "user": "-",
+        "script": "/srv/novixfin/actions/sheets/__lab_slow.php",
+        "last request cpu": 0.0,
+        "last request memory": 2097152
+      }
+    ]
+  },
+  "candidate_hashes": {
+    "actions/sheets/_bootstrap.php": "692628827a670fbd27d6153318a2010b276b477cb6c9bfa258a5112b59ea95fc",
+    "actions/sheets/load.php": "7d8190d841e89ef4530bf6d9b888050888311805cce28e3560d3d84c96a079c8",
+    "actions/sheets/save.php": "d4233a8340e1eee8adfdd69127e26fff7b18cbbf2418d49d09fcff9e2a8fceab",
+    "actions/sheets/snapshot.php": "9a33bf3fd6bbb9ab98f21feeb6e3cdc1678d4f9c38859e6738cab3241266f43c",
+    "actions/sheets/restore.php": "0f8e330cf2ebb7039acf6283c15c4faf17fa85ab27a2327b4001a9f4aba42812",
+    "public/scripts/sheet.js": "b3fc746f8a7c94bd7548d6c62523a130d9b8df90096967375b0e02a8c913fc0c"
+  },
+  "fpm_admin_invalidation": {
+    "ok": true,
+    "sapi": "fpm-fcgi",
+    "pid": 8,
+    "opcache_start_time": 1793873946,
+    "operation": "invalidate",
+    "files": {
+      "actions/sheets/_bootstrap.php": {
+        "sha256": "692628827a670fbd27d6153318a2010b276b477cb6c9bfa258a5112b59ea95fc",
+        "cached_before": true,
+        "cached_after": false
+      },
+      "actions/sheets/load.php": {
+        "sha256": "7d8190d841e89ef4530bf6d9b888050888311805cce28e3560d3d84c96a079c8",
+        "cached_before": true,
+        "cached_after": false
+      },
+      "actions/sheets/save.php": {
+        "sha256": "d4233a8340e1eee8adfdd69127e26fff7b18cbbf2418d49d09fcff9e2a8fceab",
+        "cached_before": false,
+        "cached_after": false
+      },
+      "actions/sheets/snapshot.php": {
+        "sha256": "9a33bf3fd6bbb9ab98f21feeb6e3cdc1678d4f9c38859e6738cab3241266f43c",
+        "cached_before": false,
+        "cached_after": false
+      },
+      "actions/sheets/restore.php": {
+        "sha256": "0f8e330cf2ebb7039acf6283c15c4faf17fa85ab27a2327b4001a9f4aba42812",
+        "cached_before": false,
+        "cached_after": false
+      },
+      "public/scripts/sheet.js": {
+        "sha256": "b3fc746f8a7c94bd7548d6c62523a130d9b8df90096967375b0e02a8c913fc0c",
+        "cached_before": false
+      }
+    }
+  },
+  "probe_B": [
+    {
+      "sapi": "fpm-fcgi",
+      "pid": 11,
+      "enabled": "1",
+      "value": "B"
+    },
+    {
+      "sapi": "fpm-fcgi",
+      "pid": 9,
+      "enabled": "1",
+      "value": "B"
+    },
+    {
+      "sapi": "fpm-fcgi",
+      "pid": 8,
+      "enabled": "1",
+      "value": "B"
+    },
+    {
+      "sapi": "fpm-fcgi",
+      "pid": 12,
+      "enabled": "1",
+      "value": "B"
+    },
+    {
+      "sapi": "fpm-fcgi",
+      "pid": 10,
+      "enabled": "1",
+      "value": "B"
+    }
+  ],
+  "http": "OK: 33 verificações passaram.",
+  "rollback_hashes": {
+    "actions/sheets/_bootstrap.php": "aa63ac1b94c7150354d4199db51d6c0d42a8d5a02d91a48d6d51ce9da0e826b8",
+    "actions/sheets/load.php": "c51293d01b983e4ff19b90c382c3268b9aaaaf668fd77c1a411e0cef7c781be6",
+    "actions/sheets/save.php": "1ab29541c03a7d2e2f92ab0f7656d47def63cced9fe3e03d06ef4459456039e4",
+    "actions/sheets/snapshot.php": "ed993a84a4ae836a814cf9acf57558d456388389415f6e1c92660dd325bff498",
+    "actions/sheets/restore.php": "abc3a7d6d40c6b17834fbeeb7b9df7cd32442c8ef67b87fa7c12f7d845ad90be",
+    "public/scripts/sheet.js": "67f6ef50fb25a85c27505505b25b88091dc9e6076d98cbfa4afc2b20ff4fa520"
+  },
+  "rollback_invalidation": {
+    "ok": true,
+    "sapi": "fpm-fcgi",
+    "pid": 8,
+    "opcache_start_time": 1793873946,
+    "operation": "invalidate",
+    "files": {
+      "actions/sheets/_bootstrap.php": {
+        "sha256": "aa63ac1b94c7150354d4199db51d6c0d42a8d5a02d91a48d6d51ce9da0e826b8",
+        "cached_before": true,
+        "cached_after": false
+      },
+      "actions/sheets/load.php": {
+        "sha256": "c51293d01b983e4ff19b90c382c3268b9aaaaf668fd77c1a411e0cef7c781be6",
+        "cached_before": true,
+        "cached_after": false
+      },
+      "actions/sheets/save.php": {
+        "sha256": "1ab29541c03a7d2e2f92ab0f7656d47def63cced9fe3e03d06ef4459456039e4",
+        "cached_before": true,
+        "cached_after": false
+      },
+      "actions/sheets/snapshot.php": {
+        "sha256": "ed993a84a4ae836a814cf9acf57558d456388389415f6e1c92660dd325bff498",
+        "cached_before": true,
+        "cached_after": false
+      },
+      "actions/sheets/restore.php": {
+        "sha256": "abc3a7d6d40c6b17834fbeeb7b9df7cd32442c8ef67b87fa7c12f7d845ad90be",
+        "cached_before": true,
+        "cached_after": false
+      },
+      "public/scripts/sheet.js": {
+        "sha256": "67f6ef50fb25a85c27505505b25b88091dc9e6076d98cbfa4afc2b20ff4fa520",
+        "cached_before": false
+      }
+    }
+  },
+  "rollback_workers": [
+    {
+      "sapi": "fpm-fcgi",
+      "pid": 12,
+      "enabled": "1",
+      "value": "A"
+    },
+    {
+      "sapi": "fpm-fcgi",
+      "pid": 11,
+      "enabled": "1",
+      "value": "A"
+    },
+    {
+      "sapi": "fpm-fcgi",
+      "pid": 9,
+      "enabled": "1",
+      "value": "A"
+    },
+    {
+      "sapi": "fpm-fcgi",
+      "pid": 8,
+      "enabled": "1",
+      "value": "A"
+    },
+    {
+      "sapi": "fpm-fcgi",
+      "pid": 10,
+      "enabled": "1",
+      "value": "A"
+    }
+  ],
+  "result": "PASS isolated FPM; production bootstrap not authorized or proven",
+  "source_commit": "e9b0783",
+  "upstream_php_digest": "library/php:8.3.36-fpm-bookworm@sha256:afb8f6d51d776e81ea35b25202ed1c98e41c2a2cb0c7edffaf25f5f564e7cce5",
+  "upstream_mariadb_digest": "library/mariadb:11.8.8@sha256:e564bcaefb87c3d2b8b09b539ea791d34f4b62c05e2e7cb03f5d6388bdc54f2c"
+}

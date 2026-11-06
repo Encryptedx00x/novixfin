@@ -33,6 +33,12 @@ function sheets_require_post(): void
     } catch (Throwable $e) {
         sheets_json(['ok' => false, 'error' => 'Sessão expirada. Recarregue a página.'], 419);
     }
+    if (!array_key_exists('_revision', $_POST)) {
+        sheets_json(['ok' => false, 'error' => 'Versão ausente. Copie suas alterações e atualize a página.'], 428);
+    }
+    if (!is_string($_POST['_revision']) || !preg_match('/^[a-f0-9]{64}$/D', $_POST['_revision'])) {
+        sheets_json(['ok' => false, 'error' => 'Versão inválida. Copie suas alterações antes de atualizar a página.'], 422);
+    }
 }
 
 /**
@@ -59,6 +65,19 @@ function sheets_get_or_create(PDO $pdo, int $userId): array
         'content' => $empty,
         'updated_at' => null,
     ];
+}
+
+/** Dentro de uma transação, impede que uma cópia antiga sobrescreva outra. */
+function sheets_lock_revision(PDO $pdo, int $sheetId, int $userId): void
+{
+    $expected = $_POST['_revision'] ?? null;
+    $stmt = $pdo->prepare('SELECT content FROM sheets WHERE id = :id AND user_id = :u FOR UPDATE');
+    $stmt->execute(['id' => $sheetId, 'u' => $userId]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$row || !hash_equals(hash('sha256', (string) $row['content']), $expected)) {
+        $pdo->rollBack();
+        sheets_json(['ok' => false, 'error' => 'Planilha alterada em outra página. Copie suas alterações antes de recarregar.'], 409);
+    }
 }
 
 /** Valida e normaliza o content recebido (array de abas com células). */

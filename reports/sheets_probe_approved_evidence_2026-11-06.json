@@ -1,0 +1,251 @@
+{
+  "decision": "APPROVED TO SCHEDULE; deployment not authorized/executed",
+  "functional_candidate": "ccf9ef8",
+  "source_head": "9cdf034148f3f9dfa69bd95050a7814a65fc66d2",
+  "maintenance_completed_confirmed_by_user_and_owner_thread": true,
+  "before_utc": "2026-11-06T04:04:26Z",
+  "before_memory": {
+    "MemAvailable": "    1763936 kB",
+    "SwapFree": "         832556 kB"
+  },
+  "installation": {
+    "utc": "2026-11-06T04:05:05Z",
+    "ops": "/srv/sites/.novixfin-deploy/probe-20261106T040503Z",
+    "controls": "/srv/sites/.novixfin-deploy/probe-20261106T040503Z/controls",
+    "files": {
+      "/srv/sites/.novixfin-deploy": {
+        "uid": 0,
+        "gid": 33,
+        "mode": "0o750"
+      },
+      "/srv/sites/.novixfin-deploy/probe-20261106T040503Z": {
+        "uid": 0,
+        "gid": 33,
+        "mode": "0o750"
+      },
+      "/srv/sites/.novixfin-deploy/probe-20261106T040503Z/controls": {
+        "uid": 0,
+        "gid": 33,
+        "mode": "0o750"
+      },
+      "/srv/sites/.novixfin-deploy/probe-20261106T040503Z/controls/control.key": {
+        "uid": 0,
+        "gid": 33,
+        "mode": "0o640"
+      },
+      "/srv/sites/.novixfin-deploy/probe-20261106T040503Z/controls/fpm_sheets_admin.php": {
+        "uid": 0,
+        "gid": 33,
+        "mode": "0o640",
+        "sha256": "f0b833e53c31b2f07007c46d48b62811e7944539c533372d59518a6748009411"
+      },
+      "/srv/sites/.novixfin-deploy/probe-20261106T040503Z/controls/fpm_request.php": {
+        "uid": 0,
+        "gid": 33,
+        "mode": "0o640",
+        "sha256": "30e3a0a5d2eb0cfb003d66c4527918aa33c1bedd7b64f9761c36163932c35058"
+      }
+    },
+    "manifest_installed": false,
+    "fpm_query_executed": false
+  },
+  "status_query": {
+    "utc": "2026-11-06T04:05:38.209323+00:00",
+    "exit_code": 0,
+    "operation": "status",
+    "query_count": 1,
+    "response": {
+      "ok": true,
+      "sapi": "fpm-fcgi",
+      "status": {
+        "pool": "www",
+        "start time": 1793209094,
+        "accepted conn": 54675,
+        "listen queue": 0,
+        "active processes": 1,
+        "idle processes": 2,
+        "total processes": 3,
+        "processes": [
+          {
+            "pid": 789,
+            "state": "Running",
+            "start time": 1793839318,
+            "requests": 1532
+          },
+          {
+            "pid": 929,
+            "state": "Idle",
+            "start time": 1793909295,
+            "requests": 377
+          },
+          {
+            "pid": 788,
+            "state": "Idle",
+            "start time": 1793839317,
+            "requests": 1878
+          }
+        ],
+        "observer pid": 789
+      }
+    },
+    "error": null
+  },
+  "after_utc": "2026-11-06T04:06:28Z",
+  "after_memory": {
+    "MemAvailable": "    1763020 kB",
+    "SwapFree": "         832796 kB"
+  },
+  "fpm_process_mapping": [
+    {
+      "host_pid": 2054,
+      "host_ppid": 1741,
+      "namespace_pids": [
+        2054,
+        1
+      ]
+    },
+    {
+      "host_pid": 4137295,
+      "host_ppid": 2054,
+      "namespace_pids": [
+        4137295,
+        788
+      ]
+    },
+    {
+      "host_pid": 4137331,
+      "host_ppid": 2054,
+      "namespace_pids": [
+        4137331,
+        789
+      ]
+    },
+    {
+      "host_pid": 1738235,
+      "host_ppid": 2054,
+      "namespace_pids": [
+        1738235,
+        929
+      ]
+    }
+  ],
+  "fpm_master_workers_and_service_generations_unchanged": true,
+  "php_configuration_sha256_unchanged": true,
+  "php_configuration_sha256": "ba183662c97895b776e65c9c5d4b7d9ceec3bfbbcc3e6bdb1e1cb96177921d1c  /usr/local/etc/php-fpm.conf\n279516088deabe3b100af7f9a9b74d43b3ef83b76cbd9a13acc780eaeae697b3  /usr/local/etc/php-fpm.d/docker.conf\n595bc940ca67e888820f2b9e136c4c2a6d8a56e09dce334ddfcd21da4ce3f744  /usr/local/etc/php-fpm.d/www.conf\n5cd36dd72d998c1afca7bdeac43f2ea05b5703f2bff4d228bff5e37bf614a99e  /usr/local/etc/php-fpm.d/zz-docker.conf\n771ba206ba9f361b40c0712f6d0cd5be4d91283928f570de44cd2567782b153c  /usr/local/etc/php/conf.d/docker-fpm.ini\n07ffd2ee7f41ac6411e796515acd681c481321174bbe5c572519316d24e276cc  /usr/local/etc/php/conf.d/docker-php-ext-gd.ini\n55a03bbf548ef6e21736f6b17e18a55abc22c943aab9e20e92462236e7cfc4c7  /usr/local/etc/php/conf.d/docker-php-ext-mysqli.ini\n470eca5c249ff49762b95bf780da0eef6ce54383361fd1e8d5e83d7d21d1249d  /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini\n25772214784650c30ccc267eb382cb2cfb877066a8c80d46d8b0d1662c8ed20f  /usr/local/etc/php/conf.d/docker-php-ext-pdo_mysql.ini\n7abffacf19619858d58d75dc06157a04683b3c1a2dc3235a9bce4518cb06e777  /usr/local/etc/php/conf.d/docker-php-ext-sodium.ini\nd20a3618cc6270ae418be250a6666fa6e3d23bef7a8f5472bd10bf25bc462453  /usr/local/etc/php/conf.d/zz-prod.ini\n",
+  "caddy_sha256": "40f6e5ea50c7a2af6eff13cedf96189b12e313c123c630fc8bce4ff836421595",
+  "caddy_configuration_unchanged": true,
+  "outside_all_webroots": true,
+  "configured_webroots": [
+    "/srv/sites/ascn.codes",
+    "/srv/sites/dyogo.site/public",
+    "/srv/sites/nidy.com.br",
+    "/srv/sites/novixfin",
+    "/srv/sites/novixfin/public",
+    "/srv/sites/ostentei/public",
+    "/srv/sites/setimadmsc.com.br/public",
+    "/srv/sites/toxico.online",
+    "/srv/sites/verifiedpolitik.com"
+  ],
+  "http_exposure_checks": [
+    {
+      "host": "novixfin.cash",
+      "path": "/.novixfin-deploy/probe-20261106T040503Z/controls/fpm_sheets_admin.php",
+      "status": 200,
+      "probe_source_or_response_exposed": false,
+      "response_sha256": "92f73944416e63a799207638d00d017032fc234a972c993ebbc49c88d3f16475"
+    },
+    {
+      "host": "novixfin.cash",
+      "path": "/public/.novixfin-deploy/probe-20261106T040503Z/controls/fpm_sheets_admin.php",
+      "status": 200,
+      "probe_source_or_response_exposed": false,
+      "response_sha256": "92f73944416e63a799207638d00d017032fc234a972c993ebbc49c88d3f16475"
+    },
+    {
+      "host": "www.novixfin.cash",
+      "path": "/.novixfin-deploy/probe-20261106T040503Z/controls/fpm_sheets_admin.php",
+      "status": 200,
+      "probe_source_or_response_exposed": false,
+      "response_sha256": "92f73944416e63a799207638d00d017032fc234a972c993ebbc49c88d3f16475"
+    },
+    {
+      "host": "www.novixfin.cash",
+      "path": "/public/.novixfin-deploy/probe-20261106T040503Z/controls/fpm_sheets_admin.php",
+      "status": 200,
+      "probe_source_or_response_exposed": false,
+      "response_sha256": "92f73944416e63a799207638d00d017032fc234a972c993ebbc49c88d3f16475"
+    }
+  ],
+  "dirty_paths_count": 117,
+  "dirty_content_modes_unchanged": true,
+  "dirty_manifest_sha256": "b851a1079c543c7a4b4f31c3e861559620a3dbfb4ff836499a534ef0815d9c48",
+  "six_original_sources": {
+    "actions/sheets/_bootstrap.php": {
+      "sha256": "aa63ac1b94c7150354d4199db51d6c0d42a8d5a02d91a48d6d51ce9da0e826b8",
+      "mode": "0o664",
+      "uid": 1000,
+      "gid": 1000,
+      "backup_matches": true
+    },
+    "actions/sheets/load.php": {
+      "sha256": "c51293d01b983e4ff19b90c382c3268b9aaaaf668fd77c1a411e0cef7c781be6",
+      "mode": "0o664",
+      "uid": 1000,
+      "gid": 1000,
+      "backup_matches": true
+    },
+    "actions/sheets/save.php": {
+      "sha256": "1ab29541c03a7d2e2f92ab0f7656d47def63cced9fe3e03d06ef4459456039e4",
+      "mode": "0o664",
+      "uid": 1000,
+      "gid": 1000,
+      "backup_matches": true
+    },
+    "actions/sheets/snapshot.php": {
+      "sha256": "ed993a84a4ae836a814cf9acf57558d456388389415f6e1c92660dd325bff498",
+      "mode": "0o664",
+      "uid": 1000,
+      "gid": 1000,
+      "backup_matches": true
+    },
+    "actions/sheets/restore.php": {
+      "sha256": "abc3a7d6d40c6b17834fbeeb7b9df7cd32442c8ef67b87fa7c12f7d845ad90be",
+      "mode": "0o664",
+      "uid": 1000,
+      "gid": 1000,
+      "backup_matches": true
+    },
+    "public/scripts/sheet.js": {
+      "sha256": "67f6ef50fb25a85c27505505b25b88091dc9e6076d98cbfa4afc2b20ff4fa520",
+      "mode": "0o664",
+      "uid": 1000,
+      "gid": 1000,
+      "backup_matches": true
+    }
+  },
+  "only_two_scripts_and_key_installed": true,
+  "manifest_installed": false,
+  "barrier_activated": false,
+  "fpm_reload_restart_or_signal": false,
+  "application_files_replaced": false,
+  "opcache_invalidation_executed": false,
+  "sql_commands_executed": false,
+  "full_drain_performed": false,
+  "checker_local_real_snapshot_with_hypothetical_zero_metric": {
+    "ok": true,
+    "pool": "www",
+    "start time": 1793209094,
+    "observer pid": 789,
+    "old active processes": 0,
+    "listen queue": 0,
+    "workers": [
+      788,
+      789,
+      929
+    ]
+  },
+  "checker_missing_proxy_metric_rejected": "proxy not drained or metric unavailable",
+  "window_shell_syntax": "PASS",
+  "business_code_and_tests_unchanged": true,
+  "secrets_included": false
+}

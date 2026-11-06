@@ -306,3 +306,24 @@
 - actions/login.php, actions/register.php, actions/logout.php (duplicates of public/)
 - database/update-accounts.sql, database/fix_categories.sql, database/add_effective_date.sql
 - v1.7 (antes de mudar design completamente)/, v2 (prototipo 1)/, v2.1 (com sidebar correta)/
+
+## Planilhas — 2026-11-04
+- Alterações na barra de fórmulas precisam ser confirmadas antes de mudar de célula, criar marco ou sair. Persistência integrada ainda requer validação.
+
+## Operação de planilhas — FPM real 2026-11-05
+- Observar proxy e FPM antes das requisições relevantes; Finishing e fila impedem troca. Invalidação deve ocorrer no FPM com prova comportamental. Reload gracioso durante trabalho pós-resposta perdeu 2/2 gravações no laboratório: não usar como prova de drenagem ou bootstrap aprovado. Relatório vigente em reports/sheets_final_audit_and_fpm_2026-11-05.md.
+
+## Primeira transição — protocolo vigente 2026-11-05
+- fpm_get_status() consulta o pool existente sem pm.status_path/reload. Excluir somente o PID da sonda validada; saturação é aborto, não ociosidade. Trava temporária no bootstrap + drenagem após invalidação protege contra admissões tardias; manter trava no rollback legado. Ver reports/sheets_first_transition_2026-11-05.md.
+
+## Preflight readonly — 2026-11-05 local / 06 UTC
+- VPS PHP 8.3.36, pool www dynamic/max5 (lab static5), OPcache com timestamps e proteção de atualização 2s, Caddy 2.11.4 sem métrica HTTP ativa. Seis hashes e backup correspondem; 117 entradas sujas preservadas. Sonda nativa está no binário, mas diretório privado/consulta no FPM vivo pendentes de autorização específica de escrita; não tratar compatibilidade estática como execução comprovada. Decisão e comandos em reports/sheets_production_preflight_2026-11-05.md.
+
+## Sonda viva aprovada — 2026-11-06
+- Instalação mínima autorizada e uma consulta status comprovadas após manutenção de swap encerrada: controls em /srv/sites/.novixfin-deploy/probe-20261106T040503Z, root:33, dirs750/files640, sem manifesto. Preservar chave, nunca versioná-la. Pool www, geração1793209094, workers788/789/929, somente observador789 Running e fila0. GO para agendamento; nenhum deploy/barreira/reload/invalidação/SQL. Ver reports/sheets_probe_approved_2026-11-06.md e comandos externos atualizados; package antigo imutável tem documentação histórica.
+
+## Produção em contenção após tentativa — 2026-11-06
+- Marcador /srv/sites/.novixfin-deploy/sheets.pause ATIVO. Manifesto controls/sheets-manifest.json agora rollback-guard; cinco arquivos originais restaurados, bootstrap 503 SHA6d05fafb00a069ca65d567ba1a4de0e771176e161d1cc6abb31134250fdeac8b. Não restaurar bootstrap legado/reabrir. Três checkpoints da troca e três do rollback passaram; QA parou por premissa extra incorreta do smoke sobre células vazias HTTP, sem prova de regressão de persistência. Reter falha, alinhar QA ao contrato homologado e obter decisão de retomada. Ver reports/sheets_publication_attempt_2026-11-06.md. Dados preservados; nenhum merge/SQL direto/restart FPM.
+
+## Recuperação concluída e estado vigente — 2026-11-06
+- Marcador sheets.pause AUSENTE; manifesto candidate; seis arquivos funcionais exatos ccf9ef8 publicados. Registros isolados em /srv/sites/.novixfin-deploy/probe-20261106T040503Z/recovery-20261106T095913Z. Três checkpoints e invalidações FPM PASS, QA31 HTTP+17 Chrome PASS; células vazias podem ser [] no HTTP e são normalizadas pelo frontend (comprovado em aba vazia real). Mesma identidade QA, com conta financeira de saldo zero requerida pelo onboarding. Estados anteriores acima são históricos: produção disponível nos dois hosts, sem merge/restart/SQL direto. Ver reports/sheets_recovery_completed_2026-11-06.md.

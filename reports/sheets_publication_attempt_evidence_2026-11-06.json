@@ -1,0 +1,793 @@
+{
+  "result": "FUNCTIONAL PUBLICATION NOT COMPLETE; ROLLBACK CONTAINMENT HTTP 503",
+  "candidate": "ccf9ef8",
+  "authorized_pr_head": "a8728a3",
+  "immutable_package_sha256": "0a709475fce6c7a9a98d7f317fabcd704e765d96fb14c52f9dd154803628876e",
+  "caddy_real_validation": "Valid configuration",
+  "deployment_records": {
+    "pool.baseline.json": {
+      "ok": true,
+      "sapi": "fpm-fcgi",
+      "status": {
+        "pool": "www",
+        "start time": 1793209094,
+        "accepted conn": 54688,
+        "listen queue": 0,
+        "active processes": 1,
+        "idle processes": 2,
+        "total processes": 3,
+        "processes": [
+          {
+            "pid": 789,
+            "state": "Idle",
+            "start time": 1793839318,
+            "requests": 1536
+          },
+          {
+            "pid": 929,
+            "state": "Idle",
+            "start time": 1793909295,
+            "requests": 381
+          },
+          {
+            "pid": 788,
+            "state": "Running",
+            "start time": 1793839317,
+            "requests": 1883
+          }
+        ],
+        "observer pid": 788
+      }
+    },
+    "checkpoint-1.json": {
+      "ok": true,
+      "pool": "www",
+      "start time": 1793209094,
+      "observer pid": 788,
+      "old active processes": 0,
+      "listen queue": 0,
+      "workers": [
+        788,
+        789,
+        929
+      ]
+    },
+    "checkpoint-2.json": {
+      "ok": true,
+      "pool": "www",
+      "start time": 1793209094,
+      "observer pid": 788,
+      "old active processes": 0,
+      "listen queue": 0,
+      "workers": [
+        788,
+        789,
+        929
+      ]
+    },
+    "checkpoint-3.json": {
+      "ok": true,
+      "pool": "www",
+      "start time": 1793209094,
+      "observer pid": 788,
+      "old active processes": 0,
+      "listen queue": 0,
+      "workers": [
+        788,
+        789,
+        929
+      ]
+    },
+    "pool.checkpoint-1.json": {
+      "ok": true,
+      "sapi": "fpm-fcgi",
+      "status": {
+        "pool": "www",
+        "start time": 1793209094,
+        "accepted conn": 54691,
+        "listen queue": 0,
+        "active processes": 1,
+        "idle processes": 2,
+        "total processes": 3,
+        "processes": [
+          {
+            "pid": 789,
+            "state": "Idle",
+            "start time": 1793839318,
+            "requests": 1537
+          },
+          {
+            "pid": 929,
+            "state": "Idle",
+            "start time": 1793909295,
+            "requests": 382
+          },
+          {
+            "pid": 788,
+            "state": "Running",
+            "start time": 1793839317,
+            "requests": 1884
+          }
+        ],
+        "observer pid": 788
+      }
+    },
+    "pool.checkpoint-2.json": {
+      "ok": true,
+      "sapi": "fpm-fcgi",
+      "status": {
+        "pool": "www",
+        "start time": 1793209094,
+        "accepted conn": 54697,
+        "listen queue": 0,
+        "active processes": 1,
+        "idle processes": 2,
+        "total processes": 3,
+        "processes": [
+          {
+            "pid": 789,
+            "state": "Idle",
+            "start time": 1793839318,
+            "requests": 1539
+          },
+          {
+            "pid": 929,
+            "state": "Idle",
+            "start time": 1793909295,
+            "requests": 384
+          },
+          {
+            "pid": 788,
+            "state": "Running",
+            "start time": 1793839317,
+            "requests": 1886
+          }
+        ],
+        "observer pid": 788
+      }
+    },
+    "pool.checkpoint-3.json": {
+      "ok": true,
+      "sapi": "fpm-fcgi",
+      "status": {
+        "pool": "www",
+        "start time": 1793209094,
+        "accepted conn": 54703,
+        "listen queue": 0,
+        "active processes": 1,
+        "idle processes": 2,
+        "total processes": 3,
+        "processes": [
+          {
+            "pid": 789,
+            "state": "Idle",
+            "start time": 1793839318,
+            "requests": 1541
+          },
+          {
+            "pid": 929,
+            "state": "Idle",
+            "start time": 1793909295,
+            "requests": 386
+          },
+          {
+            "pid": 788,
+            "state": "Running",
+            "start time": 1793839317,
+            "requests": 1888
+          }
+        ],
+        "observer pid": 788
+      }
+    },
+    "invalidate-guard.json": {
+      "ok": true,
+      "sapi": "fpm-fcgi",
+      "pid": 929,
+      "opcache_start_time": 1793209094,
+      "operation": "invalidate",
+      "files": {
+        "actions/sheets/_bootstrap.php": {
+          "sha256": "6d05fafb00a069ca65d567ba1a4de0e771176e161d1cc6abb31134250fdeac8b",
+          "cached_before": false,
+          "cached_after": false
+        },
+        "actions/sheets/load.php": {
+          "sha256": "c51293d01b983e4ff19b90c382c3268b9aaaaf668fd77c1a411e0cef7c781be6",
+          "cached_before": true,
+          "cached_after": false
+        },
+        "actions/sheets/save.php": {
+          "sha256": "1ab29541c03a7d2e2f92ab0f7656d47def63cced9fe3e03d06ef4459456039e4",
+          "cached_before": false,
+          "cached_after": false
+        },
+        "actions/sheets/snapshot.php": {
+          "sha256": "ed993a84a4ae836a814cf9acf57558d456388389415f6e1c92660dd325bff498",
+          "cached_before": false,
+          "cached_after": false
+        },
+        "actions/sheets/restore.php": {
+          "sha256": "abc3a7d6d40c6b17834fbeeb7b9df7cd32442c8ef67b87fa7c12f7d845ad90be",
+          "cached_before": false,
+          "cached_after": false
+        },
+        "public/scripts/sheet.js": {
+          "sha256": "67f6ef50fb25a85c27505505b25b88091dc9e6076d98cbfa4afc2b20ff4fa520",
+          "cached_before": false
+        }
+      }
+    },
+    "invalidate-handlers.json": {
+      "ok": true,
+      "sapi": "fpm-fcgi",
+      "pid": 929,
+      "opcache_start_time": 1793209094,
+      "operation": "invalidate",
+      "files": {
+        "actions/sheets/_bootstrap.php": {
+          "sha256": "6d05fafb00a069ca65d567ba1a4de0e771176e161d1cc6abb31134250fdeac8b",
+          "cached_before": false,
+          "cached_after": false
+        },
+        "actions/sheets/load.php": {
+          "sha256": "ab5bcb7249b879a5f82f69e5b8445646870f8c2f5ff2cf8e6b4b7a7467b65d8b",
+          "cached_before": false,
+          "cached_after": false
+        },
+        "actions/sheets/save.php": {
+          "sha256": "213cb7992b465113486d9fae159e0e4aa0c0ad6f56d62840b2f33e112ebf7dfa",
+          "cached_before": false,
+          "cached_after": false
+        },
+        "actions/sheets/snapshot.php": {
+          "sha256": "8d2aede31ac890bda94688d96d1ba9050fc725fae1932ca5664a6e4297188c4f",
+          "cached_before": false,
+          "cached_after": false
+        },
+        "actions/sheets/restore.php": {
+          "sha256": "dec16351f208b81437d8cdcc93356814e2bcf25a6b6696141d7d219e5faacc37",
+          "cached_before": false,
+          "cached_after": false
+        },
+        "public/scripts/sheet.js": {
+          "sha256": "0e478631a197185a5c49d6c27c3a158234a781120b057c02671fd7207ca38a68",
+          "cached_before": false
+        }
+      }
+    },
+    "invalidate-final.json": {
+      "ok": true,
+      "sapi": "fpm-fcgi",
+      "pid": 929,
+      "opcache_start_time": 1793209094,
+      "operation": "invalidate",
+      "files": {
+        "actions/sheets/_bootstrap.php": {
+          "sha256": "a3162d56ce78676fd5c39b02bebe269c7908648b0ebaaa528c5b0dde0d1a94de",
+          "cached_before": false,
+          "cached_after": false
+        },
+        "actions/sheets/load.php": {
+          "sha256": "ab5bcb7249b879a5f82f69e5b8445646870f8c2f5ff2cf8e6b4b7a7467b65d8b",
+          "cached_before": false,
+          "cached_after": false
+        },
+        "actions/sheets/save.php": {
+          "sha256": "213cb7992b465113486d9fae159e0e4aa0c0ad6f56d62840b2f33e112ebf7dfa",
+          "cached_before": false,
+          "cached_after": false
+        },
+        "actions/sheets/snapshot.php": {
+          "sha256": "8d2aede31ac890bda94688d96d1ba9050fc725fae1932ca5664a6e4297188c4f",
+          "cached_before": true,
+          "cached_after": false
+        },
+        "actions/sheets/restore.php": {
+          "sha256": "dec16351f208b81437d8cdcc93356814e2bcf25a6b6696141d7d219e5faacc37",
+          "cached_before": true,
+          "cached_after": false
+        },
+        "public/scripts/sheet.js": {
+          "sha256": "0e478631a197185a5c49d6c27c3a158234a781120b057c02671fd7207ca38a68",
+          "cached_before": false
+        }
+      }
+    },
+    "inspect-final.json": {
+      "ok": true,
+      "sapi": "fpm-fcgi",
+      "pid": 789,
+      "opcache_start_time": 1793209094,
+      "operation": "inspect",
+      "files": {
+        "actions/sheets/_bootstrap.php": {
+          "sha256": "a3162d56ce78676fd5c39b02bebe269c7908648b0ebaaa528c5b0dde0d1a94de",
+          "cached_before": false
+        },
+        "actions/sheets/load.php": {
+          "sha256": "ab5bcb7249b879a5f82f69e5b8445646870f8c2f5ff2cf8e6b4b7a7467b65d8b",
+          "cached_before": false
+        },
+        "actions/sheets/save.php": {
+          "sha256": "213cb7992b465113486d9fae159e0e4aa0c0ad6f56d62840b2f33e112ebf7dfa",
+          "cached_before": false
+        },
+        "actions/sheets/snapshot.php": {
+          "sha256": "8d2aede31ac890bda94688d96d1ba9050fc725fae1932ca5664a6e4297188c4f",
+          "cached_before": false
+        },
+        "actions/sheets/restore.php": {
+          "sha256": "dec16351f208b81437d8cdcc93356814e2bcf25a6b6696141d7d219e5faacc37",
+          "cached_before": false
+        },
+        "public/scripts/sheet.js": {
+          "sha256": "0e478631a197185a5c49d6c27c3a158234a781120b057c02671fd7207ca38a68",
+          "cached_before": false
+        }
+      }
+    },
+    "rollback-checkpoint-1.json": {
+      "ok": true,
+      "pool": "www",
+      "start time": 1793209094,
+      "observer pid": 789,
+      "old active processes": 0,
+      "listen queue": 0,
+      "workers": [
+        788,
+        789,
+        929
+      ]
+    },
+    "rollback-checkpoint-2.json": {
+      "ok": true,
+      "pool": "www",
+      "start time": 1793209094,
+      "observer pid": 789,
+      "old active processes": 0,
+      "listen queue": 0,
+      "workers": [
+        788,
+        789,
+        929
+      ]
+    },
+    "rollback-checkpoint-3.json": {
+      "ok": true,
+      "pool": "www",
+      "start time": 1793209094,
+      "observer pid": 789,
+      "old active processes": 0,
+      "listen queue": 0,
+      "workers": [
+        788,
+        789,
+        929
+      ]
+    },
+    "rollback-guard-invalidate.json": {
+      "ok": true,
+      "sapi": "fpm-fcgi",
+      "pid": 788,
+      "opcache_start_time": 1793209094,
+      "operation": "invalidate",
+      "files": {
+        "actions/sheets/_bootstrap.php": {
+          "sha256": "6d05fafb00a069ca65d567ba1a4de0e771176e161d1cc6abb31134250fdeac8b",
+          "cached_before": false,
+          "cached_after": false
+        },
+        "actions/sheets/load.php": {
+          "sha256": "ab5bcb7249b879a5f82f69e5b8445646870f8c2f5ff2cf8e6b4b7a7467b65d8b",
+          "cached_before": true,
+          "cached_after": false
+        },
+        "actions/sheets/save.php": {
+          "sha256": "213cb7992b465113486d9fae159e0e4aa0c0ad6f56d62840b2f33e112ebf7dfa",
+          "cached_before": false,
+          "cached_after": false
+        },
+        "actions/sheets/snapshot.php": {
+          "sha256": "8d2aede31ac890bda94688d96d1ba9050fc725fae1932ca5664a6e4297188c4f",
+          "cached_before": false,
+          "cached_after": false
+        },
+        "actions/sheets/restore.php": {
+          "sha256": "dec16351f208b81437d8cdcc93356814e2bcf25a6b6696141d7d219e5faacc37",
+          "cached_before": false,
+          "cached_after": false
+        },
+        "public/scripts/sheet.js": {
+          "sha256": "0e478631a197185a5c49d6c27c3a158234a781120b057c02671fd7207ca38a68",
+          "cached_before": false
+        }
+      }
+    },
+    "rollback-invalidate.json": {
+      "ok": true,
+      "sapi": "fpm-fcgi",
+      "pid": 788,
+      "opcache_start_time": 1793209094,
+      "operation": "invalidate",
+      "files": {
+        "actions/sheets/_bootstrap.php": {
+          "sha256": "6d05fafb00a069ca65d567ba1a4de0e771176e161d1cc6abb31134250fdeac8b",
+          "cached_before": false,
+          "cached_after": false
+        },
+        "actions/sheets/load.php": {
+          "sha256": "c51293d01b983e4ff19b90c382c3268b9aaaaf668fd77c1a411e0cef7c781be6",
+          "cached_before": true,
+          "cached_after": false
+        },
+        "actions/sheets/save.php": {
+          "sha256": "1ab29541c03a7d2e2f92ab0f7656d47def63cced9fe3e03d06ef4459456039e4",
+          "cached_before": true,
+          "cached_after": false
+        },
+        "actions/sheets/snapshot.php": {
+          "sha256": "ed993a84a4ae836a814cf9acf57558d456388389415f6e1c92660dd325bff498",
+          "cached_before": true,
+          "cached_after": false
+        },
+        "actions/sheets/restore.php": {
+          "sha256": "abc3a7d6d40c6b17834fbeeb7b9df7cd32442c8ef67b87fa7c12f7d845ad90be",
+          "cached_before": true,
+          "cached_after": false
+        },
+        "public/scripts/sheet.js": {
+          "sha256": "67f6ef50fb25a85c27505505b25b88091dc9e6076d98cbfa4afc2b20ff4fa520",
+          "cached_before": false
+        }
+      }
+    }
+  },
+  "deployment_proxy_gauges": {
+    "proxy.checkpoint-1.metrics": "caddy_http_requests_in_flight{handler=\"subroute\",server=\"srv0\"} 0",
+    "proxy.checkpoint-2.metrics": "caddy_http_requests_in_flight{handler=\"static_response\",server=\"remaining_auto_https_redirects\"} 0\ncaddy_http_requests_in_flight{handler=\"subroute\",server=\"srv0\"} 0",
+    "proxy.checkpoint-3.metrics": "caddy_http_requests_in_flight{handler=\"static_response\",server=\"remaining_auto_https_redirects\"} 0\ncaddy_http_requests_in_flight{handler=\"subroute\",server=\"srv0\"} 0"
+  },
+  "initial_barrier_checks": [
+    "novixfin.cash load.php GET 503",
+    "novixfin.cash load.php HEAD 503",
+    "novixfin.cash load.php POST 503",
+    "novixfin.cash load.php PUT 503",
+    "novixfin.cash load.php PATCH 503",
+    "novixfin.cash load.php DELETE 503",
+    "novixfin.cash load.php OPTIONS 503",
+    "novixfin.cash save.php GET 503",
+    "novixfin.cash save.php HEAD 503",
+    "novixfin.cash save.php POST 503",
+    "novixfin.cash save.php PUT 503",
+    "novixfin.cash save.php PATCH 503",
+    "novixfin.cash save.php DELETE 503",
+    "novixfin.cash save.php OPTIONS 503",
+    "novixfin.cash snapshot.php GET 503",
+    "novixfin.cash snapshot.php HEAD 503",
+    "novixfin.cash snapshot.php POST 503",
+    "novixfin.cash snapshot.php PUT 503",
+    "novixfin.cash snapshot.php PATCH 503",
+    "novixfin.cash snapshot.php DELETE 503",
+    "novixfin.cash snapshot.php OPTIONS 503",
+    "novixfin.cash restore.php GET 503",
+    "novixfin.cash restore.php HEAD 503",
+    "novixfin.cash restore.php POST 503",
+    "novixfin.cash restore.php PUT 503",
+    "novixfin.cash restore.php PATCH 503",
+    "novixfin.cash restore.php DELETE 503",
+    "novixfin.cash restore.php OPTIONS 503",
+    "www.novixfin.cash load.php GET 503",
+    "www.novixfin.cash load.php HEAD 503",
+    "www.novixfin.cash load.php POST 503",
+    "www.novixfin.cash load.php PUT 503",
+    "www.novixfin.cash load.php PATCH 503",
+    "www.novixfin.cash load.php DELETE 503",
+    "www.novixfin.cash load.php OPTIONS 503",
+    "www.novixfin.cash save.php GET 503",
+    "www.novixfin.cash save.php HEAD 503",
+    "www.novixfin.cash save.php POST 503",
+    "www.novixfin.cash save.php PUT 503",
+    "www.novixfin.cash save.php PATCH 503",
+    "www.novixfin.cash save.php DELETE 503",
+    "www.novixfin.cash save.php OPTIONS 503",
+    "www.novixfin.cash snapshot.php GET 503",
+    "www.novixfin.cash snapshot.php HEAD 503",
+    "www.novixfin.cash snapshot.php POST 503",
+    "www.novixfin.cash snapshot.php PUT 503",
+    "www.novixfin.cash snapshot.php PATCH 503",
+    "www.novixfin.cash snapshot.php DELETE 503",
+    "www.novixfin.cash snapshot.php OPTIONS 503",
+    "www.novixfin.cash restore.php GET 503",
+    "www.novixfin.cash restore.php HEAD 503",
+    "www.novixfin.cash restore.php POST 503",
+    "www.novixfin.cash restore.php PUT 503",
+    "www.novixfin.cash restore.php PATCH 503",
+    "www.novixfin.cash restore.php DELETE 503",
+    "www.novixfin.cash restore.php OPTIONS 503"
+  ],
+  "final_barrier_checks": [
+    "novixfin.cash load.php GET 503",
+    "novixfin.cash load.php HEAD 503",
+    "novixfin.cash load.php POST 503",
+    "novixfin.cash load.php PUT 503",
+    "novixfin.cash load.php PATCH 503",
+    "novixfin.cash load.php DELETE 503",
+    "novixfin.cash load.php OPTIONS 503",
+    "novixfin.cash save.php GET 503",
+    "novixfin.cash save.php HEAD 503",
+    "novixfin.cash save.php POST 503",
+    "novixfin.cash save.php PUT 503",
+    "novixfin.cash save.php PATCH 503",
+    "novixfin.cash save.php DELETE 503",
+    "novixfin.cash save.php OPTIONS 503",
+    "novixfin.cash snapshot.php GET 503",
+    "novixfin.cash snapshot.php HEAD 503",
+    "novixfin.cash snapshot.php POST 503",
+    "novixfin.cash snapshot.php PUT 503",
+    "novixfin.cash snapshot.php PATCH 503",
+    "novixfin.cash snapshot.php DELETE 503",
+    "novixfin.cash snapshot.php OPTIONS 503",
+    "novixfin.cash restore.php GET 503",
+    "novixfin.cash restore.php HEAD 503",
+    "novixfin.cash restore.php POST 503",
+    "novixfin.cash restore.php PUT 503",
+    "novixfin.cash restore.php PATCH 503",
+    "novixfin.cash restore.php DELETE 503",
+    "novixfin.cash restore.php OPTIONS 503",
+    "www.novixfin.cash load.php GET 503",
+    "www.novixfin.cash load.php HEAD 503",
+    "www.novixfin.cash load.php POST 503",
+    "www.novixfin.cash load.php PUT 503",
+    "www.novixfin.cash load.php PATCH 503",
+    "www.novixfin.cash load.php DELETE 503",
+    "www.novixfin.cash load.php OPTIONS 503",
+    "www.novixfin.cash save.php GET 503",
+    "www.novixfin.cash save.php HEAD 503",
+    "www.novixfin.cash save.php POST 503",
+    "www.novixfin.cash save.php PUT 503",
+    "www.novixfin.cash save.php PATCH 503",
+    "www.novixfin.cash save.php DELETE 503",
+    "www.novixfin.cash save.php OPTIONS 503",
+    "www.novixfin.cash snapshot.php GET 503",
+    "www.novixfin.cash snapshot.php HEAD 503",
+    "www.novixfin.cash snapshot.php POST 503",
+    "www.novixfin.cash snapshot.php PUT 503",
+    "www.novixfin.cash snapshot.php PATCH 503",
+    "www.novixfin.cash snapshot.php DELETE 503",
+    "www.novixfin.cash snapshot.php OPTIONS 503",
+    "www.novixfin.cash restore.php GET 503",
+    "www.novixfin.cash restore.php HEAD 503",
+    "www.novixfin.cash restore.php POST 503",
+    "www.novixfin.cash restore.php PUT 503",
+    "www.novixfin.cash restore.php PATCH 503",
+    "www.novixfin.cash restore.php DELETE 503",
+    "www.novixfin.cash restore.php OPTIONS 503"
+  ],
+  "qa_result_unmodified": {
+    "utc": "2026-11-06T04:23:25.954810+00:00",
+    "checks": [
+      {
+        "check": "synthetic account via normal registration",
+        "passed": true,
+        "status": 200
+      },
+      {
+        "check": "login on novixfin.cash",
+        "passed": true,
+        "status": 200
+      },
+      {
+        "check": "initial empty sheet is JSON object map",
+        "passed": false,
+        "status": 200
+      }
+    ],
+    "synthetic_account": true,
+    "direct_sql_used": false
+  },
+  "failed_smoke_source_sha256": "6f32817e48b5eb4004cca7ff008e3b7b728ff20b8d2e515bd74f3dd62241a4f1",
+  "qa_response_body_retained": false,
+  "qa_empty_map_assertion_not_part_of_approved_http_contract": true,
+  "persistence_save_reload_test_executed": false,
+  "real_domain_revision_conflict_tests_executed": false,
+  "rollback_completed": true,
+  "final_utc": "2026-11-06T04:25:52Z",
+  "barrier_active": true,
+  "final_effective_version": "five original production files plus bootstrap entry guard",
+  "final_files": {
+    "actions/sheets/_bootstrap.php": {
+      "sha256": "6d05fafb00a069ca65d567ba1a4de0e771176e161d1cc6abb31134250fdeac8b",
+      "mode": "0o664",
+      "uid": 1000,
+      "gid": 1000
+    },
+    "actions/sheets/load.php": {
+      "sha256": "c51293d01b983e4ff19b90c382c3268b9aaaaf668fd77c1a411e0cef7c781be6",
+      "mode": "0o664",
+      "uid": 1000,
+      "gid": 1000
+    },
+    "actions/sheets/save.php": {
+      "sha256": "1ab29541c03a7d2e2f92ab0f7656d47def63cced9fe3e03d06ef4459456039e4",
+      "mode": "0o664",
+      "uid": 1000,
+      "gid": 1000
+    },
+    "actions/sheets/snapshot.php": {
+      "sha256": "ed993a84a4ae836a814cf9acf57558d456388389415f6e1c92660dd325bff498",
+      "mode": "0o664",
+      "uid": 1000,
+      "gid": 1000
+    },
+    "actions/sheets/restore.php": {
+      "sha256": "abc3a7d6d40c6b17834fbeeb7b9df7cd32442c8ef67b87fa7c12f7d845ad90be",
+      "mode": "0o664",
+      "uid": 1000,
+      "gid": 1000
+    },
+    "public/scripts/sheet.js": {
+      "sha256": "67f6ef50fb25a85c27505505b25b88091dc9e6076d98cbfa4afc2b20ff4fa520",
+      "mode": "0o664",
+      "uid": 1000,
+      "gid": 1000
+    }
+  },
+  "dirty_path_count": 117,
+  "only_deliberate_guard_differs_from_original_dirty_snapshot": true,
+  "other_116_original_contents_and_modes_preserved": true,
+  "all_22_service_generations_and_health_unchanged": true,
+  "final_services": {
+    "/orcivo_audit_minio_20261104": {
+      "id": "99328e22dc0694e1aa24d865069513a98d18f35bab668448556d45b9d4f2c343",
+      "started": "2026-11-04T22:40:16.331838417Z",
+      "restarts": 0,
+      "health": "unconfigured"
+    },
+    "/orcivo_audit_redis_20261104": {
+      "id": "b4778bdcbe898e054e9456439ff00ab1aa38e9ef472c4a57109738bdbc58663e",
+      "started": "2026-11-04T22:40:15.96278188Z",
+      "restarts": 0,
+      "health": "unconfigured"
+    },
+    "/orcivo_staging-web-1": {
+      "id": "12e8adfd6a886ab5497698e1657d5c21bbd9d24438e3cedf5bff2324758c11d4",
+      "started": "2026-11-04T19:28:48.356149873Z",
+      "restarts": 0,
+      "health": "healthy"
+    },
+    "/orcivo_staging-backend-1": {
+      "id": "7004f1f9830b7c5b1c7c74f3eff6147c1c20ae8040d297193dea72e8bbb980dc",
+      "started": "2026-11-04T19:28:42.577521751Z",
+      "restarts": 0,
+      "health": "healthy"
+    },
+    "/orcivo-web": {
+      "id": "7f0b4b04fc4bc7e24956f81aa661cc4350a11e452835f457fe4bc3cb1092dca9",
+      "started": "2026-11-04T16:58:12.49711213Z",
+      "restarts": 0,
+      "health": "healthy"
+    },
+    "/orcivo-site": {
+      "id": "74534fbaec4a81d231239a29087fa75f2921a1342e4604fd6f82a6f5fa679156",
+      "started": "2026-11-04T16:58:06.621795283Z",
+      "restarts": 0,
+      "health": "healthy"
+    },
+    "/orcivo-backend": {
+      "id": "fa74d08980b76d3ce7d51f7ed35eaeaf846fbc9caf9e3e51dbd2597557585452",
+      "started": "2026-11-04T16:58:06.625088522Z",
+      "restarts": 0,
+      "health": "healthy"
+    },
+    "/olivers-prod-web-1": {
+      "id": "aa26d96d7db72041fb5cd8e762d40bcca5239a61f1050a09a9fe5c1fabfe0879",
+      "started": "2026-11-01T03:09:49.092757662Z",
+      "restarts": 0,
+      "health": "healthy"
+    },
+    "/olivers-staging-web-1": {
+      "id": "69eb138b1851f002c61feac4e4d2b08b774dcda0a77959b7a349d3668da11cef",
+      "started": "2026-11-01T03:08:24.577946794Z",
+      "restarts": 0,
+      "health": "healthy"
+    },
+    "/orcivo_staging-minio-1": {
+      "id": "a5eec28046d0f28635f02f62f73d579036f2e8f2adc57dae0b6ebdc300e82d1a",
+      "started": "2026-10-31T22:07:22.480095736Z",
+      "restarts": 0,
+      "health": "healthy"
+    },
+    "/orcivo_staging-db-1": {
+      "id": "fa26037bdf6d80a41915e820c61a2362e0dcd5ab50fdb65ca339e368f1272fa1",
+      "started": "2026-10-31T21:58:37.643621203Z",
+      "restarts": 0,
+      "health": "healthy"
+    },
+    "/orcivo_staging-redis-1": {
+      "id": "b1e3fbc5ab9ee692c09a6339f28409149d502b91d3c48cf11f224688a73d948a",
+      "started": "2026-10-31T21:58:37.638636127Z",
+      "restarts": 0,
+      "health": "healthy"
+    },
+    "/olivers-prod-db-1": {
+      "id": "8359662e8eef14a0ba49e556a1bcaade789a5600bcf2d99d6f6581e01f69305c",
+      "started": "2026-10-28T19:39:23.541232661Z",
+      "restarts": 0,
+      "health": "healthy"
+    },
+    "/stack-umami-1": {
+      "id": "b10a0537ff9208bf459a8a1e5f179097a58d62fc54b6d3a7468bbfc8b0e69f63",
+      "started": "2026-10-28T17:38:11.703255825Z",
+      "restarts": 0,
+      "health": "unconfigured"
+    },
+    "/stack-caddy-1": {
+      "id": "896f35196afcaf5e0fc1695e5cfb64667816e6f322c5b9b94621a12552ec87dd",
+      "started": "2026-10-28T17:38:11.650698913Z",
+      "restarts": 0,
+      "health": "unconfigured"
+    },
+    "/stack-php-1": {
+      "id": "426e63dd2c9822ff98c3ae243a4da82c34d667782fffde94435434cdd26f0109",
+      "started": "2026-10-28T17:38:11.754640479Z",
+      "restarts": 0,
+      "health": "unconfigured"
+    },
+    "/stack-db-1": {
+      "id": "e17be1678182ca35542ae3bae928950cb102d50374ae9ce9d017073f75e47caf",
+      "started": "2026-10-28T17:38:11.712001545Z",
+      "restarts": 0,
+      "health": "unconfigured"
+    },
+    "/stack-n8n-1": {
+      "id": "7be51244949b38afa5fead7391eb32ee42f46b66646fd3ea6d2853b4747f76fc",
+      "started": "2026-11-01T01:57:09.248458522Z",
+      "restarts": 2,
+      "health": "unconfigured"
+    },
+    "/olivers-staging-db-1": {
+      "id": "fa9db55e085b56f79091299517aee50b7b7bc5fb3c6a06269cc84d165e35ece6",
+      "started": "2026-10-28T17:38:11.732526308Z",
+      "restarts": 0,
+      "health": "healthy"
+    },
+    "/orcivo-redis": {
+      "id": "93e5617d1364b1234195da2b66e8840fe6c8b7426100f4f781531131d4b8e16f",
+      "started": "2026-10-28T17:38:11.636182237Z",
+      "restarts": 0,
+      "health": "healthy"
+    },
+    "/orcivo-db": {
+      "id": "c89a9bce28d1465521025a237a8a8ef61d23df0bdaf6b6f3943671f258617521",
+      "started": "2026-10-28T17:38:11.708922909Z",
+      "restarts": 0,
+      "health": "healthy"
+    },
+    "/orcivo-minio": {
+      "id": "666bc2a34844b2e1e52bc1a18145c042bb9fbac97c840605e30c54b349bd2ed4",
+      "started": "2026-10-28T17:38:11.62596612Z",
+      "restarts": 0,
+      "health": "healthy"
+    }
+  },
+  "php_fpm_configuration_unchanged": true,
+  "php_fpm_configuration_sha256": "ba183662c97895b776e65c9c5d4b7d9ceec3bfbbcc3e6bdb1e1cb96177921d1c  /usr/local/etc/php-fpm.conf\n279516088deabe3b100af7f9a9b74d43b3ef83b76cbd9a13acc780eaeae697b3  /usr/local/etc/php-fpm.d/docker.conf\n595bc940ca67e888820f2b9e136c4c2a6d8a56e09dce334ddfcd21da4ce3f744  /usr/local/etc/php-fpm.d/www.conf\n5cd36dd72d998c1afca7bdeac43f2ea05b5703f2bff4d228bff5e37bf614a99e  /usr/local/etc/php-fpm.d/zz-docker.conf\n771ba206ba9f361b40c0712f6d0cd5be4d91283928f570de44cd2567782b153c  /usr/local/etc/php/conf.d/docker-fpm.ini\n07ffd2ee7f41ac6411e796515acd681c481321174bbe5c572519316d24e276cc  /usr/local/etc/php/conf.d/docker-php-ext-gd.ini\n55a03bbf548ef6e21736f6b17e18a55abc22c943aab9e20e92462236e7cfc4c7  /usr/local/etc/php/conf.d/docker-php-ext-mysqli.ini\n470eca5c249ff49762b95bf780da0eef6ce54383361fd1e8d5e83d7d21d1249d  /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini\n25772214784650c30ccc267eb382cb2cfb877066a8c80d46d8b0d1662c8ed20f  /usr/local/etc/php/conf.d/docker-php-ext-pdo_mysql.ini\n7abffacf19619858d58d75dc06157a04683b3c1a2dc3235a9bce4518cb06e777  /usr/local/etc/php/conf.d/docker-php-ext-sodium.ini\nd20a3618cc6270ae418be250a6666fa6e3d23bef7a8f5472bd10bf25bc462453  /usr/local/etc/php/conf.d/zz-prod.ini\n",
+  "caddy_final_sha256": "6e53926950e02c245b67bb91ec024ec1d7b2651cc12f34776870b919eb8b1106",
+  "final_memory": {
+    "MemAvailable": "    1753500 kB",
+    "SwapFree": "         839136 kB"
+  },
+  "fpm_reload_restart": false,
+  "direct_sql_or_migrations": false,
+  "database_restore": false,
+  "synthetic_account_and_initial_sheet_created_via_normal_application": true,
+  "real_user_sheet_used_by_agent": false,
+  "qa_credentials_included": false,
+  "merge_executed": false,
+  "post_rollback_redeployment_attempted": false,
+  "collector_notes": [
+    "Initial broad precheck incorrectly required lifetime restart count zero; n8n had two historical restarts with unchanged start since Nov 1. Protocol compares state before/after.",
+    "First shell setup transport had Windows CRLF and failed on set before any remote action; binary LF transport then executed unchanged approved package and gates."
+  ]
+}

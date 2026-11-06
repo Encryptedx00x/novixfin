@@ -28,6 +28,14 @@
     var undoStack = [];
     var redoStack = [];
     var saveTimer = null;
+    var revision = 0;
+    var savedRevision = 0;
+    var pendingWrites = 0;
+    var writeQueue = Promise.resolve();
+    var serverRevision = null;
+    var conflict = false;
+    var recoveryButton = null;
+    var recoveryText = null;
     var lastSnapshotAt = 0;
     var editing = null;
 
@@ -117,12 +125,62 @@
         el.status.appendChild(document.createTextNode(text));
     }
 
+    // A cópia inclui todas as abas e o conteúdo ainda aberto no editor.
+    function offerRecovery() {
+        if (recoveryButton || !el.screen) { return; }
+        recoveryButton = document.createElement('button');
+        recoveryButton.type = 'button';
+        recoveryButton.textContent = 'Copiar dados pendentes';
+        recoveryText = document.createElement('textarea');
+        recoveryText.setAttribute('aria-label', 'Dados pendentes para copiar');
+        recoveryText.hidden = true;
+        recoveryText.readOnly = true;
+        recoveryText.style.width = '100%';
+        recoveryText.rows = 8;
+        recoveryButton.addEventListener('click', function () {
+            var copy = JSON.parse(payload());
+            var tab = copy.tabs[state.active];
+            var ref = editing ? refOf(editing.r, editing.c) : refOf(sel.r, sel.c);
+            var value = editing ? editing.input.value : (document.activeElement === el.fx ? el.fx.value : null);
+            if (tab && value !== null) {
+                if (value === '') { delete tab.cells[ref]; } else { tab.cells[ref] = value; }
+            }
+            recoveryText.value = JSON.stringify(copy, null, 2);
+            recoveryText.hidden = false;
+            recoveryText.focus();
+            recoveryText.select();
+            status('Dados selecionados: copie antes de sair ou atualizar.', false);
+        });
+        el.status.parentNode.appendChild(recoveryButton);
+        el.screen.insertBefore(recoveryText, el.screen.children[1]);
+    }
+
     function post(url, data) {
         var body = new FormData();
         body.append('_token', window.NOVIX_CSRF_TOKEN || '');
         Object.keys(data).forEach(function (k) { body.append(k, data[k]); });
-        return fetch(url, { method: 'POST', body: body, credentials: 'same-origin' })
-            .then(function (res) { return res.json(); });
+        pendingWrites += 1;
+        var request = writeQueue.then(function () {
+            if (conflict) { throw new Error('Planilha alterada em outra página. Copie suas alterações antes de recarregar.'); }
+            if (!serverRevision) { throw new Error('Planilha ainda não carregada.'); }
+            body.append('_revision', serverRevision);
+            return fetch(url, { method: 'POST', body: body, credentials: 'same-origin' })
+                .catch(function () { throw new Error('Não foi possível confirmar o salvamento. Copie os dados pendentes'); })
+                .then(function (res) {
+                    return res.json().then(function (json) {
+                        if (res.status === 409) { conflict = true; }
+                        if (!res.ok || !json || !json.ok) { throw new Error((json && json.error) || 'Falha ao salvar'); }
+                        if (!json.revision) { throw new Error('Resposta de salvamento incompleta.'); }
+                        serverRevision = json.revision;
+                        return json;
+                    });
+                });
+        });
+        writeQueue = request.then(function () {}, function () {});
+        return request.then(function (result) { pendingWrites -= 1; return result; }, function (error) {
+            pendingWrites -= 1;
+            throw error;
+        });
     }
 
     // ------------------------------------------------------- HyperFormula
@@ -632,6 +690,7 @@
         input.value = seedFromKey === undefined ? rawAt(sel.r, sel.c) : seedFromKey;
         cell.appendChild(input);
         editing = { input: input, r: sel.r, c: sel.c };
+        input.addEventListener('input', function () { status('Alterações não salvas', true); });
         // Teclado virtual no mobile: garante que a célula em edição fique visível.
         cell.scrollIntoView({ block: 'nearest', inline: 'nearest' });
         input.focus();
@@ -689,6 +748,7 @@
     }
 
     function scheduleSave() {
+        revision += 1;
         if (saveTimer) { clearTimeout(saveTimer); }
         status('Alterações não salvas', true);
         saveTimer = setTimeout(save, AUTOSAVE_MS);
@@ -696,16 +756,28 @@
 
     function save() {
         saveTimer = null;
+        var savingRevision = revision;
+        var content = payload();
         status('Salvando…', true);
-        post('/actions/sheets/save.php', { content: payload() })
+        post('/actions/sheets/save.php', { content: content })
             .then(function (res) {
-                if (res && res.ok) { status('Salvo às ' + res.saved_at, false); }
-                else { status((res && res.error) || 'Falha ao salvar', false); }
+                savedRevision = Math.max(savedRevision, savingRevision);
+                if (revision === savingRevision && !hasEditorChanges()) { status('Salvo às ' + res.saved_at, false); }
             })
-            .catch(function () { status('Sem conexão — não salvo', false); });
+            .catch(function (error) {
+                offerRecovery();
+                if (revision === savingRevision) { status((error.message || 'Sem conexão') + ' — não salvo', false); }
+            });
+    }
+
+    function hasEditorChanges() {
+        return (editing && editing.input.value !== rawAt(editing.r, editing.c)) ||
+            (el.fx && document.activeElement === el.fx && el.fx.value !== rawAt(sel.r, sel.c));
     }
 
     function snapshot() {
+        if (editing) { closeEditor(true); }
+        if (document.activeElement === el.fx) { setCell(sel.r, sel.c, el.fx.value); }
         var now = Date.now();
         if (now - lastSnapshotAt < SNAPSHOT_MIN_INTERVAL) {
             var mins = Math.ceil((SNAPSHOT_MIN_INTERVAL - (now - lastSnapshotAt)) / 60000);
@@ -713,25 +785,30 @@
             return;
         }
         lastSnapshotAt = now;
+        var snapshotRevision = revision;
         status('Criando marco…', true);
         post('/actions/sheets/snapshot.php', { content: payload(), label: 'Marco salvo' })
             .then(function (res) {
                 if (res && res.ok) {
                     state.versions = res.versions || [];
                     renderVersions();
-                    status('Marco criado às ' + res.saved_at, false);
+                    savedRevision = Math.max(savedRevision, snapshotRevision);
+                    if (revision === snapshotRevision && !hasEditorChanges()) { status('Marco criado às ' + res.saved_at, false); }
                 } else {
                     lastSnapshotAt = 0;
                     status((res && res.error) || 'Falha ao criar marco', false);
                 }
             })
-            .catch(function () {
+            .catch(function (error) {
                 lastSnapshotAt = 0;
-                status('Sem conexão — marco não criado', false);
+                offerRecovery();
+                status((error.message || 'Sem conexão') + ' — marco não criado', false);
             });
     }
 
     function restoreVersion(versionId) {
+        if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; save(); }
+        var restoreRevision = revision;
         status('Restaurando…', true);
         post('/actions/sheets/restore.php', { version_id: versionId })
             .then(function (res) {
@@ -739,18 +816,23 @@
                     status((res && res.error) || 'Falha ao restaurar', false);
                     return;
                 }
-                pushUndo();
-                adoptContent(res.content);
+                if (revision === restoreRevision && !hasEditorChanges()) {
+                    pushUndo();
+                    adoptContent(res.content);
+                    savedRevision = revision;
+                } else {
+                    scheduleSave();
+                }
                 if (el.histMenu) { el.histMenu.hidden = true; }
-                status('Versão restaurada', false);
+                if (revision === restoreRevision) { status('Versão restaurada', false); }
             })
-            .catch(function () { status('Sem conexão — não restaurado', false); });
+            .catch(function (error) { offerRecovery(); status((error.message || 'Sem conexão') + ' — não restaurado', false); });
     }
 
     function adoptContent(content) {
         var tabs = (content && Array.isArray(content.tabs)) ? content.tabs : [];
         state.tabs = tabs.map(function (t) {
-            return { name: String(t.name || 'Página'), cells: (t.cells && typeof t.cells === 'object') ? t.cells : {} };
+            return { name: String(t.name || 'Página'), cells: (t.cells && typeof t.cells === 'object' && !Array.isArray(t.cells)) ? t.cells : {} };
         });
         if (!state.tabs.length) { state.tabs = [{ name: 'Página 1', cells: {} }]; }
         state.active = 0;
@@ -770,10 +852,13 @@
                     return;
                 }
                 state.id = res.id;
+                if (!res.revision) { status('Falha ao carregar a versão da planilha', false); return; }
+                serverRevision = res.revision;
                 state.versions = res.versions || [];
                 adoptContent(res.content);
                 renderVersions();
                 syncUndoButtons();
+                if (el.screen) { el.screen.inert = false; }
                 status(res.updated_at ? 'Salvo em ' + res.updated_at : 'Pronto', false);
             })
             .catch(function () { status('Sem conexão', false); });
@@ -796,6 +881,8 @@
 
             var r = parseInt(cell.dataset.r, 10);
             var c = parseInt(cell.dataset.c, 10);
+            // O mousedown muda a seleção antes de o input perder o foco.
+            if (document.activeElement === el.fx) { setCell(sel.r, sel.c, el.fx.value); }
 
             if (ev.shiftKey) {
                 selEnd = { r: r, c: c };       // Shift+clique estende
@@ -862,6 +949,10 @@
         });
 
         if (el.fx) {
+            el.fx.addEventListener('input', function () { status('Alterações não salvas', true); });
+            el.fx.addEventListener('blur', function () {
+                setCell(sel.r, sel.c, el.fx.value);
+            });
             el.fx.addEventListener('keydown', function (ev) {
                 if (ev.key === 'Enter') {
                     ev.preventDefault();
@@ -918,6 +1009,7 @@
         document.addEventListener('copy', function (ev) {
             var scope = document.querySelector('.sheet-screen');
             if (!scope || !scope.contains(document.activeElement)) { return; }
+            if (document.activeElement === recoveryText || document.activeElement === el.fx) { return; }
             if (editing) { return; }
             ev.preventDefault();
             var g = normRange();
@@ -930,6 +1022,7 @@
         document.addEventListener('paste', function (ev) {
             var scope = document.querySelector('.sheet-screen');
             if (!scope || !scope.contains(document.activeElement)) { return; }
+            if (document.activeElement === recoveryText || document.activeElement === el.fx) { return; }
             if (editing) { return; }
             ev.preventDefault();
             var text = ev.clipboardData ? ev.clipboardData.getData('text/plain') : '';
@@ -942,6 +1035,7 @@
             if (!(ev.ctrlKey || ev.metaKey)) { return; }
             var scope = document.querySelector('.sheet-screen');
             if (!scope || !scope.contains(document.activeElement)) { return; }
+            if (document.activeElement === recoveryText) { return; }
             var k = ev.key.toLowerCase();
             if (k === 's') { ev.preventDefault(); snapshot(); }
             // Ctrl+Shift+Z é o "refazer" do resto do mundo (e o único no
@@ -951,17 +1045,23 @@
             else if (k === 'y') { ev.preventDefault(); redo(); }
         });
 
-        // Autosave pendente não pode se perder ao sair da página.
-        window.addEventListener('beforeunload', function () {
-            if (saveTimer) {
-                clearTimeout(saveTimer);
-                saveTimer = null;
-                var body = new FormData();
-                body.append('_token', window.NOVIX_CSRF_TOKEN || '');
-                body.append('content', payload());
-                if (navigator.sendBeacon) {
-                    navigator.sendBeacon('/actions/sheets/save.php', body);
-                }
+        window.addEventListener('online', function () {
+            if (!conflict && revision > savedRevision && !saveTimer) { save(); }
+        });
+
+        document.addEventListener('visibilitychange', function () {
+            if (document.visibilityState !== 'hidden') { return; }
+            if (editing) { closeEditor(true); }
+            if (document.activeElement === el.fx) { setCell(sel.r, sel.c, el.fx.value); }
+            if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; save(); }
+        });
+
+        // A saída pode cancelar requisições: peça confirmação enquanto houver trabalho pendente.
+        window.addEventListener('beforeunload', function (event) {
+            if (revision > savedRevision || pendingWrites || hasEditorChanges()) {
+                event.preventDefault();
+                event.returnValue = '';
+                return '';
             }
         });
     }
@@ -969,6 +1069,7 @@
     document.addEventListener('DOMContentLoaded', function () {
         el = {
             grid: document.getElementById('sheetGrid'),
+            screen: document.querySelector('.sheet-screen'),
             fx: document.getElementById('sheetFx'),
             ref: document.getElementById('sheetRef'),
             tabs: document.getElementById('sheetTabs'),
@@ -981,6 +1082,7 @@
             addTab: document.getElementById('sheetAddTab')
         };
         if (!el.grid) { return; } // página sem o Modo Planilha
+        if (el.screen) { el.screen.inert = true; }
 
         if (!window.HyperFormula) {
             status('Motor de cálculo indisponível', false);
