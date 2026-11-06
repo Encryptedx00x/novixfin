@@ -1,5 +1,7 @@
 # PR #1 — preparação para produção (2026-11-05)
 
+> Procedimento vigente: `reports/sheets_first_transition_2026-11-05.md`, com sonda nativa e trava PHP, sem reload FPM. A execução ainda requer manutenção encerrada, pré-condições e autorização.
+
 Este relatório substitui as limitações e o procedimento do relatório de 04/11: revisão agora é obrigatória, inclusive para clientes antigos.
 
 ## Revisão e validação

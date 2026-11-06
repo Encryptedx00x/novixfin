@@ -7,6 +7,8 @@ import hashlib, http.client, io, json, os, pathlib, shutil, socket, stat, struct
 
 ROOT=pathlib.Path(__file__).resolve().parents[2]
 assert os.environ.get('NOVIXFIN_LOCAL_LAB')=='YES', 'Explicit local-lab opt-in required'
+if os.environ.get('LAB_BOOTSTRAP')=='YES':
+    raise SystemExit('Rejected historical mode: do not repeat the FPM reload experiment. Use LAB_STATUS_FUNCTION=YES.')
 assert os.environ.get('DOCKER_HOST','unix:///var/run/docker.sock')=='unix:///var/run/docker.sock', 'Remote Docker is forbidden'
 endpoint=subprocess.check_output(['docker','context','inspect','--format','{{.Endpoints.docker.Host}}'],text=True).strip()
 assert endpoint=='unix:///var/run/docker.sock', 'Only the local Linux Docker socket is permitted'

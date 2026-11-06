@@ -1509,3 +1509,5 @@ internas estiverem reskinadas — mexer agora arriscaria Entrada/Landing já ent
 - Auditoria/FPM concluídos em laboratório; relatório vigente reports/sheets_final_audit_and_fpm_2026-11-05.md. Primeiro corte na VPS e estabilização da manutenção ainda não comprovados; NO-GO.
 
 - Primeira transição sem reload: sonda nativa + trava PHP e drenagens sucessivas; ver reports/checkpoint_sheets_first_transition_2026-11-05.md. Ensaio passou; produção não alterada.
+
+- GO técnico para protocolo ensaiado sem reload FPM, condicionado às pré-condições. NO-GO para execução enquanto manutenção não confirmada estável/sem autorização. Runbook vigente: reports/sheets_first_transition_2026-11-05.md.

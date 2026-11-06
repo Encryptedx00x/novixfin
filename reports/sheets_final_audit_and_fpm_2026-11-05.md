@@ -1,5 +1,7 @@
 # Auditoria final e PHP-FPM — 2026-11-05
 
+> Atualização: o protocolo vigente sem reload está em `reports/sheets_first_transition_2026-11-05.md`. O bootstrap por reload descrito abaixo permanece reprovado e não foi repetido.
+
 **NO-GO para a VPS atual.** A correção funcional está aprovada no escopo auditado. A drenagem com observação previamente instalada e a invalidação efetiva de OPcache foram comprovadas em PHP-FPM Linux. O primeiro corte da instalação atual, sem status e sem observador preexistente de todos os trabalhos, continua sem procedimento comprovadamente seguro. O reload gracioso usado para instalar o status foi REPROVADO no controle negativo com trabalho após resposta. Não foi executada nenhuma operação de escrita na VPS, nenhum deploy ou merge; a manutenção de armazenamento Orcivo não foi tratada como concluída por inferência.
 
 Este documento substitui as recomendações operacionais anteriores quando houver divergência. O teste PHP-CGI anterior não é usado como prova de OPcache do FPM.

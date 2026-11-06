@@ -312,3 +312,6 @@
 
 ## Operação de planilhas — FPM real 2026-11-05
 - Observar proxy e FPM antes das requisições relevantes; Finishing e fila impedem troca. Invalidação deve ocorrer no FPM com prova comportamental. Reload gracioso durante trabalho pós-resposta perdeu 2/2 gravações no laboratório: não usar como prova de drenagem ou bootstrap aprovado. Relatório vigente em reports/sheets_final_audit_and_fpm_2026-11-05.md.
+
+## Primeira transição — protocolo vigente 2026-11-05
+- fpm_get_status() consulta o pool existente sem pm.status_path/reload. Excluir somente o PID da sonda validada; saturação é aborto, não ociosidade. Trava temporária no bootstrap + drenagem após invalidação protege contra admissões tardias; manter trava no rollback legado. Ver reports/sheets_first_transition_2026-11-05.md.
