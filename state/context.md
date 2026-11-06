@@ -318,3 +318,6 @@
 
 ## Preflight readonly — 2026-11-05 local / 06 UTC
 - VPS PHP 8.3.36, pool www dynamic/max5 (lab static5), OPcache com timestamps e proteção de atualização 2s, Caddy 2.11.4 sem métrica HTTP ativa. Seis hashes e backup correspondem; 117 entradas sujas preservadas. Sonda nativa está no binário, mas diretório privado/consulta no FPM vivo pendentes de autorização específica de escrita; não tratar compatibilidade estática como execução comprovada. Decisão e comandos em reports/sheets_production_preflight_2026-11-05.md.
+
+## Sonda viva aprovada — 2026-11-06
+- Instalação mínima autorizada e uma consulta status comprovadas após manutenção de swap encerrada: controls em /srv/sites/.novixfin-deploy/probe-20261106T040503Z, root:33, dirs750/files640, sem manifesto. Preservar chave, nunca versioná-la. Pool www, geração1793209094, workers788/789/929, somente observador789 Running e fila0. GO para agendamento; nenhum deploy/barreira/reload/invalidação/SQL. Ver reports/sheets_probe_approved_2026-11-06.md e comandos externos atualizados; package antigo imutável tem documentação histórica.

@@ -1,5 +1,7 @@
 # Preflight de produção — NovixFin, candidato ccf9ef8
 
+> Atualização de 06/11: manutenção encerrada e sonda privada instalada/consultada com sucesso, sem reload. O gate abaixo foi superado; decisão atual **APTO PARA AGENDAR PUBLICAÇÃO**, em `sheets_probe_approved_2026-11-06.md`. Este relatório preserva a fotografia anterior, sem reescrever suas evidências.
+
 Inspeção de 05/11/2026 às 23:39 até 06/11 às 00:11, horário de São Paulo (06/11, 02:39–03:11 UTC). O nome do artefato conserva a data inicial. Escopo: leitura na VPS e preparação local. Nenhuma barreira, sonda instalada, invalidação de cache, reload, configuração alterada, deploy, merge ou escrita SQL.
 
 ## Decisão

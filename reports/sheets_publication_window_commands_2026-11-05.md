@@ -1,41 +1,40 @@
 # Comandos preparados — executar somente com autorização separada
 
-Complementa `sheets_first_transition_2026-11-05.md` e o preflight de produção. Candidato funcional fixado em `ccf9ef8`. **Nada abaixo foi executado na VPS.** Não executar todo o documento de uma vez; cada checkpoint é um gate manual. Falha depois da ativação deixa a contenção ativa.
+Complementa `sheets_first_transition_2026-11-05.md` e o preflight de produção. Candidato funcional fixado em `ccf9ef8`. Em 06/11 foram instalados exclusivamente os dois utilitários privados e a chave; uma consulta `status` foi aprovada. Ver `sheets_probe_approved_2026-11-06.md`. **Os comandos de publicação abaixo não foram executados nem estão autorizados.** Não executar todo o documento de uma vez; cada checkpoint é um gate manual. Falha depois da ativação deixa a contenção ativa.
 
-## 0. Preparação privada, sem publicação
+## 0. Reutilizar a sonda validada; preparar o restante somente na janela autorizada
 
-Esta etapa exige autorização de escrita própria, mesmo sem modificar aplicação/configuração. O pacote e seu `.sha256` estão em `outputs` desta conversa. Transferir ambos para o HOME do usuário SSH apenas depois de autorizar. O hash esperado é o do arquivo local aprovado; não confiar só em checksum transferido pelo mesmo canal.
+A instalação mínima já existe em `/srv/sites/.novixfin-deploy/probe-20261106T040503Z/controls`, sem manifesto, barreira ou candidatos. Não repetir a instalação nem gerar outra chave agora. O pacote e seu `.sha256` estão em `outputs` desta conversa; são imutáveis e mantêm os documentos históricos de preparação. Para a próxima janela, prevalece este documento atualizado. Transferir o pacote somente após autorização adicional. O hash esperado é o do arquivo local aprovado; não confiar só em checksum transferido pelo mesmo canal.
 
 ```powershell
-# No computador local, depois da autorização da preparação privada:
+# No computador local, somente depois da autorização da futura janela:
 $out = 'C:\Users\Encryptedx\Documents\Codex\2026-11-04\trabalhe-em-uma-tarefa-por-vez\outputs'
 scp "$out\novixfin-preflight-ccf9ef8-20261105.tar.gz" "$out\novixfin-preflight-ccf9ef8-20261105.tar.gz.sha256" ovh:
 ssh ovh
 ```
 
-Dentro de shell root autorizado (`sudo -i`), conferir o hash com o valor local antes de extrair. O diretório de execução deve ser novo. Mounts/UID 33:33 e diretórios foram verificados no preflight; qualquer mudança exige parar.
+Dentro de shell root autorizado (`sudo -i`), conferir o hash com o valor local antes de extrair. Reutilizar os controles já verificados, preservando a chave. O pacote não contém chave e a extração não sobrescreve arquivos existentes. Mounts/UID 33:33 e diretórios foram verificados no preflight; qualquer mudança exige parar.
 
 ```sh
 set -euo pipefail
 umask 077
 SITE=/srv/sites/novixfin
-OPS=/srv/sites/.novixfin-deploy/preflight-ccf9ef8-20261105
+OPS=/srv/sites/.novixfin-deploy/probe-20261106T040503Z
 BUNDLE=/home/ubuntu/novixfin-preflight-ccf9ef8-20261105.tar.gz
 cd /home/ubuntu
 sha256sum -c novixfin-preflight-ccf9ef8-20261105.tar.gz.sha256
-test ! -e "$OPS"
+test -d "$OPS/controls"
+test -f "$OPS/controls/control.key"
+test ! -e "$OPS/candidate"
 test ! -L /srv/sites/.novixfin-deploy
-install -d -o root -g 33 -m 0750 /srv/sites/.novixfin-deploy
-install -d -o root -g 33 -m 0750 "$OPS"
-tar --no-same-owner -xzf "$BUNDLE" -C "$OPS"
+echo '30e3a0a5d2eb0cfb003d66c4527918aa33c1bedd7b64f9761c36163932c35058  /srv/sites/.novixfin-deploy/probe-20261106T040503Z/controls/fpm_request.php' | sha256sum -c -
+echo 'f0b833e53c31b2f07007c46d48b62811e7944539c533372d59518a6748009411  /srv/sites/.novixfin-deploy/probe-20261106T040503Z/controls/fpm_sheets_admin.php' | sha256sum -c -
+tar --skip-old-files --no-same-owner -xzf "$BUNDLE" -C "$OPS"
 (cd "$OPS"; sha256sum -c payload.sha256)
 test -z "$(find "$OPS" -type l -print -quit)"
 chown -R root:33 "$OPS"
 find "$OPS" -type d -exec chmod 0750 {} +
 find "$OPS" -type f -exec chmod 0640 {} +
-openssl rand -hex 32 > "$OPS/controls/control.key"
-chown root:33 "$OPS/controls/control.key"
-chmod 0640 "$OPS/controls/control.key"
 ```
 
 Não criar script público. Não colocar o segredo na linha de comando: só seu caminho. Definir funções na sessão autorizada:
@@ -79,7 +78,7 @@ ctl status > "$OPS/pool.baseline.tmp"
 mv -T "$OPS/pool.baseline.tmp" "$OPS/pool.baseline.json"
 ```
 
-**PARAR AQUI no encerramento do preflight.** Examinar o JSON: `ok=true`, SAPI FPM, pool `www`, geração/identidades completas, PID da própria sonda em Running. Baseline não prova ociosidade; pode conter trabalho antigo. A sonda deve responder sem alteração de configuração/reload. Erro, saturação ou campos incompletos: manter NO-GO. O timeout pode deixar consulta somente leitura enfileirada; não trocar arquivos nem reiniciar workers.
+Esta coleta nova de baseline é **somente para a futura janela autorizada**; não repetir a consulta de 06/11 nesta etapa. Examinar o JSON: `ok=true`, SAPI FPM, pool `www`, geração/identidades completas, PID da própria sonda em Running. Baseline não prova ociosidade; pode conter trabalho antigo. A sonda deve responder sem alteração de configuração/reload. Erro, saturação ou campos incompletos: manter NO-GO. O timeout pode deixar consulta somente leitura enfileirada; não trocar arquivos nem reiniciar workers.
 
 ## 1. Janela de publicação — autorização expressa adicional
 
