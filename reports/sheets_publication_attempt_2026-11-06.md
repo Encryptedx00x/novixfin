@@ -1,5 +1,7 @@
 # Publicação interrompida; planilhas em contenção HTTP 503 — 06/11/2026
 
+> Atualização posterior: recuperação autorizada concluída em 06/11 às 07:01 de Brasília, com QA posterior HTTP/Chrome aprovada. Planilhas disponíveis; relatório vigente `sheets_recovery_completed_2026-11-06.md`. A falha e o rollback desta primeira tentativa abaixo permanecem como evidência histórica.
+
 **Publicação funcional NÃO concluída. Planilhas temporariamente indisponíveis nos dois hosts.** O candidato `ccf9ef8` foi aplicado, os três checkpoints e as invalidações FPM passaram, mas a QA posterior foi interrompida. Conforme a autorização, foi executado rollback de contenção: cinco originais restaurados, bootstrap de trava e barreira HTTP mantidos. Não reabrir o backend legado.
 
 ## Resultado objetivo

@@ -324,3 +324,6 @@
 
 ## Produção em contenção após tentativa — 2026-11-06
 - Marcador /srv/sites/.novixfin-deploy/sheets.pause ATIVO. Manifesto controls/sheets-manifest.json agora rollback-guard; cinco arquivos originais restaurados, bootstrap 503 SHA6d05fafb00a069ca65d567ba1a4de0e771176e161d1cc6abb31134250fdeac8b. Não restaurar bootstrap legado/reabrir. Três checkpoints da troca e três do rollback passaram; QA parou por premissa extra incorreta do smoke sobre células vazias HTTP, sem prova de regressão de persistência. Reter falha, alinhar QA ao contrato homologado e obter decisão de retomada. Ver reports/sheets_publication_attempt_2026-11-06.md. Dados preservados; nenhum merge/SQL direto/restart FPM.
+
+## Recuperação concluída e estado vigente — 2026-11-06
+- Marcador sheets.pause AUSENTE; manifesto candidate; seis arquivos funcionais exatos ccf9ef8 publicados. Registros isolados em /srv/sites/.novixfin-deploy/probe-20261106T040503Z/recovery-20261106T095913Z. Três checkpoints e invalidações FPM PASS, QA31 HTTP+17 Chrome PASS; células vazias podem ser [] no HTTP e são normalizadas pelo frontend (comprovado em aba vazia real). Mesma identidade QA, com conta financeira de saldo zero requerida pelo onboarding. Estados anteriores acima são históricos: produção disponível nos dois hosts, sem merge/restart/SQL direto. Ver reports/sheets_recovery_completed_2026-11-06.md.
